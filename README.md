@@ -120,3 +120,5 @@ TODO:
 * More deployment types, if / when they come up
 * Order of operations.
   * For example, perhaps you have an 'archive file' deployment type, and you want to run that first, deploy the resulting archive as another deployment type.
+
+Thanks to Scott Muc's [PowerYaml](https://github.com/scottmuc/PowerYaml), which we borrow for YAML parsing, and Boe Prox' [Get-FileHash](http://learn-powershell.net/2013/03/25/use-powershell-to-calculate-the-hash-of-a-file/), which we borrow for downlevel hash support in the deployment scripts.
