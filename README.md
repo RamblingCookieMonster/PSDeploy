@@ -1,7 +1,7 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/ntgl2679yn4g4m2b/branch/master?svg=true)](https://ci.appveyor.com/project/RamblingCookieMonster/psdeploy/branch/master)
+
 PSDeploy
 ========
-
-## Overview
 
 PSDeploy is a quick and dirty module to simplify distribution of files and folders. This is very much a work-in-progress.
 
