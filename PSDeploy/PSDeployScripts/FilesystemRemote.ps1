@@ -11,6 +11,9 @@
             - Use a delegated endpoint
             - CredSSP authentication
 
+        Deployment Options:
+           If Mirror is 'True' and the source is a folder, we effectively call robocopy /MIR (Can remove folders/files...)
+
     .PARAMETER Deployment
         Deployment to run
 

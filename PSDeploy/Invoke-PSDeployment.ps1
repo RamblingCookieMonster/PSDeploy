@@ -62,10 +62,16 @@
         about_PSDeploy
 
     .LINK
+        https://github.com/RamblingCookieMonster/PSDeploy
+    
+    .LINK
         Get-PSDeployment
 
     .LINK
         Get-PSDeploymentType
+
+    .LINK
+        Get-PSDeploymentScript
     #>
     [cmdletbinding( DefaultParameterSetName = 'Map',
                     SupportsShouldProcess = $True,
@@ -75,7 +81,7 @@
                     ParameterSetName='Map',
                     Mandatory = $True)]
         [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
-        [psobject[]]$Deployment,
+        [psobject]$Deployment,
 
         [validatescript({Test-Path -Path $_ -PathType Leaf -ErrorAction Stop})]
         [parameter( ParameterSetName='File',

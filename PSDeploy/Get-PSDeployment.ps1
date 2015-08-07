@@ -13,7 +13,7 @@
             DeploymentType    = Type of deployment, must be defined in PSDeploy.yml
             DeploymentOptions = Options for this deploymenttype
             LocalSource       = Path to source from the local machine
-            RemoteSource      = Programatically defined UNC path to source
+            RemoteSource      = Programatically determined UNC path to source
             SourceType        = Directory or file
             SourceExists      = Whether we can test path against the local source
             Targets           = One or more targets to deploy to.
@@ -43,6 +43,9 @@
 
     .LINK
         about_PSDeploy
+
+    .LINK
+        https://github.com/RamblingCookieMonster/PSDeploy
 
     .LINK
         Invoke-PSDeployment

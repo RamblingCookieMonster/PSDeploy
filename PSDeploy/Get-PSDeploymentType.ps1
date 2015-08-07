@@ -38,6 +38,9 @@
         about_PSDeploy
 
     .LINK
+        https://github.com/RamblingCookieMonster/PSDeploy
+
+    .LINK
         Invoke-PSDeployment
 
     .LINK
