@@ -1,0 +1,12 @@
+# This defines deployments. Feel free to create your own
+# Top level node is the deployment name
+#   Script is the script to run. These are stored in \PSDeploy\PSDeployDefinitions
+#   Description is a quick description of the deployment script
+
+Filesystem:
+  Script: Filesystem.ps1
+  Description: Uses the current session and Robocopy or Copy-Item for folder and file deployments, respectively.
+
+FilesystemRemote:
+  Script: FilesystemRemote.ps1
+  Description: Uses a PowerShell remoting endpoint and Robocopy or Copy-Item for folder and file deployments, respectively.

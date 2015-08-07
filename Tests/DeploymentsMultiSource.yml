@@ -1,0 +1,12 @@
+Files:
+  Author: 'wframe'
+  Source:
+    - 'Modules\File1.ps1'
+    - 'Modules\File2.ps1'
+    - 'Modules\CrazyModule'
+  Destination:
+    - '\\contoso.org\share$\PowerShell\'
+  Deployment:
+    Type: FilesystemRemote
+    Mirror: False
+    

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Configuration>
+    <ViewDefinitions>
+        <View>
+            <Name>Default</Name>
+            <ViewSelectedBy>
+                <TypeName>PSDeploy.Deployment</TypeName>
+            </ViewSelectedBy>
+            <ListControl>
+                <ListEntries>
+                    <ListEntry>
+                        <ListItems>
+                            <ListItem>
+                                <PropertyName>LocalSource</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <PropertyName>DeploymentType</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <PropertyName>Mirror</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <Label>Targets</Label>
+                                <ScriptBlock>$_.Targets | Out-String</ScriptBlock>
+                            </ListItem>
+                        </ListItems>
+                    </ListEntry>
+                </ListEntries>
+            </ListControl>
+        </View>
+    </ViewDefinitions>
+</Configuration>
+

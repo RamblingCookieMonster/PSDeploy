@@ -1,0 +1,32 @@
+Misc:
+  Author: 'wframe'
+  Source:
+    - 'Modules'
+  Destination:
+    - '\\contoso.org\share$\PowerShell'
+  Deployment:
+    Type: FilesystemRemote
+    Mirror: False
+
+Files:
+  Author: 'wframe'
+  Source:
+    - 'Modules\File1.ps1'
+    - 'Modules\File2.ps1'
+  Destination:
+    - '\\contoso.org\share$\PowerShell\'
+  Deployment:
+    Type: FilesystemRemote
+    Mirror: False
+
+ActiveDirectory:
+  Author: 'wframe'
+  Source:
+    - 'Modules\CrazyModule'
+  Destination:
+    - '\\contoso.org\share$\PowerShell\Modules\CrazyModule'
+    - '\\some.dev.pc.contoso.org\c$\sc\CrazyModule'
+  Deployment:
+    Type: Filesystem
+    Mirror: True
+    

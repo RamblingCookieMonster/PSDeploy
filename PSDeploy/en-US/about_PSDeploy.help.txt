@@ -1,0 +1,143 @@
+TOPIC
+    about_PSDeploy
+
+SHORT DESCRIPTION
+    PSDeploy is a module to simplify deployments
+
+LONG DESCRIPTION
+    PSDeploy is a module to simplify deployments, targeted at
+    continuous integration and delivery scenarios.
+
+DETAILED DESCRIPTION
+    PSDeploy is a module to simplify deployments, targeted at
+    continuous integration and delivery scenarios.
+
+    Terminology and concepts
+    ========================
+    There are three primary concepts:
+
+        Deployment:         These are yaml files defining what is being deployed.
+                            They might have a source, a destination, and options for specific types of deployment
+
+        Deployment Type:    These define how to actually deploy something.
+                            Each type is associated with a script.
+                            The default types are FileSystem and FileSystemRemote. This is extensible.
+
+        Deployment Script:  These are scripts associated to a particular deployment type.
+                            All should accept a 'Deployment' parameter.
+                            For example, the FileSystem script uses robocopy or copy-item to deploy folders and files, respectively.
+
+    Conventions
+    ===========
+    These could change. See TODOs at the end of this help file.
+
+        The deployment yml is assumed to be relative to source files. For example:
+            If the path is C:\Whatever\deployment.yml,
+            and a source points to 'Modules\MyModules',
+            this would mean C:\Whatever\Modules\MyModules.
+            You can override this with the DeploymentRoot
+            parameter on Get-PSDeployment
+
+        The deployment scripts can accept parameters. To pass these in,
+            read up on the Invoke-PSDeployment parameter 'DeploymentParameters'
+            Long story short, this is a hash table defined as:
+                @{ <DeploymentType> = @{<HashTableOfParametersToSplat>} }
+
+            For example:
+                -DeploymentParameters @{ FilesystemRemote = @{ComputerName = 'Server1'}}
+
+                The deployment script for FilesystemRemote would receive -ComputerName 'Server1'
+
+    Example use
+    ===========
+    A typical use case would work as follows:
+
+        I want to deploy C:\Git\MyModuleRepo\MyModule to \\Server\Modules
+
+        C:\Git\MyModuleRepo\deployments.yml looks like this:
+
+            MyModuleDeployment:
+              Author: 'wframe'
+              Source:
+                - 'MyModule'
+              Destination:
+                - '\\Server\Modules'
+              Deployment:
+                Type: Filesystem
+                Mirror: True
+
+        # I can view deployment details:
+        $DeployFile = 'C:\Git\MyModuleRepo\deployments.yml'
+
+        Get-PSDeployment -Path $DeployFile
+
+            # LocalSource    : C:\Git\MyModuleRepo\MyModule
+            # DeploymentType : Filesystem
+            # Mirror         : True
+            # Targets        : \\Server\Modules
+
+        # I can find out what script Filesystem deployments use:
+        Get-PSDeploymentScript
+
+            # Name              Value
+            # ----              -----
+            # Filesystem        C:\Path\To\PSDeploy\PSDeployDefinitions\Filesystem.ps1
+            # FilesystemRemote  C:\Path\To\PSDeploy\PSDeployDefinitions\FilesystemRemote.ps1
+
+        # I can read the help for a particular deployment script:
+        Get-PSDeploymentType -DeploymentType FilesystemRemote -ShowHelp
+
+        # I can invoke the deployment
+        Invoke-PSDeployment -Path $DeployFile
+
+    Extending PSDeploy
+    ==================
+    PSDeploy is somewhat extensible. To add a new deployment type:
+
+        Update PSDeploy.yml in the PSDeploy root.
+
+            The deployment name is the root node.
+            The script node defines what script to run for these deployment types
+            The description is... not really used. But feel free to write one!
+
+            For example, I might add support for SCP:
+              SCP:
+                Script: SCP.ps1
+                Description: Deploys artifacts using SCP. Requires Posh-SSH
+
+        Create the associated script in PSDeploy\PSDeployScripts
+
+            For example, I would create \\Path\To\PSDeploy\PSDeployScripts\SCP.ps1
+
+        Include a 'Deployment' parameter.
+
+            See \\Path\To\PSDeploy\PSDeployScripts\FilesystemRemote.ps1 for an example
+
+            Here's how I implement this:
+                [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
+                [psobject[]]$Deployment
+
+                # Further down, I remove deployment From PSBoundParameters, and splat that as needed.
+                # $Deployment would still be available, just not listed in bound params.
+                $PSBoundParameters.Remove('Deployment')
+
+        Update yml schema as needed.
+
+            Get-PSDeployment converts the YAML and processes it into a number of 'Deployment' objects.
+            If you need other data included, you can extend the YML and reference the
+            'Raw' property on the deployment objects: this contains the raw converted YAML.
+
+    Why did you do X?
+    =================
+    Because. This was a poorly thought out side project. Would love suggestions or pull requests!
+
+    Some TODOs:
+
+        - Remove reliance on relative paths
+            - Sources                - allow deploying from a (maybe?) more deterministic path
+            - DeploymentType scripts - allow centralization
+
+        - Update the horribly broken schema. Organic growth is a poor way to create a schema : )
+
+        - Fix bad code. PRs would be welcome. Or a pointer to a better implementation of this idea!
+
