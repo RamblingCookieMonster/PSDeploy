@@ -34,6 +34,17 @@
 
         # Get deployment types
 
+    .EXAMPLE
+        Get-PSDeploymentType -Path \\Path\To\Central\PSDeploy.yml
+
+            DeploymentType    Description                                      DeploymentScript                               HelpContent      
+            --------------    -----------                                      ----------------                               -----------      
+            Filesystem        Uses the current session and Robocopy or Copy... \\Path\To\Central\Scripts\Filesystem.ps1       @{description=Sys...
+            FilesystemRemote  Uses a PowerShell remoting endpoint and Roboc... \\Path\To\Central\Scripts\FilesystemRemote.ps1 @{description=Sys...
+            OtherDeployment   Some made up deployment type!                    \\Path\To\Central\Scripts\OtherDeployment.ps1  @{description=Sys...
+
+        # Get deployment types from a central spot
+
     .LINK
         about_PSDeploy
 
@@ -51,6 +62,8 @@
     #>
     [cmdletbinding()]
     param(
+        [validatescript({Test-Path $_ -PathType Leaf -ErrorAction Stop})]
+        [string]$Path = $(Join-Path $PSScriptRoot PSDeploy.yml),
         [string]$DeploymentType = '*',
         [switch]$ShowHelp
     )
@@ -74,7 +87,7 @@
 
         Try
         {
-            $ScriptHelp = Get-Help $ScriptPath -ErrorAction Stop
+            $ScriptHelp = Get-Help $ScriptPath -Full -ErrorAction Stop
         }
         Catch
         {

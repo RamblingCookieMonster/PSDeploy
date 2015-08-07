@@ -58,6 +58,11 @@
 
         # Get deployments from two yml files, invoke their deployment, no prompting
 
+    .EXAMPLE
+        Invoke-PSDeployment -Path C:\Git\Module1\Deployments.yml -PSDeployTypePath \\Path\To\Central\PSDeploy.yml
+
+        # Run deployments from a deployment yml. Use deployment type definitions from a central config.
+
     .LINK
         about_PSDeploy
 
@@ -89,8 +94,11 @@
         [string[]]$Path,
 
         [Hashtable]$DeploymentParameters,
-                
-        [switch]$Force      
+
+        [validatescript({Test-Path -Path $_ -PathType Leaf -ErrorAction Stop})]
+        [string]$PSDeployTypePath = $(Join-Path $PSScriptRoot PSDeploy.yml),
+
+        [switch]$Force    
     )
     Begin
     {

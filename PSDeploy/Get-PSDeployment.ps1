@@ -102,7 +102,17 @@
     
             foreach($Source in $Sources)
             {
-                $LocalSource = Join-Path $DeploymentRoot $Source
+                
+                #Determine the path to this source. Try absolute, fall back on relative
+                if(Test-Path $Source -ErrorAction SilentlyContinue)
+                {
+                    $LocalSource = $Source
+                }
+                else
+                {
+                    $LocalSource = Join-Path $DeploymentRoot $Source
+                }
+
                 Try
                 {
                     $RemoteSource = $LocalSource -replace '^(.):', "\\$([System.Net.Dns]::GetHostEntry([string]$env:computername).HostName)\`$1$"
@@ -124,6 +134,7 @@
                         $Type = 'File'
                     }
                 }
+
                 [pscustomobject]@{
                     DeploymentFile = $DeploymentFile
                     DeploymentName = $DeploymentName
