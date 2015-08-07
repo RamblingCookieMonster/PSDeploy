@@ -1,7 +1,7 @@
 PSDeploy
 ========
 
-# Overview
+## Overview
 
 PSDeploy is a quick and dirty module to simplify distribution of files and folders. This is very much a work-in-progress.
 
@@ -9,7 +9,7 @@ The idea is that you keep a Deployments.yml file in a folder, define sources and
 
 Suggestions, pull requests, and other contributions would be more than welcome!
 
-# Deployments.yml Example
+## Deployments.yml Example
 
 Here's an example Deployments.yml
 
@@ -37,7 +37,7 @@ Let's pretend this deployments.yml lives in C:\Git\Misc. Here's what happens whe
  * C:\Git\Misc\Tasks\AD\Some-ADScript.ps1 is copied to \\contoso.org\share$\Tasks with Copy-Item
  * C:\Git\Misc\Tasks\AD\Tasks\AllOfThisDirectory is copied to \\contoso.org\share$\Tasks with robocopy, using /XO /E /PURGE (we only purge if mirror is true in yml)
 
-# Initial setup
+## Initial setup
 
 ```powershell
 # One time setup
@@ -59,7 +59,7 @@ Let's pretend this deployments.yml lives in C:\Git\Misc. Here's what happens whe
     Get-Help Invoke-PSDeployment -full
 ```
 
-# Using PSDeploy
+## Using PSDeploy
 
 Here are a few example scenarios, illustrating the two deployment types, Filesystem and FilesystemRemote
 
@@ -111,7 +111,7 @@ The deployments.yml has FilesystemRemote deployments, which clunkyly deploys fro
         }
 ```
 
-# Notes
+## Notes
 
 TODO:
 
