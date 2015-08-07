@@ -4,7 +4,5 @@ Files:
     - 'Modules\File1.ps1'
   Destination:
     - '\\contoso.org\share$\PowerShell\'
-  Deployment:
-    Type: Filesystem
-    Mirror: False
-    
+  DeploymentType: Filesystem
+  Options: 

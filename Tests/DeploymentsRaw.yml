@@ -4,8 +4,8 @@ Misc:
     - 'Modules'
   Destination:
     - '\\contoso.org\share$\PowerShell\Modules'
-  Deployment:
-    Type: FilesystemRemote
+  DeploymentType: FilesystemRemote
+  Options:
     Mirror: False
     Making: Stuff up
     List:

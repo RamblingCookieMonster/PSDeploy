@@ -7,17 +7,17 @@
         Read a Deployment.yml file
 
         The resulting object contains these properties
-            DeploymentSource = Path to the deployment.yml
-            DeploymentName   = Deployment name
-            Author           = Optional deployment author
-            DeploymentType   = Type of deployment, must be defined in PSDeploy.yml
-            LocalSource      = Path to source from the local machine
-            RemoteSource     = Programatically defined UNC path to source
-            SourceType       = Directory or file
-            SourceExists     = Whether we can test path against the local source
-            Targets          = One or more targets to deploy to.
-            Mirror           = Whether we would mirror (appies to Filesystem deployments, robocopy)
-            Raw              = Raw definition for this deployment, feel free to go wild.
+            DeploymentSource  = Path to the deployment.yml
+            DeploymentName    = Deployment name
+            DeploymentAuthor  = Optional deployment author
+            DeploymentType    = Type of deployment, must be defined in PSDeploy.yml
+            DeploymentOptions = Options for this deploymenttype
+            LocalSource       = Path to source from the local machine
+            RemoteSource      = Programatically defined UNC path to source
+            SourceType        = Directory or file
+            SourceExists      = Whether we can test path against the local source
+            Targets           = One or more targets to deploy to.
+            Raw               = Raw definition for this deployment, feel free to go wild.
 
         This is oriented around deployments from a Windows system.
 
@@ -49,6 +49,9 @@
 
     .LINK
         Get-PSDeploymentType
+
+    .LINK
+        Get-PSDeploymentScript
 
     #>
     [cmdletbinding(DefaultParameterSetName='Local')]
@@ -88,8 +91,8 @@
         {
             $DeploymentHash = $Deployments.$DeploymentName
             $Author = $DeploymentHash.Author
-            $DeploymentType = $DeploymentHash.Deployment.Type
-            $Mirror = $DeploymentHash.Deployment.Mirror
+            $DeploymentType = $DeploymentHash.DeploymentType
+            $Options = $DeploymentHash.Options
             
             $Sources = @($DeploymentHash.Source)
             $Destinations = @($DeploymentHash.Destination)
@@ -119,16 +122,16 @@
                     }
                 }
                 [pscustomobject]@{
-                    DeploymentSource = $DeploymentFile
+                    DeploymentFile = $DeploymentFile
                     DeploymentName = $DeploymentName
-                    Author = $Author
+                    DeploymentAuthor = $Author
                     DeploymentType = $DeploymentType
-                    Mirror = $Mirror
+                    DeploymentOptions = $Options
+                    LocalSource = $LocalSource
                     RemoteSource = $RemoteSource
                     SourceType = $Type
                     SourceExists = $Exists
                     Targets = $Destinations
-                    LocalSource = $LocalSource
                     Raw = $DeploymentHash
                 } 
             }

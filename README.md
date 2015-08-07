@@ -34,8 +34,8 @@ ActiveDirectory1:                  # Deployment name. This NEEDS to be unique. C
     - 'Tasks\AllOfThisDirectory'
   Destination:                     # One or more destinations to deploy the sources to
     - '\\contoso.org\share$\Tasks'
-  Deployment:
-    Type: Filesystem               # See Get-PSDeploymentType
+  DeploymentType: Filesystem       # Deployment type. See Get-PSDeploymentType
+  Options:
     Mirror: True                   # If the source is a folder, triggers robocopy purge. Danger.
 ```
 
@@ -141,7 +141,7 @@ I'm assuming there might an existing solution out there. Wrote this partly out o
 TODO:
 
 * Remove reliance on relative paths for sources  * Sources                - allow deploying from a more deterministic path
-* Update the horribly broken schema. Organic growth is a poor way to create a schema : )
+* Schema could use work.
 * Fix bad code. PRs would be welcome
 * More deployment types, if / when they come up
 * Order of operations.

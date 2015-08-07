@@ -30,7 +30,7 @@ foreach($Map in $Deployment)
             {
                 [string[]]$Arguments = "/XO"
                 $Arguments += "/E"
-                if($Map.Mirror -eq 'True')
+                if($Map.DeploymentOptions.mirror -eq 'True')
                 {
                     $Arguments += "/PURGE"
                 }

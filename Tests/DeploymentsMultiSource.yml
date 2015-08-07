@@ -6,7 +6,7 @@ Files:
     - 'Modules\CrazyModule'
   Destination:
     - '\\contoso.org\share$\PowerShell\'
-  Deployment:
-    Type: FilesystemRemote
+  DeploymentType: FilesystemRemote
+  Options:
     Mirror: False
     

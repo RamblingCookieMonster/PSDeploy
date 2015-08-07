@@ -23,8 +23,8 @@ Files:
     - 'Modules\File1.ps1'
   Destination:
     - '$IntegrationTarget'
-  Deployment:
-    Type: Filesystem
+  DeploymentType: Filesystem
+  Options:
     Mirror: False
 "@ | Out-File -FilePath $FileYML -force
 
@@ -35,8 +35,8 @@ Files:
     - 'Modules'
   Destination:
     - '$IntegrationTarget'
-  Deployment:
-    Type: Filesystem
+  DeploymentType: Filesystem
+  Options:
     Mirror: True
 "@ | Out-File -FilePath $FolderYML -force
 
@@ -127,8 +127,8 @@ Describe "Get-PSDeployment PS$PSVersion" {
         It 'Should allow user-specified, properly formed JSON' {
             $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\DeploymentsRaw.yml )
             $Deployments.Count | Should Be 1
-            $Deployments.Raw.Deployment.List.Count | Should be 2
-            $Deployments.Raw.Deployment.Making | Should be "Stuff up"
+            $Deployments.Raw.Options.List.Count | Should be 2
+            $Deployments.Raw.Options.Making | Should be "Stuff up"
         }
     }
 }

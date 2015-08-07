@@ -62,8 +62,8 @@ DETAILED DESCRIPTION
                 - 'MyModule'
               Destination:
                 - '\\Server\Modules'
-              Deployment:
-                Type: Filesystem
+              DeploymentType: Filesystem
+              DeploymentOptions:
                 Mirror: True
 
         # I can view deployment details:
@@ -71,10 +71,10 @@ DETAILED DESCRIPTION
 
         Get-PSDeployment -Path $DeployFile
 
-            # LocalSource    : C:\Git\MyModuleRepo\MyModule
-            # DeploymentType : Filesystem
-            # Mirror         : True
-            # Targets        : \\Server\Modules
+            # LocalSource      : C:\Git\MyModuleRepo\MyModule
+            # DeploymentType   : Filesystem
+            # DeploymentOptions: @{Mirror=True}
+            # Targets          : \\Server\Modules
 
         # I can find out what script Filesystem deployments use:
         Get-PSDeploymentScript

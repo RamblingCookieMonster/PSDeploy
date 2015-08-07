@@ -17,7 +17,7 @@
                                 <PropertyName>DeploymentType</PropertyName>
                             </ListItem>
                             <ListItem>
-                                <PropertyName>Mirror</PropertyName>
+                                <PropertyName>DeploymentOptions</PropertyName>
                             </ListItem>
                             <ListItem>
                                 <Label>Targets</Label>
