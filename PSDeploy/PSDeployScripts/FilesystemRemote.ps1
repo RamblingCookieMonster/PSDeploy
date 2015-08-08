@@ -48,26 +48,27 @@ param (
 )
 
 Write-Verbose "Starting remote deployment on $ComputerName with $($Deployment.count) sources"
-$PSBoundParameters.Remove('Deployment')
-                    
+[void]$PSBoundParameters.Remove('Deployment')
+
+Try
+{
+    $SourceComputer = [System.Net.Dns]::GetHostEntry([string]$env:computername).HostName
+}
+Catch
+{
+    Write-Error $_
+    Throw "Could not determine remote source for $($Map.Source), skipping"
+}
+    
 #Remote deployment
-Invoke-Command @ICMParams -ScriptBlock {
+Invoke-Command @PSBoundParameters -ScriptBlock {
 
     foreach($Map in $Using:Deployment)
     {
         if($Map.SourceExists)
         {
-            Try
-            {
-                $RemoteSource = $null
-                $RemoteSource = $Map.Source -replace '^(.):', "\\$([System.Net.Dns]::GetHostEntry([string]$env:computername).HostName)\`$1$"
-            }
-            Catch
-            {
-                Write-Error $_
-                Write-Error "Could not determin remote source for $($Map.Source), skipping"
-                continue
-            }
+            $RemoteSource = $null
+            $RemoteSource = $Map.Source -replace '^(.):', "\\$Using:SourceComputer\`$1$"
 
             $Targets = $Map.Targets
             foreach($Target in $Targets)
