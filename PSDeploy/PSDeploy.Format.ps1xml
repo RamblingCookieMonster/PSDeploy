@@ -11,7 +11,7 @@
                     <ListEntry>
                         <ListItems>
                             <ListItem>
-                                <PropertyName>LocalSource</PropertyName>
+                                <PropertyName>Source</PropertyName>
                             </ListItem>
                             <ListItem>
                                 <PropertyName>DeploymentType</PropertyName>

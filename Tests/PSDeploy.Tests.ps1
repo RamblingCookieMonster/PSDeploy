@@ -124,7 +124,7 @@ Describe "Get-PSDeployment PS$PSVersion" {
             $Deployments[2].SourceType | Should Be 'Directory'
         }
 
-        It 'Should allow user-specified, properly formed JSON' {
+        It 'Should allow user-specified, properly formed YAML' {
             $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\DeploymentsRaw.yml )
             $Deployments.Count | Should Be 1
             $Deployments.Raw.Options.List.Count | Should be 2

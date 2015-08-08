@@ -12,8 +12,7 @@
             DeploymentAuthor  = Optional deployment author
             DeploymentType    = Type of deployment, must be defined in PSDeploy.yml
             DeploymentOptions = Options for this deploymenttype
-            LocalSource       = Path to source from the local machine
-            RemoteSource      = Programatically determined UNC path to source
+            Source            = Path to source from the local machine
             SourceType        = Directory or file
             SourceExists      = Whether we can test path against the local source
             Targets           = One or more targets to deploy to.
@@ -113,14 +112,6 @@
                     $LocalSource = Join-Path $DeploymentRoot $Source
                 }
 
-                Try
-                {
-                    $RemoteSource = $LocalSource -replace '^(.):', "\\$([System.Net.Dns]::GetHostEntry([string]$env:computername).HostName)\`$1$"
-                }
-                Catch
-                {
-                    $RemoteSource = $null
-                }
                 $Exists = Test-Path $LocalSource
                 if($Exists)
                 {
@@ -141,8 +132,7 @@
                     DeploymentAuthor = $Author
                     DeploymentType = $DeploymentType
                     DeploymentOptions = $Options
-                    LocalSource = $LocalSource
-                    RemoteSource = $RemoteSource
+                    Source = $LocalSource
                     SourceType = $Type
                     SourceExists = $Exists
                     Targets = $Destinations

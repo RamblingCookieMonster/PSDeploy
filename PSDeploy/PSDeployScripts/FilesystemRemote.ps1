@@ -57,6 +57,18 @@ Invoke-Command @ICMParams -ScriptBlock {
     {
         if($Map.SourceExists)
         {
+            Try
+            {
+                $RemoteSource = $null
+                $RemoteSource = $Map.Source -replace '^(.):', "\\$([System.Net.Dns]::GetHostEntry([string]$env:computername).HostName)\`$1$"
+            }
+            Catch
+            {
+                Write-Error $_
+                Write-Error "Could not determin remote source for $($Map.Source), skipping"
+                continue
+            }
+
             $Targets = $Map.Targets
             foreach($Target in $Targets)
             {
@@ -68,21 +80,21 @@ Invoke-Command @ICMParams -ScriptBlock {
                     {
                         $Arguments += "/PURGE"
                     }
-                    Write-Verbose "Invoking ROBOCOPY.exe $($Map.RemoteSource) $Target $Arguments"
-                    ROBOCOPY.exe $Map.RemoteSource $Target @Arguments
+                    Write-Verbose "Invoking ROBOCOPY.exe $RemoteSource $Target $Arguments"
+                    ROBOCOPY.exe $RemoteSource $Target @Arguments
                 }       
                 else
                 {
-                    $SourceHash = Get-Hash $Map.LocalSource
+                    $SourceHash = Get-Hash $RemoteSource
                     $TargetHash = Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
                     if($SourceHash -ne $TargetHash)
                     {
-                        Write-Verbose "Deploying file '$($Map.LocalSource)' to '$Target'"
-                        Copy-Item -Path $Map.RemoteSource -Destination $Target -Force
+                        Write-Verbose "Deploying file '$RemoteSource' to '$Target'"
+                        Copy-Item -Path $RemoteSource -Destination $Target -Force
                     }
                     else
                     {
-                        Write-Verbose "Skipping deployment with matching hash: '$($Map.RemoteSource)' = '$Target')"
+                        Write-Verbose "Skipping deployment with matching hash: '$RemoteSource' = '$Target')"
                     }
                 }
             }

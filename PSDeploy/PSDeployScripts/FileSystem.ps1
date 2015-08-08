@@ -34,21 +34,21 @@ foreach($Map in $Deployment)
                 {
                     $Arguments += "/PURGE"
                 }
-                Write-Verbose "Invoking ROBOCOPY.exe $($Map.RemoteSource) $Target $Arguments"
-                ROBOCOPY.exe $Map.RemoteSource $Target @Arguments
+                Write-Verbose "Invoking ROBOCOPY.exe $($Map.Source) $Target $Arguments"
+                ROBOCOPY.exe $Map.Source $Target @Arguments
             }       
             else
             {
-                $SourceHash = Get-Hash $Map.LocalSource
+                $SourceHash = Get-Hash $Map.Source
                 $TargetHash = Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
                 if($SourceHash -ne $TargetHash)
                 {
-                    Write-Verbose "Deploying file '$($Map.LocalSource)' to '$Target'"
-                    Copy-Item -Path $Map.RemoteSource -Destination $Target -Force
+                    Write-Verbose "Deploying file '$($Map.Source)' to '$Target'"
+                    Copy-Item -Path $Map.Source -Destination $Target -Force
                 }
                 else
                 {
-                    Write-Verbose "Skipping deployment with matching hash: '$($Map.RemoteSource)' = '$Target')"
+                    Write-Verbose "Skipping deployment with matching hash: '$($Map.Source)' = '$Target')"
                 }
             }
         }
