@@ -105,7 +105,7 @@
                 #Determine the path to this source. Try absolute, fall back on relative
                 if(Test-Path $Source -ErrorAction SilentlyContinue)
                 {
-                    $LocalSource = $Source
+                    $LocalSource = Resolve-Path $Source
                 }
                 else
                 {
