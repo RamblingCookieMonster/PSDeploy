@@ -54,10 +54,10 @@
     )
 
     # Abstract out reading the yaml and verifying scripts exist
-    $DeploymentDefinitions = ConvertFrom-Yaml -Path $Path
+    $DeploymentDefinitions = Import-Yaml -Fullname $Path
 
     $DeployHash = @{}
-    foreach($DeploymentType in $DeploymentDefinitions.Keys)
+    foreach($DeploymentType in ($DeploymentDefinitions | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name))
     {
         #Determine the path to this script
         $Script =  $DeploymentDefinitions.$DeploymentType.Script

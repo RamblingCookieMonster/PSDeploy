@@ -10,3 +10,7 @@ Filesystem:
 FilesystemRemote:
   Script: FilesystemRemote.ps1
   Description: Uses a PowerShell remoting endpoint and Robocopy or Copy-Item for folder and file deployments, respectively.
+
+CopyVMfile:
+  Script: CopyVMFile.ps1
+  Description: Uses Copy-VMFile cmdlet available with Hyper-V on Server 2012 R2 for folder and file deployments, respectively.

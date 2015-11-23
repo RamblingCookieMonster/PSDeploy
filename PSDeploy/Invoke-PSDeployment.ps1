@@ -167,7 +167,7 @@
                     
                     if($PSBoundParameters.ContainsKey('Verbose'))
                     {
-                        $Params.Add('Verbose',$Verbose)
+                        $Params.Add('Verbose',[System.Management.Automation.SwitchParameter]::Present)
                     }
 
                     $Params.Add('Deployment', $TheseDeployments)
@@ -176,9 +176,7 @@
 
                     #Run the associated script, splat the parameters
                     & $DeploymentScript @params
-
                 }
-                
             }
         }
     }
