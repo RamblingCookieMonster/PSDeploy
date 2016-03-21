@@ -13,7 +13,7 @@ Suggestions, pull requests, and other contributions would be more than welcome!
 
 We use either a yml file, or a *.psdeploy.ps1 file to define our deployments.
 
-## Option 1: Deployments.yml
+### Option 1: Deployments.yml
 
 Here's an example Deployments.yml
 
@@ -41,7 +41,7 @@ Let's pretend this deployments.yml lives in C:\Git\Misc. Here's what happens whe
  * C:\Git\Misc\Tasks\AD\Some-ADScript.ps1 is copied to \\contoso.org\share$\Tasks with Copy-Item
  * C:\Git\Misc\Tasks\AD\Tasks\AllOfThisDirectory is copied to \\contoso.org\share$\Tasks with robocopy, using /XO /E /PURGE (we only purge if mirror is true in yml)
 
-## Option 2: *.PSDeploy.ps1
+### Option 2: *.PSDeploy.ps1
 
 This option is similar to using Invoke-Pester.  Here's an example, Some.PSDeploy.ps1
 

@@ -21,7 +21,11 @@
                             </ListItem>
                             <ListItem>
                                 <Label>Targets</Label>
-                                <ScriptBlock>$_.Targets | Out-String</ScriptBlock>
+                                <ScriptBlock>Try { ($_.Targets | Out-String ).trimend("`n")} Catch {$_.Targets} </ScriptBlock>
+                            </ListItem>
+                            <ListItem>
+                                <Label>Tags</Label>
+                                <ScriptBlock>Try { ($_.Tags | Out-String ).trimend("`n")} Catch {$_.Tags} </ScriptBlock>
                             </ListItem>
                         </ListItems>
                     </ListEntry>

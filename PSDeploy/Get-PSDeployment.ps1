@@ -29,6 +29,9 @@
     .PARAMETER DeploymentRoot
         Assumed root of the deployment.yml for relative paths. Default is the parent of deployment.yml
 
+    .PARAMETER Tags
+        Only return deployments with all of the specified Tags (like -and, not -or)
+
     .EXAMPLE
         Get-PSDeployment C:\Git\Module1\Deployments.yml
 
@@ -40,6 +43,11 @@
 
         # Get deployments from two files, invoke deployment for all
 
+    .EXAMPLE
+        Get-PSDeployment -Path C:\Git\Module1\My.PSDeploy.ps1 -Tags Prod, Azure
+
+        # Get deployments from My.PSDeploy.ps1, including only those tagged both 'prod' and 'azure'
+
     .LINK
         about_PSDeploy
 
@@ -48,6 +56,9 @@
 
     .LINK
         Invoke-PSDeployment
+
+    .LINK
+        Invoke-PSDeploy
 
     .LINK
         Get-PSDeploymentType
@@ -67,7 +78,9 @@
 
         [parameter( ParameterSetName = 'Deployment',
                     Mandatory = $True)]
-        [object[]]$Deployment
+        [object[]]$Deployment,
+
+        [string[]]$Tags
     )
 
     #Resolve relative paths... Thanks Oisin! http://stackoverflow.com/a/3040982/3067642
@@ -83,6 +96,11 @@
         # Avoid code re-use if it makes sense
         # Fix all the odd scoping
 
+    $TagParam = @{}
+    if( $PSBoundParameters.ContainsKey('Tags') )
+    {
+        $TagParam.Add('Tags',@($Tags))
+    }
 
     # Handle PSDeploy.ps1 parsing
     if($PSCmdlet.ParameterSetName -eq 'File' -and $Path -like "*.psdeploy.ps1" )
@@ -99,7 +117,7 @@
             . $DeploymentFile
             Foreach($key in $Script:Deployments.Keys)
             {
-                Get-PSDeployment -Deployment $([pscustomobject]$Script:Deployments.$Key) -DeploymentRoot $DeploymentRoot
+                Get-PSDeployment -Deployment $([pscustomobject]$Script:Deployments.$Key) -DeploymentRoot $DeploymentRoot @TagParam
             }
         }
         return
@@ -131,6 +149,7 @@
                 $Author = $DeploymentHash.Author
                 $DeploymentType = $DeploymentHash.DeploymentType
                 $Options = $DeploymentHash.Options
+                $Tags = $DeploymentHash.Tags
 
                 $Sources = @($DeploymentHash.Source)
                 $Destinations = @($DeploymentHash.Destination)
@@ -172,6 +191,7 @@
                         SourceType = $Type
                         SourceExists = $Exists
                         Targets = $Destinations
+                        Tags = $Tags
                         Raw = $DeploymentHash
                     }
                 }
@@ -221,6 +241,7 @@
                     SourceType = $Type
                     SourceExists = $Exists
                     Targets = $DeploymentItem.Targets
+                    Tags = $DeploymentItem.Tags
                     Raw = $null
                 }
             }
@@ -230,6 +251,11 @@
     if( @($DeploymentMap.SourceExists) -contains $false)
     {
         Write-Error "Nonexistent paths found:`n`n$($DeploymentMap | Where {-not $_.SourceExists} | Format-List | Out-String)`n"
+    }
+
+    If($PSBoundParameters.ContainsKey('Tags'))
+    {
+        $DeploymentMap = Get-TaggedDeployment -Deployment $DeploymentMap @TagParam
     }
 
     $DeploymentMap | Add-ObjectDetail -TypeName 'PSDeploy.Deployment'

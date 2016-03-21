@@ -87,6 +87,8 @@
         [validatescript({Test-Path -Path $_ -PathType Leaf -ErrorAction Stop})]
         [string]$PSDeployTypePath = $(Join-Path $PSScriptRoot PSDeploy.yml),
 
+        [string[]]$Tags,
+
         [switch]$Force
     )
     Begin

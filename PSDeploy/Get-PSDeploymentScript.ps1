@@ -46,6 +46,9 @@
 
     .LINK
         Get-PSDeploymentType
+
+    .LINK
+        Invoke-PSDeploy
     #>
     [cmdletbinding()]
     param(

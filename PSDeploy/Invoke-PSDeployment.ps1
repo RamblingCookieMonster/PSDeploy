@@ -73,6 +73,9 @@
         Get-PSDeployment
 
     .LINK
+        Invoke-PSDeploy
+
+    .LINK
         Get-PSDeploymentType
 
     .LINK
@@ -98,6 +101,8 @@
         [validatescript({Test-Path -Path $_ -PathType Leaf -ErrorAction Stop})]
         [string]$PSDeployTypePath = $(Join-Path $PSScriptRoot PSDeploy.yml),
 
+        [string[]]$Tags,
+
         [switch]$Force
     )
     Begin
@@ -117,6 +122,10 @@
                 # I'm going with Copy-Item precedent.
                 # Not terminating, so try catch is superfluous. Feel free to make this strict...
                 $Deployment = Get-PSDeployment -Path $Path
+                If($PSBoundParameters.ContainsKey('Tags'))
+                {
+                    $Deployment = Get-TaggedDeployment -Deployment $Deployment -Tags $Tags
+                }
             }
             Catch
             {

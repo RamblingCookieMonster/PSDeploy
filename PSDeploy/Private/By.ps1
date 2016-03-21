@@ -26,6 +26,7 @@ Function By {
         Source = $null
         Targets = $null
         DeploymentOptions = $null
+        Tags = $null
     }
 
     if( $PSCmdlet.ParameterSetName -eq 'Name')
