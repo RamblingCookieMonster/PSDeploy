@@ -4,7 +4,7 @@
 RootModule = 'PSDeploy.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.0.3'
+ModuleVersion = '0.0.0.4'
 
 # ID used to uniquely identify this module
 GUID = '268bd8de-5f4d-4f84-85d2-fb885ffb0837'
@@ -58,7 +58,8 @@ FormatsToProcess = @('PSDeploy.Format.ps1xml')
 # NestedModules = @()
 
 # Functions to export from this module
-FunctionsToExport = @('Get-PSDeployment', 'Get-PSDeploymentType', 'Invoke-PSDeployment', 'Get-PSDeploymentScript')
+#FunctionsToExport = @('Get-PSDeployment', 'Get-PSDeploymentType', 'Invoke-PSDeployment', 'Get-PSDeploymentScript')
+FunctionsToExport = '*'
 
 # Cmdlets to export from this module
 # CmdletsToExport = '*'

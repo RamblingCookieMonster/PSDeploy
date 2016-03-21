@@ -16,16 +16,22 @@ DETAILED DESCRIPTION
     ========================
     There are three primary concepts:
 
-        Deployment:         These are yaml files defining what is being deployed.
-                            They might have a source, a destination, and options for specific types of deployment
+        Deployment:             These are yaml files defining what is being deployed.
+                                They might have a source, a destination, and options for specific types of deployment.
 
-        Deployment Type:    These define how to actually deploy something.
-                            Each type is associated with a script.
-                            The default types are FileSystem and FileSystemRemote. This is extensible.
+        *.PSDeploy.ps1 Script:  These are an alternative to a Deployment yaml file.
+                                They use pester-like syntax to define deployments.
 
-        Deployment Script:  These are scripts associated to a particular deployment type.
-                            All should accept a 'Deployment' parameter.
-                            For example, the FileSystem script uses robocopy or copy-item to deploy folders and files, respectively.
+        Deployment Type:        These define how to actually deploy something.
+                                Each type is associated with a script.
+                                The default types are FileSystem and FileSystemRemote. This is extensible.
+
+        Deployment Script:      These are scripts associated to a particular deployment type.
+                                They tell PSDeploy how to deploy a DeploymentType.
+                                All should accept a 'Deployment' parameter.
+                                For example, the FileSystem script uses robocopy or copy-item to deploy folders and files, respectively.
+
+
 
     Conventions
     ===========
@@ -48,8 +54,9 @@ DETAILED DESCRIPTION
 
                 The deployment script for FilesystemRemote would receive -ComputerName 'Server1'
 
-    Example use
+    Example use (yaml)
     ===========
+
     A typical use case would work as follows:
 
         I want to deploy C:\Git\MyModuleRepo\MyModule to \\Server\Modules
@@ -89,6 +96,34 @@ DETAILED DESCRIPTION
 
         # I can invoke the deployment
         Invoke-PSDeployment -Path $DeployFile
+
+    Example use (*.PSDeploy.ps1)
+    ===========
+
+    Similar to the above example, but using a *.PSDeploy.ps1 file as the deployment definition.
+
+        I want to deploy C:\Git\MyModuleRepo\MyModule to \\Server\Modules
+
+        C:\Git\MyModuleRepo\My.PSDeploy.ps1 looks like this:
+
+            Deploy MyDeploymentName {
+
+                By FileSystem 'OptionalName' {
+
+                    FromSource 'MyModule'
+                    To '\\Server\Modules'
+                    WithOptions @{
+                        Mirror = $True
+                    }
+                }
+            }
+
+        # Invoke a deployment:
+        Invoke-PSDeploy C:\Git\MyModuleRepo
+
+        # Alternatively:
+        cd C:\Git\MyModuleRepo
+        Invoke-PSDeploy
 
     Extending PSDeploy
     ==================

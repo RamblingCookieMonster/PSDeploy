@@ -9,7 +9,11 @@ The idea is that you keep a Deployments.yml file in a folder, define sources and
 
 Suggestions, pull requests, and other contributions would be more than welcome!
 
-## Deployments.yml Example
+## Deployments
+
+We use either a yml file, or a *.psdeploy.ps1 file to define our deployments.
+
+## Option 1: Deployments.yml
 
 Here's an example Deployments.yml
 
@@ -36,6 +40,40 @@ Let's pretend this deployments.yml lives in C:\Git\Misc. Here's what happens whe
  * We invoke the script associated with Filesystem Deployments, passing in the ActiveDirectory1 deployment
  * C:\Git\Misc\Tasks\AD\Some-ADScript.ps1 is copied to \\contoso.org\share$\Tasks with Copy-Item
  * C:\Git\Misc\Tasks\AD\Tasks\AllOfThisDirectory is copied to \\contoso.org\share$\Tasks with robocopy, using /XO /E /PURGE (we only purge if mirror is true in yml)
+
+## Option 2: *.PSDeploy.ps1
+
+This option is similar to using Invoke-Pester.  Here's an example, Some.PSDeploy.ps1
+
+```powershell
+Deploy ActiveDirectory1 {                        # Deployment name. This needs to be unique. Call it whatever you want.
+
+    By Filesystem {                              # Deployment type. See Get-PSDeploymentType
+        FromSource 'Tasks\AD\Some-ADScript.ps1', # One or more sources to deploy. Absolute, or relative to deployment.yml parent
+                   'Tasks\AllOfThisDirectory'
+
+        To '\\contoso.org\share$\Tasks'          # One or more destinations to deploy the sources to
+
+        WithOptions @{
+            Mirror: True                         # If the source is a folder, triggers robocopy purge. Danger.
+        }
+    }
+}
+```
+
+Let's pretend this PSDeploy.ps1 lives in C:\Git\Misc\Deployments. Here's what happens when we invoke a deployment:
+
+```powershell
+Invoke-PSDeploy C:\Git\Misc
+```
+
+ * We search for all *.psdeploy.ps1 files under the given path, and find Some.PSDeploy.ps1. In this case, we have two resulting deployments, Some-ADScript.ps1, and AllOfThisDirectory
+ * We check the deployment type. Filesystem.
+ * We invoke the script associated with Filesystem Deployments, passing in the ActiveDirectory1 deployment
+ * C:\Git\Misc\Tasks\AD\Some-ADScript.ps1 is copied to \\contoso.org\share$\Tasks with Copy-Item
+ * C:\Git\Misc\Tasks\AD\Tasks\AllOfThisDirectory is copied to \\contoso.org\share$\Tasks with robocopy, using /XO /E /PURGE (we only purge if mirror is true in yml)
+
+Note: PSDeploy.ps1 type deployments are under development and may see breaking changes
 
 ## Initial setup
 
@@ -115,10 +153,18 @@ The deployments.yml has FilesystemRemote deployments, which clunkyly deploys fro
 
 TODO:
 
+* Get-PSDeployment should parse PSDeploy.PS1 files
+* Documentation for new invocation method
+* Testing for new invocation method
+* Refactor, this was just a quick stab, it's ugly
 * Schema could use work.
 * Fix bad code. PRs would be welcome
 * More deployment types, if / when they come up
 * Order of operations.
   * For example, perhaps you have an 'archive file' deployment type, and you want to run that first, deploy the resulting archive as another deployment type.
 
-Thanks to Scott Muc's [PowerYaml](https://github.com/scottmuc/PowerYaml), which we borrow for YAML parsing, and Boe Prox' [Get-FileHash](http://learn-powershell.net/2013/03/25/use-powershell-to-calculate-the-hash-of-a-file/), which we borrow for downlevel hash support in the deployment scripts.
+Thanks go to:
+
+* Scott Muc for [PowerYaml](https://github.com/scottmuc/PowerYaml), which we borrow for YAML parsing
+* Boe Prox for [Get-FileHash](http://learn-powershell.net/2013/03/25/use-powershell-to-calculate-the-hash-of-a-file/), which we borrow for downlevel hash support in the deployment scripts.
+* Michael Greene, for the idea of using a DSL similar to Pester

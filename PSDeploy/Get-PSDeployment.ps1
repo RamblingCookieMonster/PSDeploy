@@ -56,13 +56,18 @@
         Get-PSDeploymentScript
 
     #>
-    [cmdletbinding(DefaultParameterSetName='Local')]
+    [cmdletbinding(DefaultParameterSetName='File')]
     Param(
         [validatescript({Test-Path -Path $_ -PathType Leaf -ErrorAction Stop})]
-        [parameter(Mandatory = $True)]       
+        [parameter( ParameterSetName = 'File',
+                    Mandatory = $True)]
         [string[]]$Path,
 
-        [string]$DeploymentRoot
+        [string]$DeploymentRoot,
+
+        [parameter( ParameterSetName = 'Deployment',
+                    Mandatory = $True)]
+        [object[]]$Deployment
     )
 
     #Resolve relative paths... Thanks Oisin! http://stackoverflow.com/a/3040982/3067642
@@ -71,37 +76,118 @@
         $DeploymentRoot = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DeploymentRoot)
     }
 
-    # This parses a deployment YML
-    foreach($DeploymentFile in $Path)
+    # Everything below here needs refactoring.
+        # We assume on psdeploy.ps1 means all paths are psdeploy.ps1
+        # Will anyone specify a mix of yml, ps1?
+        # Source path might not be testable for all resources
+        # Avoid code re-use if it makes sense
+        # Fix all the odd scoping
+
+
+    # Handle PSDeploy.ps1 parsing
+    if($PSCmdlet.ParameterSetName -eq 'File' -and $Path -like "*.psdeploy.ps1" )
     {
-        #Resolve relative paths... Thanks Oisin! http://stackoverflow.com/a/3040982/3067642
-        $DeploymentFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DeploymentFile)
-
-        if(-not $DeploymentRoot)
+        foreach($DeploymentFile in $Path)
         {
-            $DeploymentRoot = Split-Path $DeploymentFile -parent
+            $DeploymentFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DeploymentFile)
+            if(-not $PSBoundParameters.ContainsKey('DeploymentRoot'))
+            {
+                $DeploymentRoot = Split-Path $DeploymentFile -parent
+            }
+
+            $Script:Deployments = [ordered]@{}
+            . $DeploymentFile
+            Foreach($key in $Script:Deployments.Keys)
+            {
+                Get-PSDeployment -Deployment $([pscustomobject]$Script:Deployments.$Key) -DeploymentRoot $DeploymentRoot
+            }
         }
-
-        if(-not (Test-Path $DeploymentRoot -PathType Container))
+        return
+    }
+    # Handle yaml and deployment object parsing
+    elseif($PSCmdlet.ParameterSetName -eq 'File')
+    {
+        # This parses a deployment YML
+        foreach($DeploymentFile in $Path)
         {
-            Write-Error "Skipping '$DeploymentFile', could not validate DeploymentRoot '$DeploymentRoot'"
+            #Resolve relative paths... Thanks Oisin! http://stackoverflow.com/a/3040982/3067642
+            $DeploymentFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DeploymentFile)
+
+            if(-not $DeploymentRoot)
+            {
+                $DeploymentRoot = Split-Path $DeploymentFile -parent
+            }
+
+            if(-not (Test-Path $DeploymentRoot -PathType Container))
+            {
+                Write-Error "Skipping '$DeploymentFile', could not validate DeploymentRoot '$DeploymentRoot'"
+            }
+
+            $Deployments = ConvertFrom-Yaml -Path $DeploymentFile
+
+            $DeploymentMap = foreach($DeploymentName in $Deployments.keys)
+            {
+                $DeploymentHash = $Deployments.$DeploymentName
+                $Author = $DeploymentHash.Author
+                $DeploymentType = $DeploymentHash.DeploymentType
+                $Options = $DeploymentHash.Options
+
+                $Sources = @($DeploymentHash.Source)
+                $Destinations = @($DeploymentHash.Destination)
+
+                #TODO: Move this, not applicable to all deployment types
+                foreach($Source in $Sources)
+                {
+                    #Determine the path to this source. Try absolute, fall back on relative
+                    if(Test-Path $Source -ErrorAction SilentlyContinue)
+                    {
+                        $LocalSource = ( Resolve-Path $Source ).Path
+                    }
+                    else
+                    {
+                       $LocalSource = Join-Path $DeploymentRoot $Source
+                    }
+
+                    $Exists = Test-Path $LocalSource
+                    if($Exists)
+                    {
+                        $Item = Get-Item $LocalSource
+                        if($Item.PSIsContainer)
+                        {
+                            $Type = 'Directory'
+                        }
+                        else
+                        {
+                            $Type = 'File'
+                        }
+                    }
+
+                    [pscustomobject]@{
+                        DeploymentFile = $DeploymentFile
+                        DeploymentName = $DeploymentName
+                        DeploymentAuthor = $Author
+                        DeploymentType = $DeploymentType
+                        DeploymentOptions = $Options
+                        Source = $LocalSource
+                        SourceType = $Type
+                        SourceExists = $Exists
+                        Targets = $Destinations
+                        Raw = $DeploymentHash
+                    }
+                }
+            }
         }
-
-        $Deployments = ConvertFrom-Yaml -Path $DeploymentFile
-    
-        $DeploymentMap = foreach($DeploymentName in $Deployments.keys)
+    }
+    elseif($PSCmdlet.ParameterSetName -eq 'Deployment')
+    {
+        $DeploymentMap = Foreach($DeploymentItem in $Deployment)
         {
-            $DeploymentHash = $Deployments.$DeploymentName
-            $Author = $DeploymentHash.Author
-            $DeploymentType = $DeploymentHash.DeploymentType
-            $Options = $DeploymentHash.Options
-            
-            $Sources = @($DeploymentHash.Source)
-            $Destinations = @($DeploymentHash.Destination)
-    
+            # TODO: This should be abstracted out, and use the same code that file parameterset uses...
+            $Sources = @($DeploymentItem.Source)
+
+            #TODO: Move this, not applicable to all deployment types
             foreach($Source in $Sources)
             {
-                
                 #Determine the path to this source. Try absolute, fall back on relative
                 if(Test-Path $Source -ErrorAction SilentlyContinue)
                 {
@@ -127,25 +213,24 @@
                 }
 
                 [pscustomobject]@{
-                    DeploymentFile = $DeploymentFile
-                    DeploymentName = $DeploymentName
-                    DeploymentAuthor = $Author
-                    DeploymentType = $DeploymentType
-                    DeploymentOptions = $Options
+                    DeploymentFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DeploymentFile)
+                    DeploymentName = $DeploymentItem.DeploymentName
+                    DeploymentType = $DeploymentItem.DeploymentType
+                    DeploymentOptions = $DeploymentItem.DeploymentOptions
                     Source = $LocalSource
                     SourceType = $Type
                     SourceExists = $Exists
-                    Targets = $Destinations
-                    Raw = $DeploymentHash
-                } 
+                    Targets = $DeploymentItem.Targets
+                    Raw = $null
+                }
             }
         }
-    
-        if( @($DeploymentMap.SourceExists) -contains $false)
-        {
-            Write-Error "Nonexistent Paths:`n`n$($DeploymentMap | Where {-not $_.SourceExists} | Format-List | Out-String)`n"
-        }
-    
-        $DeploymentMap | Add-ObjectDetail -TypeName 'PSDeploy.Deployment'
     }
+
+    if( @($DeploymentMap.SourceExists) -contains $false)
+    {
+        Write-Error "Nonexistent paths found:`n`n$($DeploymentMap | Where {-not $_.SourceExists} | Format-List | Out-String)`n"
+    }
+
+    $DeploymentMap | Add-ObjectDetail -TypeName 'PSDeploy.Deployment'
 }
