@@ -25,6 +25,8 @@ ActiveDirectory1:                  # Deployment name. This needs to be unique. C
     - 'Tasks\AllOfThisDirectory'
   Destination:                     # One or more destinations to deploy the sources to
     - '\\contoso.org\share$\Tasks'
+  Tagged:                          # One or more tags you can use to restrict deployments or queries
+    - Prod
   DeploymentType: Filesystem       # Deployment type. See Get-PSDeploymentType
   Options:
     Mirror: True                   # If the source is a folder, triggers robocopy purge. Danger.
@@ -53,6 +55,8 @@ Deploy ActiveDirectory1 {                        # Deployment name. This needs t
                    'Tasks\AllOfThisDirectory'
 
         To '\\contoso.org\share$\Tasks'          # One or more destinations to deploy the sources to
+
+        Tagged Prod                              # One or more tags you can use to restrict deployments or queries
 
         WithOptions @{
             Mirror: True                         # If the source is a folder, triggers robocopy purge. Danger.

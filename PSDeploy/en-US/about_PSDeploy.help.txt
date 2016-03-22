@@ -31,8 +31,6 @@ DETAILED DESCRIPTION
                                 All should accept a 'Deployment' parameter.
                                 For example, the FileSystem script uses robocopy or copy-item to deploy folders and files, respectively.
 
-
-
     Conventions
     ===========
     These could change. See TODOs at the end of this help file.
@@ -69,6 +67,9 @@ DETAILED DESCRIPTION
                 - 'MyModule'
               Destination:
                 - '\\Server\Modules'
+              Tags:
+                - Prod
+                - Module
               DeploymentType: Filesystem
               DeploymentOptions:
                 Mirror: True
@@ -82,6 +83,8 @@ DETAILED DESCRIPTION
             # DeploymentType   : Filesystem
             # DeploymentOptions: @{Mirror=True}
             # Targets          : \\Server\Modules
+            # Tags             : Prod
+                                 Module
 
         # I can find out what script Filesystem deployments use:
         Get-PSDeploymentScript
@@ -114,6 +117,7 @@ DETAILED DESCRIPTION
 
                     FromSource 'MyModule'
                     To '\\Server\Modules'
+                    Tagged Prod, Module
                     WithOptions @{
                         Mirror = $True
                     }
@@ -165,3 +169,10 @@ DETAILED DESCRIPTION
             Get-PSDeployment converts the YAML and processes it into a number of 'Deployment' objects.
             If you need other data included, you can extend the YML and reference the
             'Raw' property on the deployment objects: this contains the raw converted YAML.
+
+KEYWORDS
+    Terms or titles on which you might expect your users to search for the information in this topic.
+
+SEE ALSO
+    about_PSDeploy_Definitions
+    https://github.com/RamblingCookieMonster/PSDeploy

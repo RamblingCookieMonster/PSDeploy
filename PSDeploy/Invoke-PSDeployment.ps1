@@ -44,6 +44,11 @@
         Okay, now what if we have two types, and want to fit it all on one line?
         - DeploymentParameters @{ FilesystemRemote=@{ComputerName = 'PC1'}; Filesystem=@{} }
 
+    .PARAMETER PSDeployTypePath
+        Specify a PSDeploy.yml file that maps DeploymentTypes to their scripts.
+
+        This defaults to the PSDeploy.yml in the PSDeploy module folder
+
     .PARAMETER Force
         Force deployment, skipping prompts and confirmation
 

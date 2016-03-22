@@ -11,35 +11,18 @@
 
         See Get-Help about_PSDeploy for more information.
 
-    .PARAMETER Deployment
-        Deployment object from Get-PSDeployment.
+    .PARAMETER Path
+        Path to a specific PSDeploy.ps1 file, or to a folder that we recursively search for *.PSDeploy.ps1 files
 
-    .PARAMETER DeploymentFile
-        Deployment file. We run Get-PSDeployment against it.
+        Defaults to the current path
 
-    .PARAMETER DeploymentParameters
-        Hashtable of hashtables
+    .PARAMETER Tags
+        Only invoke deployments that are tagged with all of the specified Tags (-and, not -or)
 
-        The first layer of keys are the deployment types
-        These deployment types are assigned a hashtable of parameters
+    .PARAMETER PSDeployTypePath
+        Specify a PSDeploy.yml file that maps DeploymentTypes to their scripts.
 
-        So, pretend we have a FileSystemRemote deployement. Here's how we pass parameters:
-        -DeploymentParameters @{
-            FilesystemRemote = @{
-                ComputerName = 'DeployFromThis'
-                Credential = $CredentialForDeploy
-                ConfigurationName = 'SomeSessionConfigToHit'
-            }
-        }
-
-        In this case, any deployments of 'FilesystemRemote' type will use those parameters
-
-        Why separate this out?
-            What if I have a deployment that takes two sorts of parameters?
-            What if I want to add a new deployment type without modifying this function?
-
-        Okay, now what if we have two types, and want to fit it all on one line?
-        - DeploymentParameters @{ FilesystemRemote=@{ComputerName = 'PC1'}; Filesystem=@{} }
+        This defaults to the PSDeploy.yml in the PSDeploy module folder
 
     .PARAMETER Force
         Force deployment, skipping prompts and confirmation
@@ -82,8 +65,7 @@
                     ValueFromPipelineByPropertyName = $True)]
         [string[]]$Path = '.',
 
-        [Hashtable]$DeploymentParameters,
-
+        # Add later. Pass on to Invoke-PSDeployment.
         [validatescript({Test-Path -Path $_ -PathType Leaf -ErrorAction Stop})]
         [string]$PSDeployTypePath = $(Join-Path $PSScriptRoot PSDeploy.yml),
 
@@ -108,6 +90,16 @@
         if($PSBoundParameters.ContainsKey('Force'))
         {
             $InvokePSDeploymentParams.add('Force',$Force)
+        }
+        if($PSBoundParameters.ContainsKey('PSDeployTypePath'))
+        {
+            $InvokePSDeploymentParams.add('PSDeployTypePath',$PSDeployTypePath)
+        }
+
+        $TagParam = @{}
+        if($PSBoundParameters.ContainsKey('Tags'))
+        {
+            $TagParam.Add('Tags',$Tags)
         }
     }
     Process
@@ -136,8 +128,6 @@
                 Throw "Error retrieving deployments from '$PathItem':`n$_"
             }
         }
-
-        Get-PSDeployment -Path $DeploymentFiles | Invoke-PSDeployment @InvokePSDeploymentParams
-
+        Get-PSDeployment @TagParams -Path $DeploymentFiles | Invoke-PSDeployment @InvokePSDeploymentParams
     }
 }

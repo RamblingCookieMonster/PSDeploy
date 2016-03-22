@@ -1,4 +1,4 @@
-Function Tag {
+Function Tagged {
     <#
     .SYNOPSIS
         Specify tags for deployments in a 'By' block
@@ -19,7 +19,7 @@ Function Tag {
             By FileSystem {
                 FromSource 'MyModule'
                 To 'C:\sc\'
-                Tag Prod, Module
+                Tagged Prod, Module
                 WithOptions @{
                     Mirror = $True
                 }
@@ -28,7 +28,7 @@ Function Tag {
             By FileSystem Tasks {
                 FromSource 'Tasks'
                 To 'C:\sc\'
-                Tag Prod, Script
+                Tagged Prod
             }
         }
 

@@ -27,8 +27,8 @@
     .EXAMPLE
         Get-PSDeploymentType
 
-            DeploymentType    Description                                      DeploymentScript                                 HelpContent      
-            --------------    -----------                                      ----------------                                 -----------      
+            DeploymentType    Description                                      DeploymentScript                                 HelpContent
+            --------------    -----------                                      ----------------                                 -----------
             Filesystem        Uses the current session and Robocopy or Copy... C:\sc\stash\psdeploy\PSDeploy\PSDeployScripts... @{description=Sys...
             FilesystemRemote  Uses a PowerShell remoting endpoint and Roboc... C:\sc\stash\psdeploy\PSDeploy\PSDeployScripts... @{description=Sys...
 
@@ -37,8 +37,8 @@
     .EXAMPLE
         Get-PSDeploymentType -Path \\Path\To\Central\PSDeploy.yml
 
-            DeploymentType    Description                                      DeploymentScript                               HelpContent      
-            --------------    -----------                                      ----------------                               -----------      
+            DeploymentType    Description                                      DeploymentScript                               HelpContent
+            --------------    -----------                                      ----------------                               -----------
             Filesystem        Uses the current session and Robocopy or Copy... \\Path\To\Central\Scripts\Filesystem.ps1       @{description=Sys...
             FilesystemRemote  Uses a PowerShell remoting endpoint and Roboc... \\Path\To\Central\Scripts\FilesystemRemote.ps1 @{description=Sys...
             OtherDeployment   Some made up deployment type!                    \\Path\To\Central\Scripts\OtherDeployment.ps1  @{description=Sys...
