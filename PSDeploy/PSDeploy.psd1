@@ -58,8 +58,18 @@ FormatsToProcess = @('PSDeploy.Format.ps1xml')
 # NestedModules = @()
 
 # Functions to export from this module
-#FunctionsToExport = @('Get-PSDeployment', 'Get-PSDeploymentType', 'Invoke-PSDeployment', 'Get-PSDeploymentScript')
-FunctionsToExport = '*'
+FunctionsToExport = @('Get-PSDeployment',
+                      'Get-PSDeploymentType',
+                      'Invoke-PSDeployment',
+                      'Get-PSDeploymentScript',
+                      'Invoke-PSDeploy',
+                      'By',
+                      'Deploy',
+                      'FromSource',
+                      'To',
+                      'Tag',
+                      'WithOptions')
+#FunctionsToExport = '*'
 
 # Cmdlets to export from this module
 # CmdletsToExport = '*'
