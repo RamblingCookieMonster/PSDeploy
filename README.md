@@ -149,6 +149,44 @@ The deployments.yml has FilesystemRemote deployments, which clunkyly deploys fro
         }
 ```
 
+## Extending PSDeploy
+
+PSDeploy is somewhat extensible. To add a new deployment type:
+
+* Update PSDeploy.yml in the PSDeploy root.
+  * The deployment name is the root node.
+  * The script node defines what script to run for these deployment types
+  * The description is... not really used. But feel free to write one!
+  * For example, I might add support for SCP:
+
+```yaml
+SCP:
+  Script: SCP.ps1
+  Description: Deploys artifacts using SCP. Requires Posh-SSH
+```
+
+* Create the associated script in PSDeploy\PSDeployScripts
+  * For example, I would create \\Path\To\PSDeploy\PSDeployScripts\SCP.ps1
+  * Include a 'Deployment' parameter.
+    * See [\\\\Path\To\PSDeploy\PSDeployScripts\FilesystemRemote.ps1](https://github.com/RamblingCookieMonster/PSDeploy/blob/master/PSDeploy%2FPSDeployScripts%2FFilesystemRemote.ps1) for an example
+    * Here's how I implement this:
+
+```powershell
+param(
+    [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
+    [psobject[]]$Deployment
+    #... other params
+)
+
+# Further down, I remove deployment From PSBoundParameters, and splat that as needed.
+# $Deployment would still be available, just not listed in bound params.
+$PSBoundParameters.Remove('Deployment')
+```
+
+* Update yml schema as needed.
+  * Get-PSDeployment processes the yaml into a number of 'Deployment' objects.
+  * If you need other data included, you can extend the YML and reference the 'Raw' property on the deployment objects: this contains the raw converted YAML.
+
 ## Notes
 
 TODO:

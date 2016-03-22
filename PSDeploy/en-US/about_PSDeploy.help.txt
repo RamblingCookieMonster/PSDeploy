@@ -20,7 +20,7 @@ DETAILED DESCRIPTION
                                 They might have a source, a destination, and options for specific types of deployment.
 
         *.PSDeploy.ps1 Script:  These are an alternative to a Deployment yaml file.
-                                They use pester-like syntax to define deployments.
+                                They use pester-like scripts to define deployments.
 
         Deployment Type:        These define how to actually deploy something.
                                 Each type is associated with a script.
@@ -97,6 +97,8 @@ DETAILED DESCRIPTION
         # I can invoke the deployment
         Invoke-PSDeployment -Path $DeployFile
 
+    See about_psdeploy_definitions for more information
+
     Example use (*.PSDeploy.ps1)
     ===========
 
@@ -124,6 +126,8 @@ DETAILED DESCRIPTION
         # Alternatively:
         cd C:\Git\MyModuleRepo
         Invoke-PSDeploy
+
+    See about_psdeploy_definitions for more information
 
     Extending PSDeploy
     ==================
@@ -161,18 +165,3 @@ DETAILED DESCRIPTION
             Get-PSDeployment converts the YAML and processes it into a number of 'Deployment' objects.
             If you need other data included, you can extend the YML and reference the
             'Raw' property on the deployment objects: this contains the raw converted YAML.
-
-    Why did you do X?
-    =================
-    Because. This was a poorly thought out side project. Would love suggestions or pull requests!
-
-    Some TODOs:
-
-        - Remove reliance on relative paths
-            - Sources                - allow deploying from a (maybe?) more deterministic path
-            - DeploymentType scripts - allow centralization
-
-        - Update the horribly broken schema. Organic growth is a poor way to create a schema : )
-
-        - Fix bad code. PRs would be welcome. Or a pointer to a better implementation of this idea!
-
