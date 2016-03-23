@@ -72,18 +72,26 @@ Function Deploy {
     .LINK
         Get-PSDeploymentScript
     #>
-    [cmdletbinding()]
+    [cmdletbinding(DefaultParameterSetName = 'NoName')]
     param(
-        [parameter( Position = 0,
+        [parameter( ParameterSetName = 'Name',
+                    Position = 0,
                     Mandatory = $False)]
-        [string]$Name = $( [guid]::NewGuid().Guid ),
+        [string]$Name,
 
-        [parameter( Position = 1,
+        [parameter( ParameterSetName = 'Name',
+                    Position = 1,
+                    Mandatory = $True)]
+        [parameter( ParameterSetName = 'NoName',
+                    Position = 0,
                     Mandatory = $True)]
         [scriptblock]$Script
 
     )
-
+    if($PSCmdlet.ParameterSetName -eq 'NoName')
+    {
+        [string]$Name = $( [guid]::NewGuid().Guid )
+    }
     $Script:ThisDeployment = @{
         DeploymentName = $Name
     }

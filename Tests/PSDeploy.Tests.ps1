@@ -11,6 +11,8 @@ Import-Module $PSScriptRoot\..\PSDeploy -Force
     $IntegrationTarget = "$PSScriptRoot\Destination\"
     $FileYML = "$PSScriptRoot\IntegrationFile.yml"
     $FolderYML = "$PSScriptRoot\IntegrationFolder.yml"
+    $FilePS1 = "$PSScriptRoot\IntegrationFile.PSDeploy.ps1"
+    $FolderPS1 = "$PSScriptRoot\IntegrationFolder.PSDeploy.ps1"
     $WaitForFilesystem = .5
 
     Remove-Item -Path $IntegrationTarget -ErrorAction SilentlyContinue -Force -Recurse
@@ -39,6 +41,32 @@ Files:
   Options:
     Mirror: True
 "@ | Out-File -FilePath $FolderYML -force
+
+@"
+Deploy Files {
+    By Filesystem {
+        FromSource Modules
+        To $IntegrationTarget
+        WithOptions @{
+            Mirror = $True
+        }
+        Tagged Testing
+    }
+}
+"@ | Out-File -FilePath $FolderPS1 -force
+
+@"
+Deploy Files {
+    By Filesystem {
+        FromSource Modules\File1.ps1
+        To $IntegrationTarget
+        WithOptions @{
+            Mirror = $false
+        }
+        Tagged Testing
+    }
+}
+"@ | Out-File -FilePath $FilePS1 -force
 
 Describe "Get-PSDeploymentType PS$PSVersion" {
 
@@ -97,27 +125,48 @@ Describe "Get-PSDeployment PS$PSVersion" {
 
         Set-StrictMode -Version latest
 
-        It 'Handles single deployments' {
+        It 'Handles single deployments by yml' {
             $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\DeploymentsSingle.yml )
             $Deployments.Count | Should Be 1
         }
 
-        It 'Handles multiple source deployments' {
+        It 'Handles single deployments by ps1' {
+            $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\DeploymentsSingle.psdeploy.ps1 )
+            $Deployments.Count | Should Be 1
+        }
+
+        It 'Handles multiple source deployments by yml' {
             $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\DeploymentsMultiSource.yml )
             $Deployments.Count | Should Be 3
         }
 
-        It 'Handles multiple deployments' {
+        It 'Handles multiple source deployments by ps1' {
+            $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\DeploymentsMultiSource.psdeploy.ps1 )
+            $Deployments.Count | Should Be 3
+        }
+
+        It 'Handles multiple deployments by yml' {
             $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\DeploymentsMulti.yml )
             $Deployments.Count | Should Be 4
         }
 
-        It 'Returns a PSDeploy.Deployment object' {
+        It 'Handles multiple deployments by ps1' {
+            $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\DeploymentsMulti.psdeploy.ps1 )
+            $Deployments.Count | Should Be 4
+        }
+
+        It 'Returns a PSDeploy.Deployment object from yml' {
             $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\DeploymentsSingle.yml )
             $Deployments[0].psobject.TypeNames[0] | Should Be 'PSDeploy.Deployment'
         }
 
-        It 'Handles identifying source type' {
+        It 'Returns a PSDeploy.Deployment object from ps1' {
+            $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\DeploymentsSingle.psdeploy.ps1 )
+            $Deployments[0].psobject.TypeNames[0] | Should Be 'PSDeploy.Deployment'
+
+        }
+
+        It 'Handles identifying source type from yml' {
             $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\DeploymentsMultiSource.yml )
             $Deployments[0].SourceType | Should Be 'File'
             $Deployments[1].SourceType | Should Be 'File'
@@ -189,4 +238,6 @@ Describe "Invoke-PSDeployment PS$PSVersion" {
 
 Remove-Item -Path $FileYML -force
 Remove-Item -Path $FolderYML -force
+Remove-Item -Path $FilePS1 -force
+Remove-Item -Path $FolderPS1 -force
 Remove-Item -Path $IntegrationTarget -Recurse -Force
