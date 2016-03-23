@@ -110,6 +110,36 @@ The deployments.yml has FilesystemRemote deployments, which clunkyly deploys fro
             }
         }
 ```
+### CopyVMFile deployment
+
+This is an example script you might put it in your Hyper-V host.
+The deployment.yml has CopyVMfile deployment, which deploys file from the Hyper-V host to the VM running on the same host using Copy-VMfile cmdlet (ships with Hyper-V module).
+
+```PowerShell
+# Project named CloudAutomation has file under Labteardown\teardown.ps1 which I want deployed to VM named 'testAutomation' under C:\temp\CloudAutomation directory. Below is how the deploment.yml file looks for this.
+PS>get-content .\deployment.yml
+CloudAutomation:                  # Deployment name. This needs to be unique. Call it whatever you want.
+  Author: 'DexterPOSH'                 # Author. Optional.
+  Source:                          # One or more sources to deploy. Absolute, or relative to deployment.yml parent
+    - 'LabtearDown\TearDown.ps1'
+  Destination:                     # One or more destinations to deploy the sources to
+    - C:\Temp\CloudAutomation\
+  DeploymentType: CopyVMFile       # Deployment type. See Get-PSDeploymentType
+  Options:
+    Name: testAutomation #name of the VM to which the file needs to be deployed
+    CreateFullPath: True
+    FileSource: Host
+
+#Invoke the Deployment to copy file
+TRY {
+Get-PSDeployment -Path .\deployment.yml |
+    Invoke-PSDeployment -Verbose -Force -ErrorAction Stop
+
+}
+CATCH [Microsoft.HyperV.PowerShell.VirtualizationException] {
+    Write-host -ForegroundColor Green "All the changes are already synced"
+
+}
 
 ## Notes
 
