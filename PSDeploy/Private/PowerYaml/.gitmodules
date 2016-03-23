@@ -1,0 +1,3 @@
+[submodule "Pester"]
+	path = Pester
+	url = git@github.com:scottmuc/Pester.git

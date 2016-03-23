@@ -87,17 +87,17 @@
             Write-Error "Skipping '$DeploymentFile', could not validate DeploymentRoot '$DeploymentRoot'"
         }
 
-        $Deployments = ConvertFrom-Yaml -Path $DeploymentFile
+        $Deployments = Import-Yaml -Fullname $DeploymentFile
     
-        $DeploymentMap = foreach($DeploymentName in $Deployments.keys)
+        $DeploymentMap = foreach($DeploymentName in $($Deployments | Get-Member -MemberType NoteProperty | select -ExpandProperty Name))
         {
-            $DeploymentHash = $Deployments.$DeploymentName
-            $Author = $DeploymentHash.Author
-            $DeploymentType = $DeploymentHash.DeploymentType
-            $Options = $DeploymentHash.Options
+            $DeploymentObject = $Deployments.$DeploymentName
+            $Author = $DeploymentObject.Author
+            $DeploymentType = $DeploymentObject.DeploymentType
+            $Options = $DeploymentObject.Options
             
-            $Sources = @($DeploymentHash.Source)
-            $Destinations = @($DeploymentHash.Destination)
+            $Sources = @($DeploymentObject.Source)
+            $Destinations = @($DeploymentObject.Destination)
     
             foreach($Source in $Sources)
             {

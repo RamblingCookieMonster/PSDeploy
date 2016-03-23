@@ -69,9 +69,9 @@
     )
 
     # Abstract out reading the yaml and verifying scripts exist
-    $DeploymentDefinitions = ConvertFrom-Yaml -Path $(Join-Path $PSScriptRoot PSDeploy.yml)
+    $DeploymentDefinitions = Import-Yaml -Fullname $(Join-Path $PSScriptRoot PSDeploy.yml)
 
-    foreach($Type in ($DeploymentDefinitions.Keys | Where {$_ -like $DeploymentType}))
+    foreach( $Type in $($DeploymentDefinitions | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name | Where {$_ -like $DeploymentType}))
     {
         #Determine the path to this script
         $Script =  $DeploymentDefinitions.$Type.Script
