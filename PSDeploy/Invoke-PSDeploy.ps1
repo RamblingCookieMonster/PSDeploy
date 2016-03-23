@@ -128,6 +128,12 @@
                 Throw "Error retrieving deployments from '$PathItem':`n$_"
             }
         }
-        Get-PSDeployment @TagParams -Path $DeploymentFiles | Invoke-PSDeployment @InvokePSDeploymentParams
+
+        $PSDeployParams = @{Path = $DeploymentFiles}
+        if($PSBoundParameters.ContainsKey('Tags'))
+        {
+            $TagParam.Add('Tags',$Tags)
+        }
+        Get-PSDeployment @PSDeployParams | Invoke-PSDeployment @InvokePSDeploymentParams
     }
 }
