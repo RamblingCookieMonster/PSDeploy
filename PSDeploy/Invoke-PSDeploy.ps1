@@ -129,11 +129,24 @@
             }
         }
 
-        $PSDeployParams = @{Path = $DeploymentFiles}
+        $GetPSDeployParams = @{Path = $DeploymentFiles}
         if($PSBoundParameters.ContainsKey('Tags'))
         {
-            $TagParam.Add('Tags',$Tags)
+            $GetPSDeployParams.Add('Tags',$Tags)
         }
-        Get-PSDeployment @PSDeployParams | Invoke-PSDeployment @InvokePSDeploymentParams
+        
+        Get-PSDeployment @GetPSDeployParams |
+            Foreach-Object {
+                $TheseParams = @{'DeploymentParameters' = @{}}
+                if($_.DeploymentOptions.Keys.Count -gt 0)
+                {
+                    # Shoehorn Deployment Options into DeploymentParameters
+                    # Needed if we support both yml and ps1 definitions...
+                    $hash = @{$($_.DeploymentType) = $_.DeploymentOptions}
+                    $TheseParams.DeploymentParameters = $hash
+                }
+
+                $_ | Invoke-PSDeployment @TheseParams
+            } 
     }
 }

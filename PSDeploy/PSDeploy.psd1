@@ -67,7 +67,7 @@ FunctionsToExport = @('Get-PSDeployment',
                       'Deploy',
                       'FromSource',
                       'To',
-                      'Tag',
+                      'Tagged',
                       'WithOptions')
 #FunctionsToExport = '*'
 

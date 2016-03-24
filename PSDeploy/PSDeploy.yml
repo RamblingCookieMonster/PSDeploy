@@ -10,3 +10,7 @@ Filesystem:
 FilesystemRemote:
   Script: FilesystemRemote.ps1
   Description: Uses a PowerShell remoting endpoint and Robocopy or Copy-Item for folder and file deployments, respectively.
+
+Noop:
+  Script: noop.ps1
+  Description: Display parameters that a deployment script would receive. Use for testing and validation.

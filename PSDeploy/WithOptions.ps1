@@ -4,9 +4,14 @@ Function WithOptions {
         Specify options for a DeploymentType
 
     .DESCRIPTION
-        Specify options for a DeploymentType
+        Specify options for a DeploymentType.  This includes both DeploymentOptions and DeploymentParameters.
 
-        See Get-PSDeploymentType for details on different DeploymentTypes and the options they accept
+        These are passed directly to the DeploymentType script in two was:
+            - They are splatted against the script
+            - The are included in the $Deployment.DeploymentOptions property
+
+        See Get-PSDeploymentType for details on different DeploymentTypes,
+        and Get-PSDeploymentType -DeploymentType <Type> -ShowHelp to see the parameters they accept
 
         This is not intended to be used anywhere but in a *.PSDeploy.ps1 file. It is included here for intellisense support
 

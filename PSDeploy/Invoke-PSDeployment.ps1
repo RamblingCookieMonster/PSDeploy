@@ -170,30 +170,26 @@
                         continue
                     }
                     $TheseDeployments = @( $Deployment | Where-Object {$_.DeploymentType -eq $DeploymentType})
-
+                    
                     #Define params for the script
                     #Each deployment type can have a hashtable to splat.
                     if($PSBoundParameters.ContainsKey('DeploymentParameters') -and $DeploymentParameters.ContainsKey($DeploymentType))
                     {
-                        $params = $DeploymentParameters.$DeploymentType
+                        $splat = $DeploymentParameters.$DeploymentType
                     }
                     else
                     {
-                        $params = @{}
+                        $splat = @{}
                     }
 
+                    $params = @{ Deployment = $TheseDeployments }
                     if($PSBoundParameters.ContainsKey('Verbose'))
                     {
-                        $Params.Add('Verbose',$Verbose)
+                        $params.Add('Verbose',$Verbose)
                     }
 
-                    $Params.Add('Deployment', $TheseDeployments)
-
-                    Write-Verbose "Processing '$($TheseDeployments.count)' $DeploymentType deployments"
-
                     #Run the associated script, splat the parameters
-                    & $DeploymentScript @params
-
+                    & $DeploymentScript @params @splat
                 }
             }
         }
