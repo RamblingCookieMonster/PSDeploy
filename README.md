@@ -13,37 +13,7 @@ Suggestions, pull requests, and other contributions would be more than welcome!
 
 We use either a yml file, or a *.psdeploy.ps1 file to define our deployments.
 
-### Option 1: Deployments.yml
-
-Here's an example Deployments.yml
-
-```yaml
-ActiveDirectory1:                  # Deployment name. This needs to be unique. Call it whatever you want.
-  Author: 'wframe'                 # Author. Optional.
-  Source:                          # One or more sources to deploy. Absolute, or relative to deployment.yml parent
-    - 'Tasks\AD\Some-ADScript.ps1'
-    - 'Tasks\AllOfThisDirectory'
-  Destination:                     # One or more destinations to deploy the sources to
-    - '\\contoso.org\share$\Tasks'
-  Tagged:                          # One or more tags you can use to restrict deployments or queries
-    - Prod
-  DeploymentType: Filesystem       # Deployment type. See Get-PSDeploymentType
-  Options:
-    Mirror: True                   # If the source is a folder, triggers robocopy purge. Danger.
-```
-
-Let's pretend this deployments.yml lives in C:\Git\Misc. Here's what happens when we invoke a deployment:
-
-```Invoke-PSDeployment -Path C:\Git\Misc\deployments.yml```
-
- * We read the yaml. In this case, we have two resulting deployments, Some-ADScript.ps1, and AllOfThisDirectory
-   * We didn't specify absolute paths or -DeploymentRoot, so we check relative path to source files under C:\Git\Misc (the yml file's parent)
- * We check the deployment type. Filesystem.
- * We invoke the script associated with Filesystem Deployments, passing in the ActiveDirectory1 deployment
- * C:\Git\Misc\Tasks\AD\Some-ADScript.ps1 is copied to \\contoso.org\share$\Tasks with Copy-Item
- * C:\Git\Misc\Tasks\AD\Tasks\AllOfThisDirectory is copied to \\contoso.org\share$\Tasks with robocopy, using /XO /E /PURGE (we only purge if mirror is true in yml)
-
-### Option 2: *.PSDeploy.ps1
+### Option 1: *.PSDeploy.ps1
 
 This option is similar to using Invoke-Pester.  Here's an example, Some.PSDeploy.ps1
 
@@ -78,6 +48,36 @@ Invoke-PSDeploy C:\Git\Misc
  * C:\Git\Misc\Tasks\AD\Tasks\AllOfThisDirectory is copied to \\contoso.org\share$\Tasks with robocopy, using /XO /E /PURGE (we only purge if mirror is true in yml)
 
 Note: PSDeploy.ps1 type deployments are under development and may see breaking changes
+
+### Option 2: Deployments.yml
+
+Here's an example Deployments.yml
+
+```yaml
+ActiveDirectory1:                  # Deployment name. This needs to be unique. Call it whatever you want.
+  Author: 'wframe'                 # Author. Optional.
+  Source:                          # One or more sources to deploy. Absolute, or relative to deployment.yml parent
+    - 'Tasks\AD\Some-ADScript.ps1'
+    - 'Tasks\AllOfThisDirectory'
+  Destination:                     # One or more destinations to deploy the sources to
+    - '\\contoso.org\share$\Tasks'
+  Tags:                            # One or more tags you can use to restrict deployments or queries
+    - Prod
+  DeploymentType: Filesystem       # Deployment type. See Get-PSDeploymentType
+  Options:
+    Mirror: True                   # If the source is a folder, triggers robocopy purge. Danger.
+```
+
+Let's pretend this deployments.yml lives in C:\Git\Misc. Here's what happens when we invoke a deployment:
+
+```Invoke-PSDeployment -Path C:\Git\Misc\deployments.yml```
+
+ * We read the yaml. In this case, we have two resulting deployments, Some-ADScript.ps1, and AllOfThisDirectory
+   * We didn't specify absolute paths or -DeploymentRoot, so we check relative path to source files under C:\Git\Misc (the yml file's parent)
+ * We check the deployment type. Filesystem.
+ * We invoke the script associated with Filesystem Deployments, passing in the ActiveDirectory1 deployment
+ * C:\Git\Misc\Tasks\AD\Some-ADScript.ps1 is copied to \\contoso.org\share$\Tasks with Copy-Item
+ * C:\Git\Misc\Tasks\AD\Tasks\AllOfThisDirectory is copied to \\contoso.org\share$\Tasks with robocopy, using /XO /E /PURGE (we only purge if mirror is true in yml)
 
 ## Initial setup
 
