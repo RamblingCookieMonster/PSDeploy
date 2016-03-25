@@ -68,7 +68,8 @@ FunctionsToExport = @('Get-PSDeployment',
                       'FromSource',
                       'To',
                       'Tagged',
-                      'WithOptions')
+                      'WithOptions',
+                      'DependingOn')
 #FunctionsToExport = '*'
 
 # Cmdlets to export from this module
