@@ -146,13 +146,7 @@
             $DeploymentMap = foreach($DeploymentName in $Deployments.keys)
             {
                 $DeploymentHash = $Deployments.$DeploymentName
-                $Author = $DeploymentHash.Author
-                $DeploymentType = $DeploymentHash.DeploymentType
-                $Options = $DeploymentHash.Options
-                $Tags = $DeploymentHash.Tags
-
                 $Sources = @($DeploymentHash.Source)
-                $Destinations = @($DeploymentHash.Destination)
 
                 #TODO: Move this, not applicable to all deployment types
                 foreach($Source in $Sources)
@@ -184,14 +178,15 @@
                     [pscustomobject]@{
                         DeploymentFile = $DeploymentFile
                         DeploymentName = $DeploymentName
-                        DeploymentAuthor = $Author
-                        DeploymentType = $DeploymentType
-                        DeploymentOptions = $Options
+                        DeploymentAuthor = $DeploymentHash.Author
+                        DeploymentType = $DeploymentHash.DeploymentType
+                        DeploymentOptions = $DeploymentHash.Options
                         Source = $LocalSource
                         SourceType = $Type
                         SourceExists = $Exists
-                        Targets = $Destinations
-                        Tags = $Tags
+                        Targets = @($DeploymentHash.Destination)
+                        Tags = $DeploymentHash.Tags
+                        Dependencies = $DeploymentHash.Dependencies
                         Raw = $DeploymentHash
                     }
                 }
@@ -242,6 +237,7 @@
                     SourceExists = $Exists
                     Targets = $DeploymentItem.Targets
                     Tags = $DeploymentItem.Tags
+                    Dependencies = $DeploymentItem.Dependencies
                     Raw = $null
                 }
             }

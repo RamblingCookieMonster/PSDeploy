@@ -191,7 +191,7 @@ Describe "Invoke-PSDeployment PS$PSVersion" {
         It 'Should deploy a file' {
             Invoke-PSDeployment @Verbose -Path $FileYML -Force
             start-sleep -Seconds $WaitForFilesystem
-            
+
             Test-Path (Join-Path $IntegrationTarget File1.ps1) | Should Be $True
 
         }
@@ -199,7 +199,7 @@ Describe "Invoke-PSDeployment PS$PSVersion" {
         It 'Should deploy a folder' {
             Invoke-PSDeployment @Verbose -Path $FolderYML -Force
             start-sleep -Seconds $WaitForFilesystem
-            
+
             Test-Path (Join-Path $IntegrationTarget File2.ps1) | Should Be $True
             Test-Path (Join-Path $IntegrationTarget 'CrazyModule\A file.txt') | Should Be $True
 
@@ -210,13 +210,13 @@ Describe "Invoke-PSDeployment PS$PSVersion" {
         It 'Should mirror a folder' {
             $FolderToDelete = Join-Path $IntegrationTarget 'DeleteThisFolder'
             $FileToDelete = Join-Path $IntegrationTarget 'DeleteThisFile'
-            
+
             mkdir $FolderToDelete
             New-Item -ItemType File -Path $FileToDelete
-            
+
             Invoke-PSDeployment @Verbose -Path $FolderYML -Force
             start-sleep -Seconds $WaitForFilesystem
-            
+
             Test-Path (Join-Path $IntegrationTarget File2.ps1) | Should Be $True
             Test-Path (Join-Path $IntegrationTarget 'CrazyModule\A file.txt') | Should Be $True
             Test-Path $FolderToDelete | Should Be $False
@@ -230,10 +230,25 @@ Describe "Invoke-PSDeployment PS$PSVersion" {
 
             Get-PSDeployment @Verbose -Path $FileYML | Invoke-PSDeployment @Verbose -force
             Start-Sleep -Seconds $WaitForFilesystem
-            
+
             Test-Path (Join-Path $IntegrationTarget File1.ps1) | Should Be $True
         }
     }
+}
+
+Describe "Invoke-PSDeploy PS$PSVersion" {
+    Context 'Strict mode' {
+        Set-StrictMode -Version latest
+
+        It 'Should handle dependencies' {
+            Set-Location $PSScriptRoot
+            $NoopOutput = Invoke-PSDeploy -Path DeploymentsDependencies.psdeploy.ps1 -Force
+            $NoopOutput.Deployment.Count | Should be 4
+            $NoopOutput.Deployment[0].DeploymentName | Should Be 'ModuleFiles-Files'
+            $NoopOutput.Deployment[3].DeploymentName | Should Be 'ModuleFiles-Misc'
+        }
+    }
+
 }
 
 Remove-Item -Path $FileYML -force

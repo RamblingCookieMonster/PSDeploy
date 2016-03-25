@@ -108,6 +108,7 @@ Function By {
         Targets = $null
         DeploymentOptions = $null
         Tags = $null
+        Dependencies = $null
     }
 
     if( $PSCmdlet.ParameterSetName -eq 'Name')

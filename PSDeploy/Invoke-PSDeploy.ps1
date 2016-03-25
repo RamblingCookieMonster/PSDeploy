@@ -129,13 +129,31 @@
             }
         }
 
+        # Parse
         $GetPSDeployParams = @{Path = $DeploymentFiles}
         if($PSBoundParameters.ContainsKey('Tags'))
         {
             $GetPSDeployParams.Add('Tags',$Tags)
         }
-        
-        Get-PSDeployment @GetPSDeployParams |
+
+        # Handle Dependencies
+        $ToDeploy = Get-PSDeployment @GetPSDeployParams
+        $Order = @{}
+        Foreach($Deployment in $ToDeploy)
+        {
+            if($Deployment.Dependencies)
+            {
+                $Order.add($Deployment.DeploymentName, $Deployment.Dependencies)
+            }
+        }
+        if($Order.Keys.Count -gt 0)
+        {
+            $DeployOrder = Get-TopologicalSort $Order
+            $ToDeploy = Sort-ObjectWithCustomList -InputObject $ToDeploy -Property DeploymentName -CustomList $DeployOrder
+        }
+
+        # Deploy!
+        $ToDeploy |
             Foreach-Object {
                 $TheseParams = @{'DeploymentParameters' = @{}}
                 if($_.DeploymentOptions.Keys.Count -gt 0)
@@ -146,7 +164,7 @@
                     $TheseParams.DeploymentParameters = $hash
                 }
 
-                $_ | Invoke-PSDeployment @TheseParams
-            } 
+                $_ | Invoke-PSDeployment @TheseParams @InvokePSDeploymentParams
+            }
     }
 }

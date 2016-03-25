@@ -170,7 +170,7 @@
                         continue
                     }
                     $TheseDeployments = @( $Deployment | Where-Object {$_.DeploymentType -eq $DeploymentType})
-                    
+
                     #Define params for the script
                     #Each deployment type can have a hashtable to splat.
                     if($PSBoundParameters.ContainsKey('DeploymentParameters') -and $DeploymentParameters.ContainsKey($DeploymentType))
