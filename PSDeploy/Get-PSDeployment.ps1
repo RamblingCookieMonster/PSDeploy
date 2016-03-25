@@ -115,10 +115,11 @@
 
             $Script:Deployments = [ordered]@{}
             . $DeploymentFile
-            Foreach($key in $Script:Deployments.Keys)
+            $ToParse = Foreach($key in $Script:Deployments.Keys)
             {
-                Get-PSDeployment -Deployment $([pscustomobject]$Script:Deployments.$Key) -DeploymentRoot $DeploymentRoot @TagParam
+                $([pscustomobject]$Script:Deployments.$Key)
             }
+            Get-PSDeployment -Deployment $ToParse -DeploymentRoot $DeploymentRoot @TagParam
         }
         return
     }
@@ -254,5 +255,6 @@
         $DeploymentMap = Get-TaggedDeployment -Deployment $DeploymentMap @TagParam
     }
 
-    $DeploymentMap | Add-ObjectDetail -TypeName 'PSDeploy.Deployment'
+    $DeploymentMap = Sort-PSDeployment -Deployments $DeploymentMap
+    Add-ObjectDetail -InputObject $DeploymentMap -TypeName 'PSDeploy.Deployment'
 }

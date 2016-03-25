@@ -137,23 +137,7 @@
         }
 
         # Handle Dependencies
-        $ToDeploy = Get-PSDeployment @GetPSDeployParams
-        $Order = @{}
-        Foreach($Deployment in $ToDeploy)
-        {
-            if($Deployment.Dependencies)
-            {
-                $Order.add($Deployment.DeploymentName, $Deployment.Dependencies)
-            }
-        }
-        if($Order.Keys.Count -gt 0)
-        {
-            $DeployOrder = Get-TopologicalSort $Order
-            $ToDeploy = Sort-ObjectWithCustomList -InputObject $ToDeploy -Property DeploymentName -CustomList $DeployOrder
-        }
-
-        # Deploy!
-        $ToDeploy |
+        Get-PSDeployment @GetPSDeployParams |
             Foreach-Object {
                 $TheseParams = @{'DeploymentParameters' = @{}}
                 if($_.DeploymentOptions.Keys.Count -gt 0)
