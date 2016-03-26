@@ -171,19 +171,40 @@
             $GetPSDeployParams.Add('DeploymentRoot', $DeploymentRoot)
         }
 
-        # Handle Dependencies
-        Get-PSDeployment @GetPSDeployParams |
-            Foreach-Object {
-                $TheseParams = @{'DeploymentParameters' = @{}}
-                if($_.DeploymentOptions.Keys.Count -gt 0)
-                {
-                    # Shoehorn Deployment Options into DeploymentParameters
-                    # Needed if we support both yml and ps1 definitions...
-                    $hash = @{$($_.DeploymentType) = $_.DeploymentOptions}
-                    $TheseParams.DeploymentParameters = $hash
-                }
+        $DeploymentScripts = Get-PSDeploymentScript
 
-                $_ | Invoke-PSDeployment @TheseParams @InvokePSDeploymentParams
+        # Handle Dependencies
+        $ToDeploy = Get-PSDeployment @GetPSDeployParams
+        foreach($Deployment in $ToDeploy)
+        {
+            $TheseParams = @{'DeploymentParameters' = @{}}
+            if($Deployment.DeploymentOptions.Keys.Count -gt 0)
+            {
+                $Type = $Deployment.DeploymentType
+                # Shoehorn Deployment Options into DeploymentParameters
+                # Needed if we support both yml and ps1 definitions...
+
+                # First, get the script, parse out parameters, restrict splatting to valid params
+                $DeploymentScript = $DeploymentScripts.$Type
+                $ValidParameters = Get-ParameterName -Command $DeploymentScript
+
+                $FilteredOptions = @{}
+                foreach($key in $Deployment.DeploymentOptions.Keys)
+                {
+                    if($ValidParameters -contains $key)
+                    {
+                        $FilteredOptions.Add($key, $Deployment.DeploymentOptions.$key)
+                    }
+                    else
+                    {
+                        Write-Warning "WithOption '$Key' is not a valid parameter for '$$Type"
+                    }
+                }
+                $hash = @{$Type = $FilteredOptions}
+                $TheseParams.DeploymentParameters = $hash
             }
+
+            $Deployment | Invoke-PSDeployment @TheseParams @InvokePSDeploymentParams
+        }
     }
 }
