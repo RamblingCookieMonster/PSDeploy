@@ -193,18 +193,6 @@ $PSBoundParameters.Remove('Deployment')
 
 ## Notes
 
-TODO:
-
-* Get-PSDeployment should parse PSDeploy.PS1 files
-* Documentation for new invocation method
-* Testing for new invocation method
-* Refactor, this was just a quick stab, it's ugly
-* Schema could use work.
-* Fix bad code. PRs would be welcome
-* More deployment types, if / when they come up
-* Order of operations.
-  * For example, perhaps you have an 'archive file' deployment type, and you want to run that first, deploy the resulting archive as another deployment type.
-
 Thanks go to:
 
 * Scott Muc for [PowerYaml](https://github.com/scottmuc/PowerYaml), which we borrow for YAML parsing
