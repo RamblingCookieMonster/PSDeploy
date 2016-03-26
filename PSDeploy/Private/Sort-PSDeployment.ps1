@@ -4,7 +4,6 @@ function Sort-PSDeployment {
         [object[]]$Deployments
     )
 
-    Write-Verbose "Working on $($Deployments | Select DeploymentName, Dependencies | Out-String)"
     $Order = @{}
     Foreach($Deployment in $Deployments)
     {
@@ -13,7 +12,6 @@ function Sort-PSDeployment {
             $Order.add($Deployment.DeploymentName, $Deployment.Dependencies)
         }
     }
-    Write-Verbose "$($Order | Out-String)"
 
     if($Order.Keys.Count -gt 0)
     {

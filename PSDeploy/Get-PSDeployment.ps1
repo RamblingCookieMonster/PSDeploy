@@ -16,18 +16,22 @@
             SourceType        = Directory or file
             SourceExists      = Whether we can test path against the local source
             Targets           = One or more targets to deploy to.
-            Raw               = Raw definition for this deployment, feel free to go wild.
+            Tags              = One or more tags associated with this deployment
+            Dependencies      = One or more DeploymentNames that this deployment depends on
+            Raw               = Raw definition for yaml deployments
 
         This is oriented around deployments from a Windows system.
 
         It's a poor schema that grew from a single use case.
-        Included 'Raw', allowing you to do whatever you want : )
 
     .PARAMETER Path
         Path to deployment.yml to parse
 
     .PARAMETER DeploymentRoot
         Assumed root of the deployment.yml for relative paths. Default is the parent of deployment.yml
+
+    .PARAMETER Deployment
+        Used in the background by Invoke-PSDeploy
 
     .PARAMETER Tags
         Only return deployments with all of the specified Tags (like -and, not -or)

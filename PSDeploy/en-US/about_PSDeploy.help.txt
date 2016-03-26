@@ -16,11 +16,11 @@ DETAILED DESCRIPTION
     ========================
     There are three primary concepts:
 
-        Deployment:             These are yaml files defining what is being deployed.
-                                They might have a source, a destination, and options for specific types of deployment.
+        *.PSDeploy.ps1 Script:  Scripts that tell PSDeploy what you want to deploy
+                                These are an alternative to Deployment yaml files.
 
-        *.PSDeploy.ps1 Script:  These are an alternative to a Deployment yaml file.
-                                They use pester-like scripts to define deployments.
+        Deployment yaml:        These are yaml files defining what is being deployed.
+                                They might have a source, a destination, and options for specific types of deployment.
 
         Deployment Type:        These define how to actually deploy something.
                                 Each type is associated with a script.
@@ -51,6 +51,37 @@ DETAILED DESCRIPTION
                 -DeploymentParameters @{ FilesystemRemote = @{ComputerName = 'Server1'}}
 
                 The deployment script for FilesystemRemote would receive -ComputerName 'Server1'
+
+    Example use (*.PSDeploy.ps1)
+    ===========
+
+    Similar to the above example, but using a *.PSDeploy.ps1 file as the deployment definition.
+
+        I want to deploy C:\Git\MyModuleRepo\MyModule to \\Server\Modules
+
+        C:\Git\MyModuleRepo\My.PSDeploy.ps1 looks like this:
+
+            Deploy MyDeploymentName {
+
+                By FileSystem 'OptionalName' {
+
+                    FromSource 'MyModule'
+                    To '\\Server\Modules'
+                    Tagged Prod, Module
+                    WithOptions @{
+                        Mirror = $True
+                    }
+                }
+            }
+
+        # Invoke a deployment:
+        Invoke-PSDeploy C:\Git\MyModuleRepo
+
+        # Alternatively:
+        cd C:\Git\MyModuleRepo
+        Invoke-PSDeploy
+
+    See about_psdeploy_definitions for more information
 
     Example use (yaml)
     ===========
@@ -102,37 +133,6 @@ DETAILED DESCRIPTION
 
     See about_psdeploy_definitions for more information
 
-    Example use (*.PSDeploy.ps1)
-    ===========
-
-    Similar to the above example, but using a *.PSDeploy.ps1 file as the deployment definition.
-
-        I want to deploy C:\Git\MyModuleRepo\MyModule to \\Server\Modules
-
-        C:\Git\MyModuleRepo\My.PSDeploy.ps1 looks like this:
-
-            Deploy MyDeploymentName {
-
-                By FileSystem 'OptionalName' {
-
-                    FromSource 'MyModule'
-                    To '\\Server\Modules'
-                    Tagged Prod, Module
-                    WithOptions @{
-                        Mirror = $True
-                    }
-                }
-            }
-
-        # Invoke a deployment:
-        Invoke-PSDeploy C:\Git\MyModuleRepo
-
-        # Alternatively:
-        cd C:\Git\MyModuleRepo
-        Invoke-PSDeploy
-
-    See about_psdeploy_definitions for more information
-
     Extending PSDeploy
     ==================
     PSDeploy is somewhat extensible. To add a new deployment type:
@@ -169,9 +169,6 @@ DETAILED DESCRIPTION
             Get-PSDeployment converts the YAML and processes it into a number of 'Deployment' objects.
             If you need other data included, you can extend the YML and reference the
             'Raw' property on the deployment objects: this contains the raw converted YAML.
-
-KEYWORDS
-    Terms or titles on which you might expect your users to search for the information in this topic.
 
 SEE ALSO
     about_PSDeploy_Definitions

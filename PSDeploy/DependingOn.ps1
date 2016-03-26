@@ -26,7 +26,7 @@ Function DependingOn {
                 WithOptions @{
                     Mirror = $True
                 }
-                DependingOn DeployMyModule-Tasks
+                DependingOn DeployMyModule-Tasks   # <<<<<<
             }
 
             By FileSystem Tasks {
