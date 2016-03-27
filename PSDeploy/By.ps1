@@ -142,7 +142,14 @@ Function By {
             return
         }
 
-        $Script:Deployments.Add($Name, $Script:ThisBy)
+        try
+        {
+            $Script:Deployments.Add($Name, $Script:ThisBy)
+        }
+        catch
+        {
+            Write-Error "Deploy block names must be unique.`n`nIgnoring deployment: $($Script:ThisBy | Out-String)`n`nExisting conflict: $($Script:Deployments.$Name | Out-String)"
+        }
         Remove-Variable -Name ThisBy -Scope Script -Confirm:$False -Force
     }
 }

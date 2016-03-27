@@ -103,7 +103,7 @@
     $TagParam = @{}
     if( $PSBoundParameters.ContainsKey('Tags') )
     {
-        $TagParam.Add('Tags',@($Tags))
+        $TagParam.Add('Tags',$Tags)
     }
 
     # Handle PSDeploy.ps1 parsing
@@ -123,7 +123,10 @@
             {
                 $([pscustomobject]$Script:Deployments.$Key)
             }
-            Get-PSDeployment -Deployment $ToParse -DeploymentRoot $DeploymentRoot @TagParam
+            if($Script:Deployments.Keys.Count -gt 0)
+            {
+                Get-PSDeployment -Deployment $ToParse -DeploymentRoot $DeploymentRoot @TagParam
+            }
         }
         return
     }
@@ -249,6 +252,10 @@
         }
     }
 
+    if(-not $DeploymentMap)
+    {
+        Throw "No deployments processed. Something went wrong."
+    }
     if( @($DeploymentMap.SourceExists) -contains $false)
     {
         Write-Error "Nonexistent paths found:`n`n$($DeploymentMap | Where {-not $_.SourceExists} | Format-List | Out-String)`n"
@@ -257,6 +264,11 @@
     If($PSBoundParameters.ContainsKey('Tags'))
     {
         $DeploymentMap = Get-TaggedDeployment -Deployment $DeploymentMap @TagParam
+        if(-not $DeploymentMap)
+        {
+            Write-Warning "No deployments found with tags '$tags'"
+            return
+        }
     }
 
     $DeploymentMap = Sort-PSDeployment -Deployments $DeploymentMap

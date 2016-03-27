@@ -11,7 +11,13 @@ Function Deploy {
         This is not intended to be used anywhere but in a *.PSDeploy.ps1 file. It is included here for intellisense support
 
     .PARAMETER Name
-        A name for the deployment in a PSDeploy.ps1 file. If not specified, we generate and use a GUID.
+        A name for the deployment in a PSDeploy.ps1 file.
+
+        If not specified, we generate and use a GUID.
+
+        Get-PSDeployment will generate a new GUID each run,
+        if you need to refer to the deployment in any consistent way,
+        be sure to name it with this parameter.
 
     .PARAMETER Script
         Details on the deployment. You can include the following functions inside your Deploy:

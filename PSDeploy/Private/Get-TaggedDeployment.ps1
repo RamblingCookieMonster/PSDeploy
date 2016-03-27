@@ -7,12 +7,12 @@
     # Only return deployment with all specified tags
     foreach($Deploy in $Deployment)
     {
-        $Include = $True
+        $Include = $False
         foreach($Tag in @($Tags))
         {
-            if($Deploy.Tags -notcontains $Tag)
+            if($Deploy.Tags -contains $Tag)
             {
-                $Include = $False
+                $Include = $True
             }
         }
         If($Include)

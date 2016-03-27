@@ -125,12 +125,6 @@
         {
             $InvokePSDeploymentParams.add('PSDeployTypePath',$PSDeployTypePath)
         }
-
-        $TagParam = @{}
-        if($PSBoundParameters.ContainsKey('Tags'))
-        {
-            $TagParam.Add('Tags',$Tags)
-        }
     }
     Process
     {
@@ -220,7 +214,7 @@
                     }
                     else
                     {
-                        Write-Warning "WithOption '$Key' is not a valid parameter for '$$Type"
+                        Write-Warning "WithOption '$Key' is not a valid parameter for '$Type'"
                     }
                 }
                 $hash = @{$Type = $FilteredOptions}
