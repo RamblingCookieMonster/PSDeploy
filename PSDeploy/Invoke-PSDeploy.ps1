@@ -19,7 +19,7 @@
         Only invoke deployments that are tagged with all of the specified Tags (-and, not -or)
 
     .PARAMETER DeploymentRoot
-        Root path used to determing relative paths. Defaults to the current path.
+        Root path used to determing relative paths. Defaults to the Path parameter.
 
     .PARAMETER PSDeployTypePath
         Specify a PSDeploy.yml file that maps DeploymentTypes to their scripts.
@@ -87,6 +87,7 @@
     [cmdletbinding( SupportsShouldProcess = $True,
                     ConfirmImpact='High' )]
     Param(
+        [validatescript({Test-Path -Path $_ -ErrorAction Stop})]
         [parameter( ValueFromPipeline = $True,
                     ValueFromPipelineByPropertyName = $True)]
         [string[]]$Path = '.',
@@ -133,8 +134,30 @@
     }
     Process
     {
+
+
         foreach( $PathItem in $Path )
         {
+            if( -not $PSBoundParameters.ContainsKey('DeploymentRoot') )
+            {
+                try
+                {
+                    $Item = Get-Item $PathItem -ErrorAction Stop
+                }
+                catch
+                {
+                    Write-Error "Could not determine whether path '$PathItem' is a container or file"
+                    Throw $_
+                }
+                if($Item.PSIsContainer)
+                {
+                    $DeploymentRoot = $PathItem
+                }
+                else
+                {
+                    $DeploymentRoot = $Item.DirectoryName
+                }
+            }
             # Create a map for deployments
             Try
             {

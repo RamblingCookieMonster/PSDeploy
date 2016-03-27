@@ -19,9 +19,6 @@ DETAILED DESCRIPTION
         *.PSDeploy.ps1 Script:  Scripts that tell PSDeploy what you want to deploy
                                 These are an alternative to Deployment yaml files.
 
-        Deployment yaml:        These are yaml files defining what is being deployed.
-                                They might have a source, a destination, and options for specific types of deployment.
-
         Deployment Type:        These define how to actually deploy something.
                                 Each type is associated with a script.
                                 The default types are FileSystem and FileSystemRemote. This is extensible.
@@ -33,31 +30,20 @@ DETAILED DESCRIPTION
 
     Conventions
     ===========
-    These could change. See TODOs at the end of this help file.
 
-        The deployment yml is assumed to be relative to source files. For example:
-            If the path is C:\Whatever\deployment.yml,
-            and a source points to 'Modules\MyModules',
-            this would mean C:\Whatever\Modules\MyModules.
-            You can override this with the DeploymentRoot
-            parameter on Get-PSDeployment
+    These could change.
 
-        The deployment scripts can accept parameters. To pass these in,
-            read up on the Invoke-PSDeployment parameter 'DeploymentParameters'
-            Long story short, this is a hash table defined as:
-                @{ <DeploymentType> = @{<HashTableOfParametersToSplat>} }
-
-            For example:
-                -DeploymentParameters @{ FilesystemRemote = @{ComputerName = 'Server1'}}
-
-                The deployment script for FilesystemRemote would receive -ComputerName 'Server1'
+    The current path is assumed to be relative to source files. For example:
+        If the current path is C:\Whatever,
+        and a source points to 'Modules\MyModules',
+        this would mean C:\Whatever\Modules\MyModules.
+        You can override this with the DeploymentRoot parameter
+        on Invoke-PSDeploy and Get-PSDeployment
 
     Example use (*.PSDeploy.ps1)
     ===========
 
-    Similar to the above example, but using a *.PSDeploy.ps1 file as the deployment definition.
-
-        I want to deploy C:\Git\MyModuleRepo\MyModule to \\Server\Modules
+    I want to deploy C:\Git\MyModuleRepo\MyModule to \\Server\Modules
 
         C:\Git\MyModuleRepo\My.PSDeploy.ps1 looks like this:
 
@@ -75,63 +61,13 @@ DETAILED DESCRIPTION
             }
 
         # Invoke a deployment:
-        Invoke-PSDeploy C:\Git\MyModuleRepo
-
-        # Alternatively:
         cd C:\Git\MyModuleRepo
         Invoke-PSDeploy
 
-    See about_psdeploy_definitions for more information
+        # Alternatively:
+        Invoke-PSDeploy -Path C:\Git\MyModuleRepo
 
-    Example use (yaml)
-    ===========
-
-    A typical use case would work as follows:
-
-        I want to deploy C:\Git\MyModuleRepo\MyModule to \\Server\Modules
-
-        C:\Git\MyModuleRepo\deployments.yml looks like this:
-
-            MyModuleDeployment:
-              Author: 'wframe'
-              Source:
-                - 'MyModule'
-              Destination:
-                - '\\Server\Modules'
-              Tags:
-                - Prod
-                - Module
-              DeploymentType: Filesystem
-              DeploymentOptions:
-                Mirror: True
-
-        # I can view deployment details:
-        $DeployFile = 'C:\Git\MyModuleRepo\deployments.yml'
-
-        Get-PSDeployment -Path $DeployFile
-
-            # LocalSource      : C:\Git\MyModuleRepo\MyModule
-            # DeploymentType   : Filesystem
-            # DeploymentOptions: @{Mirror=True}
-            # Targets          : \\Server\Modules
-            # Tags             : Prod
-                                 Module
-
-        # I can find out what script Filesystem deployments use:
-        Get-PSDeploymentScript
-
-            # Name              Value
-            # ----              -----
-            # Filesystem        C:\Path\To\PSDeploy\PSDeployDefinitions\Filesystem.ps1
-            # FilesystemRemote  C:\Path\To\PSDeploy\PSDeployDefinitions\FilesystemRemote.ps1
-
-        # I can read the help for a particular deployment script:
-        Get-PSDeploymentType -DeploymentType FilesystemRemote -ShowHelp
-
-        # I can invoke the deployment
-        Invoke-PSDeployment -Path $DeployFile
-
-    See about_psdeploy_definitions for more information
+    See about_PSDeploy_Definitions for more information
 
     Extending PSDeploy
     ==================
