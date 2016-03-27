@@ -14,11 +14,6 @@ Function FromSource {
     .PARAMETER Source
         One or more source items to deploy
 
-    .PARAMETER DeploymentRoot
-        If using relative paths, you can override the starting path.
-
-        Defaults to your current path.
-
     .EXAMPLE
 
         # This is a complete PSDeploy.ps1 example including a By function
@@ -77,13 +72,21 @@ Function FromSource {
     [cmdletbinding()]
     param(
         [parameter( Position = 0,
-                    Mandatory = $True)]
-        [object[]]$Source,
-
-        [parameter( Position = 1,
-                    Mandatory = $false)]
-        [string]$DeploymentRoot = (Get-Location).Path
+                    Mandatory = $True,
+                    ValueFromPipeline = $True,
+                    ValueFromPipelineByPropertyName = $True)]
+        [object[]]$Source
     )
-
-    $Script:ThisBy.Source = $Source
+    begin
+    {
+        $All = New-Object System.Collections.ArrayList
+    }
+    Process
+    {
+        $All.AddRange( $Source )
+    }
+    end
+    {
+        $Script:ThisBy.Source = $All
+    }
 }

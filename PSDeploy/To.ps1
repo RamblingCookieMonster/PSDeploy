@@ -69,9 +69,21 @@ Function To {
     [cmdletbinding()]
     param(
         [parameter( Position = 0,
-                    Mandatory = $True)]
+                    Mandatory = $True,
+                    ValueFromPipeline = $True,
+                    ValueFromPipelineByPropertyName = $True)]
         [object[]]$Targets
     )
-
-    $Script:ThisBy.Targets = $Targets
+    begin
+    {
+        $All = New-Object System.Collections.ArrayList
+    }
+    Process
+    {
+        $All.AddRange( $Targets )
+    }
+    end
+    {
+        $Script:ThisBy.Targets = $All
+    }
 }

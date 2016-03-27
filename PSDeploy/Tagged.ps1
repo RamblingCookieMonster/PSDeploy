@@ -57,9 +57,21 @@ Function Tagged {
     [cmdletbinding()]
     param(
         [parameter( Position = 0,
-                    Mandatory = $True)]
-        [string[]]$Tags
+                    Mandatory = $True,
+                    ValueFromPipeline = $True,
+                    ValueFromPipelineByPropertyName = $True)]
+        [object[]]$Tags
     )
-
-    $Script:ThisBy.Tags = $Tags
+    begin
+    {
+        $All = New-Object System.Collections.ArrayList
+    }
+    Process
+    {
+        $All.AddRange( $Tags )
+    }
+    end
+    {
+        $Script:ThisBy.Tags = $All
+    }
 }

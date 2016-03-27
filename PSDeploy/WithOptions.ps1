@@ -76,9 +76,21 @@ Function WithOptions {
     [cmdletbinding()]
     param(
         [parameter( Position = 0,
-                    Mandatory = $True)]
+                    Mandatory = $True,
+                    ValueFromPipeline = $True,
+                    ValueFromPipelineByPropertyName = $True)]
         [System.Collections.Hashtable]$Options
     )
-
-    $Script:ThisBy.DeploymentOptions = $Options
+    begin
+    {
+        $All = @{}
+    }
+    Process
+    {
+        $All += $Options
+    }
+    end
+    {
+        $Script:ThisBy.DeploymentOptions = $All
+    }
 }
