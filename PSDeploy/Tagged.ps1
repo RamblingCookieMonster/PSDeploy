@@ -68,7 +68,7 @@ Function Tagged {
     }
     Process
     {
-        $All.AddRange( $Tags )
+        [void]$All.AddRange( $Tags )
     }
     end
     {

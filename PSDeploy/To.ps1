@@ -80,7 +80,7 @@ Function To {
     }
     Process
     {
-        $All.AddRange( $Targets )
+        [void]$All.AddRange( $Targets )
     }
     end
     {

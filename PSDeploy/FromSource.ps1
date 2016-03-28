@@ -83,7 +83,7 @@ Function FromSource {
     }
     Process
     {
-        $All.AddRange( $Source )
+        [void]$All.AddRange( $Source )
     }
     end
     {

@@ -131,20 +131,25 @@ Function By {
         $Script:ThisBy.DeploymentType = $DeploymentType
         . $Script
 
+        # One might imagine a case where a deployment has a source or a target but not both.
+        # So... Don't stop them if one or the other is missing.
         if($null -eq $Script:ThisBy.Source)
         {
-            Write-Error "Missing Source for By '$($ThisBy.DeploymentName)'"
-            return
+            Write-Warning "Missing Source for By '$($ThisBy.DeploymentName)'"
         }
         if($null -eq $Script:ThisBy.Targets)
         {
-            Write-Error "Missing Targets for By '$($ThisBy.DeploymentName)'"
-            return
+            Write-Warning "Missing Targets for By '$($ThisBy.DeploymentName)'"
         }
 
         try
         {
-            $Script:Deployments.Add($Name, $Script:ThisBy)
+            # Users might wrap By blocks or other DSL components in logic.
+            # If both a target and source aren't defined, don't add it...
+            if($Script:ThisBy.Source -or $Script:ThisBy.Targets)
+            {
+                [void]$Script:Deployments.Add($Script:ThisBy)
+            }
         }
         catch
         {

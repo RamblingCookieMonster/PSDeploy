@@ -117,15 +117,12 @@
                 $DeploymentRoot = Split-Path $DeploymentFile -parent
             }
 
-            $Script:Deployments = [ordered]@{}
+            Write-Verbose "Parsing '$DeploymentFile' from '$DeploymentRoot'"
+            $Script:Deployments = New-Object System.Collections.ArrayList
             . $DeploymentFile
-            $ToParse = Foreach($key in $Script:Deployments.Keys)
+            if($Deployments.count -gt 0)
             {
-                $([pscustomobject]$Script:Deployments.$Key)
-            }
-            if($Script:Deployments.Keys.Count -gt 0)
-            {
-                Get-PSDeployment -Deployment $ToParse -DeploymentRoot $DeploymentRoot @TagParam
+                Get-PSDeployment -Deployment $Deployments -DeploymentRoot $DeploymentRoot @TagParam
             }
         }
         return

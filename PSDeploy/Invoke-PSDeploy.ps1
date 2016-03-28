@@ -128,8 +128,6 @@
     }
     Process
     {
-
-
         foreach( $PathItem in $Path )
         {
             if( -not $PSBoundParameters.ContainsKey('DeploymentRoot') )
@@ -159,7 +157,7 @@
                 # Stop all deployments because one is misconfigured?
                 # I'm going with Copy-Item precedent.
                 # Not terminating, so try catch is superfluous. Feel free to make this strict...
-                $DeploymentFiles.AddRange( @( Resolve-DeployScripts -Path $PathItem ) )
+                [void]$DeploymentFiles.AddRange( @( Resolve-DeployScripts -Path $PathItem ) )
                 if ($DeploymentFiles.count -gt 0)
                 {
                     Write-Verbose "Working with $($DeploymentFiles.Count) deployment files:`n$($DeploymentFiles | Out-String)"

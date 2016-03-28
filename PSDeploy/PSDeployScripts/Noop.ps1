@@ -28,6 +28,7 @@ Write-Verbose "Starting noop run with $($Deployment.count) sources"
 [pscustomobject]@{
     PSBoundParameters = $PSBoundParameters
     Deployment = $Deployment
+    DeploymentOptions = $Deployment.DeploymentOptions
     GetVariable = (Get-Variable)
     ENV = Get-Childitem ENV:
 }

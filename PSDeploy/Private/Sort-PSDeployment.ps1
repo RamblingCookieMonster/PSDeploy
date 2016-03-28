@@ -9,7 +9,10 @@ function Sort-PSDeployment {
     {
         if($Deployment.Dependencies)
         {
-            $Order.add($Deployment.DeploymentName, $Deployment.Dependencies)
+            if(-not $Order.ContainsKey($Deployment.DeploymentName))
+            {
+                $Order.add($Deployment.DeploymentName, $Deployment.Dependencies)
+            }
         }
     }
 
