@@ -182,7 +182,7 @@
                         $splat = @{}
                     }
 
-                    $splat.add(Deployment, $TheseDeployments)
+                    $splat.add('Deployment', $TheseDeployments)
 
                     #Run the associated script, splat the parameters
                     & $DeploymentScript @splat
