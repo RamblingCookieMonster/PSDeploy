@@ -7,8 +7,10 @@ Function WithOptions {
         Specify options for a DeploymentType.  This includes both DeploymentOptions and DeploymentParameters.
 
         These are passed directly to the DeploymentType script in two was:
-            - They are splatted against the script
+            - They are splatted against the script*
             - The are included in the $Deployment.DeploymentOptions property
+
+        * If a parameter is not valid, it is removed before splatting, but still available in DeploymentOptions
 
         See Get-PSDeploymentType for details on different DeploymentTypes,
         and Get-PSDeploymentType -DeploymentType <Type> -ShowHelp to see the parameters they accept

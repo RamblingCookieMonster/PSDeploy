@@ -214,7 +214,7 @@ Describe "Invoke-PSDeployment PS$PSVersion" {
             start-sleep -Seconds $WaitForFilesystem
 
             Test-Path (Join-Path $IntegrationTarget File1.ps1) | Should Be $True
-
+            Remove-Item $IntegrationTarget -Recurse -Force
         }
 
         It 'Should deploy a folder' {
@@ -247,6 +247,7 @@ Describe "Invoke-PSDeployment PS$PSVersion" {
         }
 
         It 'Should accept pipeline input' {
+
             mkdir $IntegrationTarget
 
             Get-PSDeployment @Verbose -Path $FileYML | Invoke-PSDeployment @Verbose -force

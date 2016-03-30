@@ -182,14 +182,10 @@
                         $splat = @{}
                     }
 
-                    $params = @{ Deployment = $TheseDeployments }
-                    if($PSBoundParameters.ContainsKey('Verbose'))
-                    {
-                        $params.Add('Verbose',$Verbose)
-                    }
+                    $splat.add(Deployment, $TheseDeployments)
 
                     #Run the associated script, splat the parameters
-                    & $DeploymentScript @params @splat
+                    & $DeploymentScript @splat
                 }
             }
         }
