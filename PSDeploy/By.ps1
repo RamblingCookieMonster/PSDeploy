@@ -153,7 +153,8 @@ Function By {
         }
         catch
         {
-            Write-Error "Deploy block names must be unique.`n`nIgnoring deployment: $($Script:ThisBy | Out-String)`n`nExisting conflict: $($Script:Deployments.$Name | Out-String)"
+            Write-Error "Failed to generate deployment: $($Script:ThisBy | Out-String)"
+            Throw $_
         }
         Remove-Variable -Name ThisBy -Scope Script -Confirm:$False -Force
     }
