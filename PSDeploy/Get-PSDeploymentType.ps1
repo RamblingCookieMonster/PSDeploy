@@ -90,7 +90,7 @@
 
         Try
         {
-            $ScriptHelp = Get-Help -Path $ScriptPath -Full -ErrorAction Stop
+            $ScriptHelp = Get-Help $ScriptPath -Full -ErrorAction Stop
         }
         Catch
         {
