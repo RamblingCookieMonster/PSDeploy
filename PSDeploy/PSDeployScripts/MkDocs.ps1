@@ -9,8 +9,6 @@
             * As a JSON representation of the site to a filesystem location
             * As a static site to your GitHub Pages
 
-        
-
     .PARAMETER Deployment
         The deployment to run; this can specify all of the remaining options, or the options below can be added at runtime. This object will, at a minimum, include the source and destinations. Note that the "To" section of the deployment (if using *.PSDeploy.ps1) determines which of the three depoyment subtypes you are calling;
         
@@ -44,7 +42,6 @@
     
     .NOTES
         Runs in the current session (i.e. as the current user)
-    
 #>
 
 [cmdletbinding()]
@@ -53,22 +50,22 @@ param (
     [psobject[]]$Deployment,
 
     [switch]$Clean,
-    
+
     [ValidateScript({Test-Path -Path $_.PSPath})]
     [string]$ConfigurationFilePath,
-    
+
     [switch]$Strict,
-    
+
     [string]$Theme,
-    
+
     [switch]$Quiet,
-    
+
     [string]$Message,
 
     [string]$RemoteName,
-        
-    [string]$RemoteBranch,
-    
+
+    [string]$RemoteBranch
+
 )
 
 Write-Verbose "Starting MkDocs Deployment with $($Deployment.count) sources"
