@@ -4,13 +4,13 @@
 RootModule = 'PSDeploy.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.0.4'
+ModuleVersion = '0.0.1'
 
 # ID used to uniquely identify this module
 GUID = '268bd8de-5f4d-4f84-85d2-fb885ffb0837'
 
 # Author of this module
-Author = 'Warren Frame'
+Author = 'Warren Frame et al'
 
 # Company or vendor of this module
 # CompanyName = ''
@@ -19,7 +19,7 @@ Author = 'Warren Frame'
 Copyright = '(c) 2015 Warren Frame. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Module to simplify file and folder deployments'
+Description = 'Module to simplify PowerShell based deployments'
 
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '3.0'
@@ -70,7 +70,7 @@ FunctionsToExport = @('Get-PSDeployment',
                       'Tagged',
                       'WithOptions',
                       'DependingOn')
-#FunctionsToExport = '*'
+# FunctionsToExport = '*'
 
 # Cmdlets to export from this module
 # CmdletsToExport = '*'
