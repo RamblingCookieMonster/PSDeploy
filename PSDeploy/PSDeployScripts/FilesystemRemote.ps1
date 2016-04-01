@@ -17,11 +17,11 @@
     .PARAMETER Deployment
         Deployment to run
 
+    .PARAMETER Mirror
+        If specified and the source is a folder, we effectively call robocopy /MIR (Can remove folders/files...)
+
     .PARAMETER ComputerName
         Computername passed to Invoke-Command for remote deployment
-
-    .PARAMETER Deployment
-        Deployment passed to Invoke-Command for remote deployment
 
     .PARAMETER Deployment
         Deployment passed to Invoke-Command for remote deployment
@@ -77,7 +77,7 @@ Invoke-Command @PSBoundParameters -ScriptBlock {
                 {
                     [string[]]$Arguments = "/XO"
                     $Arguments += "/E"
-                    if($Map.DeploymentOptions.mirror -eq 'True')
+                    if($Map.DeploymentOptions.mirror -eq 'True' -or $Using:Mirror)
                     {
                         $Arguments += "/PURGE"
                     }

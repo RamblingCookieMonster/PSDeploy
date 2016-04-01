@@ -18,17 +18,17 @@
     .EXAMPLE
         Get-PSDeploymentScript
 
-        Name              Value                                                                                                                                                                                                                 
-        ----              -----                                                                                                                                                                                                                 
-        Filesystem        C:\Path\To\PSDeploy\PSDeployScripts\Filesystem.ps1                                                                                                                                                      
+        Name              Value
+        ----              -----
+        Filesystem        C:\Path\To\PSDeploy\PSDeployScripts\Filesystem.ps1
         FilesystemRemote  C:\Path\To\PSDeploy\PSDeployScripts\FilesystemRemote.ps1
 
     .EXAMPLE
         Get-PSDeploymentScript -Path \\Path\To\Central\PSDeploy.yml
 
-        Name              Value                                                                                                                                                                                                                 
-        ----              -----                                                                                                                                                                                                                 
-        Filesystem        \\Path\To\Central\Scripts\Filesystem.ps1                                                                                                                                                      
+        Name              Value
+        ----              -----
+        Filesystem        \\Path\To\Central\Scripts\Filesystem.ps1
         FilesystemRemote  \\Path\To\Central\Scripts\FilesystemRemote.ps1
         OtherDeployment   \\Path\To\Central\Scripts\OtherDeployment.ps1
 
@@ -46,6 +46,9 @@
 
     .LINK
         Get-PSDeploymentType
+
+    .LINK
+        Invoke-PSDeploy
     #>
     [cmdletbinding()]
     param(

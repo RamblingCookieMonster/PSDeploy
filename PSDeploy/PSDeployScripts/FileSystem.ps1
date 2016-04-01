@@ -9,11 +9,16 @@
 
     .PARAMETER Deployment
         Deployment to run
+
+    .PARAMETER Mirror
+        If specified and the source is a folder, we effectively call robocopy /MIR (Can remove folders/files...)
 #>
 [cmdletbinding()]
 param (
     [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
-    [psobject[]]$Deployment
+    [psobject[]]$Deployment,
+
+    [switch]$Mirror
 )
 
 Write-Verbose "Starting local deployment with $($Deployment.count) sources"
@@ -30,13 +35,13 @@ foreach($Map in $Deployment)
             {
                 [string[]]$Arguments = "/XO"
                 $Arguments += "/E"
-                if($Map.DeploymentOptions.mirror -eq 'True')
+                if($Map.DeploymentOptions.mirror -eq 'True' -or $Mirror)
                 {
                     $Arguments += "/PURGE"
                 }
                 Write-Verbose "Invoking ROBOCOPY.exe $($Map.Source) $Target $Arguments"
                 ROBOCOPY.exe $Map.Source $Target @Arguments
-            }       
+            }
             else
             {
                 $SourceHash = Get-Hash $Map.Source

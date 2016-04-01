@@ -44,12 +44,17 @@
         Okay, now what if we have two types, and want to fit it all on one line?
         - DeploymentParameters @{ FilesystemRemote=@{ComputerName = 'PC1'}; Filesystem=@{} }
 
+    .PARAMETER PSDeployTypePath
+        Specify a PSDeploy.yml file that maps DeploymentTypes to their scripts.
+
+        This defaults to the PSDeploy.yml in the PSDeploy module folder
+
     .PARAMETER Force
         Force deployment, skipping prompts and confirmation
 
     .EXAMPLE
         Invoke-PSDeployment -Path C:\Git\Module1\Deployments.yml
-        
+
         # Run deployments from a deployment yml. You will be prompted on whether to deploy
 
     .EXAMPLE
@@ -68,9 +73,12 @@
 
     .LINK
         https://github.com/RamblingCookieMonster/PSDeploy
-    
+
     .LINK
         Get-PSDeployment
+
+    .LINK
+        Invoke-PSDeploy
 
     .LINK
         Get-PSDeploymentType
@@ -98,7 +106,9 @@
         [validatescript({Test-Path -Path $_ -PathType Leaf -ErrorAction Stop})]
         [string]$PSDeployTypePath = $(Join-Path $PSScriptRoot PSDeploy.yml),
 
-        [switch]$Force    
+        [string[]]$Tags,
+
+        [switch]$Force
     )
     Begin
     {
@@ -111,32 +121,39 @@
             {
                 #Resolve relative paths... Thanks Oisin! http://stackoverflow.com/a/3040982/3067642
                 $Path = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
-                
+
                 # Debating whether to make this a terminating error.
                 # Stop all deployments because one is misconfigured?
                 # I'm going with Copy-Item precedent.
                 # Not terminating, so try catch is superfluous. Feel free to make this strict...
                 $Deployment = Get-PSDeployment -Path $Path
+                If($PSBoundParameters.ContainsKey('Tags'))
+                {
+                    $Deployment = Get-TaggedDeployment -Deployment $Deployment -Tags $Tags
+                }
             }
             Catch
             {
                 Throw "Error retrieving deployments from '$Path':`n$_"
             }
-        }        
+        }
 
-        $RejectAll = $false            
-        $ConfirmAll = $false  
+        $RejectAll = $false
+        $ConfirmAll = $false
     }
     Process
     {
         Write-Verbose "Deployments:`n$($Deployment | Out-String)"
 
         if( ($Force -and -not $WhatIf) -or
-            $PSCmdlet.ShouldProcess( "Processed the deployment '$($Deployment.DeploymentName -join ", ")'",            
-                                    "Process the deployment '$($Deployment.DeploymentName -join ", ")'?",            
-                                    "Processing deployment" ))            
+            $PSCmdlet.ShouldProcess( "Processed the deployment '$($Deployment.DeploymentName -join ", ")'",
+                                    "Process the deployment '$($Deployment.DeploymentName -join ", ")'?",
+                                    "Processing deployment" ))
         {
-            if($Force -Or $PSCmdlet.ShouldContinue("Are you REALLY sure you want to deploy '$($Deployment.DeploymentName -join ", ")'?", "Deploying '$($Deployment.DeploymentName -join ", ")'", [ref]$ConfirmAll, [ref]$RejectAll))
+            if($Force -Or $PSCmdlet.ShouldContinue("Are you REALLY sure you want to deploy '$($Deployment.DeploymentName -join ", ")'?",
+                                                   "Deploying '$($Deployment.DeploymentName -join ", ")'",
+                                                   [ref]$ConfirmAll,
+                                                   [ref]$RejectAll))
             {
                 #Get definitions, and deployments in this particular yml
                 $DeploymentDefs = Get-PSDeploymentScript
@@ -153,32 +170,23 @@
                         continue
                     }
                     $TheseDeployments = @( $Deployment | Where-Object {$_.DeploymentType -eq $DeploymentType})
-                    
+
                     #Define params for the script
                     #Each deployment type can have a hashtable to splat.
                     if($PSBoundParameters.ContainsKey('DeploymentParameters') -and $DeploymentParameters.ContainsKey($DeploymentType))
                     {
-                        $params = $DeploymentParameters.$DeploymentType
+                        $splat = $DeploymentParameters.$DeploymentType
                     }
                     else
                     {
-                        $params = @{}
-                    }
-                    
-                    if($PSBoundParameters.ContainsKey('Verbose'))
-                    {
-                        $Params.Add('Verbose',$Verbose)
+                        $splat = @{}
                     }
 
-                    $Params.Add('Deployment', $TheseDeployments)
-
-                    Write-Verbose "Processing '$($TheseDeployments.count)' $DeploymentType deployments"
+                    $splat.add('Deployment', $TheseDeployments)
 
                     #Run the associated script, splat the parameters
-                    & $DeploymentScript @params
-
+                    & $DeploymentScript @splat
                 }
-                
             }
         }
     }

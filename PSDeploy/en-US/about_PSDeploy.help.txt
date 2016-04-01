@@ -16,79 +16,58 @@ DETAILED DESCRIPTION
     ========================
     There are three primary concepts:
 
-        Deployment:         These are yaml files defining what is being deployed.
-                            They might have a source, a destination, and options for specific types of deployment
+        *.PSDeploy.ps1 Script:  Scripts that tell PSDeploy what you want to deploy
+                                These are an alternative to Deployment yaml files.
 
-        Deployment Type:    These define how to actually deploy something.
-                            Each type is associated with a script.
-                            The default types are FileSystem and FileSystemRemote. This is extensible.
+        Deployment Type:        These define how to actually deploy something.
+                                Each type is associated with a script.
+                                The default types are FileSystem and FileSystemRemote. This is extensible.
 
-        Deployment Script:  These are scripts associated to a particular deployment type.
-                            All should accept a 'Deployment' parameter.
-                            For example, the FileSystem script uses robocopy or copy-item to deploy folders and files, respectively.
+        Deployment Script:      These are scripts associated to a particular deployment type.
+                                They tell PSDeploy how to deploy a DeploymentType.
+                                All should accept a 'Deployment' parameter.
+                                For example, the FileSystem script uses robocopy or copy-item to deploy folders and files, respectively.
 
     Conventions
     ===========
-    These could change. See TODOs at the end of this help file.
 
-        The deployment yml is assumed to be relative to source files. For example:
-            If the path is C:\Whatever\deployment.yml,
-            and a source points to 'Modules\MyModules',
-            this would mean C:\Whatever\Modules\MyModules.
-            You can override this with the DeploymentRoot
-            parameter on Get-PSDeployment
+    These could change.
 
-        The deployment scripts can accept parameters. To pass these in,
-            read up on the Invoke-PSDeployment parameter 'DeploymentParameters'
-            Long story short, this is a hash table defined as:
-                @{ <DeploymentType> = @{<HashTableOfParametersToSplat>} }
+    The current path is assumed to be relative to source files. For example:
+        If the current path is C:\Whatever,
+        and a source points to 'Modules\MyModules',
+        this would mean C:\Whatever\Modules\MyModules.
+        You can override this with the DeploymentRoot parameter
+        on Invoke-PSDeploy and Get-PSDeployment
 
-            For example:
-                -DeploymentParameters @{ FilesystemRemote = @{ComputerName = 'Server1'}}
-
-                The deployment script for FilesystemRemote would receive -ComputerName 'Server1'
-
-    Example use
+    Example use (*.PSDeploy.ps1)
     ===========
-    A typical use case would work as follows:
 
-        I want to deploy C:\Git\MyModuleRepo\MyModule to \\Server\Modules
+    I want to deploy C:\Git\MyModuleRepo\MyModule to \\Server\Modules\MyModule
 
-        C:\Git\MyModuleRepo\deployments.yml looks like this:
+        C:\Git\MyModuleRepo\My.PSDeploy.ps1 looks like this:
 
-            MyModuleDeployment:
-              Author: 'wframe'
-              Source:
-                - 'MyModule'
-              Destination:
-                - '\\Server\Modules'
-              DeploymentType: Filesystem
-              DeploymentOptions:
-                Mirror: True
+            Deploy MyDeploymentName {
 
-        # I can view deployment details:
-        $DeployFile = 'C:\Git\MyModuleRepo\deployments.yml'
+                By FileSystem 'OptionalName' {
 
-        Get-PSDeployment -Path $DeployFile
+                    FromSource 'MyModule'
+                    To '\\Server\Modules\MyModule'
+                    Tagged Prod, Module
+                    WithOptions @{
+                        Mirror = $True
+                    }
+                }
+            }
 
-            # LocalSource      : C:\Git\MyModuleRepo\MyModule
-            # DeploymentType   : Filesystem
-            # DeploymentOptions: @{Mirror=True}
-            # Targets          : \\Server\Modules
+        # Invoke a deployment:
+        cd C:\Git\MyModuleRepo
+        Invoke-PSDeploy
 
-        # I can find out what script Filesystem deployments use:
-        Get-PSDeploymentScript
+        # Alternatively:
+        Invoke-PSDeploy -Path C:\Git\MyModuleRepo
 
-            # Name              Value
-            # ----              -----
-            # Filesystem        C:\Path\To\PSDeploy\PSDeployDefinitions\Filesystem.ps1
-            # FilesystemRemote  C:\Path\To\PSDeploy\PSDeployDefinitions\FilesystemRemote.ps1
-
-        # I can read the help for a particular deployment script:
-        Get-PSDeploymentType -DeploymentType FilesystemRemote -ShowHelp
-
-        # I can invoke the deployment
-        Invoke-PSDeployment -Path $DeployFile
+    See about_PSDeploy_Definitions for more information
 
     Extending PSDeploy
     ==================
@@ -127,17 +106,6 @@ DETAILED DESCRIPTION
             If you need other data included, you can extend the YML and reference the
             'Raw' property on the deployment objects: this contains the raw converted YAML.
 
-    Why did you do X?
-    =================
-    Because. This was a poorly thought out side project. Would love suggestions or pull requests!
-
-    Some TODOs:
-
-        - Remove reliance on relative paths
-            - Sources                - allow deploying from a (maybe?) more deterministic path
-            - DeploymentType scripts - allow centralization
-
-        - Update the horribly broken schema. Organic growth is a poor way to create a schema : )
-
-        - Fix bad code. PRs would be welcome. Or a pointer to a better implementation of this idea!
-
+SEE ALSO
+    about_PSDeploy_Definitions
+    https://github.com/RamblingCookieMonster/PSDeploy
