@@ -43,7 +43,7 @@ DETAILED DESCRIPTION
     Example use (*.PSDeploy.ps1)
     ===========
 
-    I want to deploy C:\Git\MyModuleRepo\MyModule to \\Server\Modules
+    I want to deploy C:\Git\MyModuleRepo\MyModule to \\Server\Modules\MyModule
 
         C:\Git\MyModuleRepo\My.PSDeploy.ps1 looks like this:
 
@@ -52,7 +52,7 @@ DETAILED DESCRIPTION
                 By FileSystem 'OptionalName' {
 
                     FromSource 'MyModule'
-                    To '\\Server\Modules'
+                    To '\\Server\Modules\MyModule'
                     Tagged Prod, Module
                     WithOptions @{
                         Mirror = $True

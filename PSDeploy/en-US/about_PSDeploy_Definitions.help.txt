@@ -7,8 +7,8 @@ SHORT DESCRIPTION
 LONG DESCRIPTION
     PSDeploy has several configuration definitions to work with:
 
-        Deployment configurations:  *.PSDeploy.ps1 script files
-        DeploymentType configurations: Map DeploymentTypes to scripts that run their deployments
+        Deployment configurations:      *.PSDeploy.ps1 script files
+        DeploymentType configurations:  Map DeploymentTypes to scripts that run their deployments
 
     Please see about_PSDeploy for clarification on terminology or other general PSDeploy help
 
@@ -38,7 +38,7 @@ DETAILED DESCRIPTION
                            \\Absolute\Source$\FolderOrFile
                 To \\Some\Target$\Folder,                   # One or more destinations to target for deployment. These are specific to a DeploymentType
                    \\Another\Target$\Folder
-                Tagged Prod, Module                            # One or more tags for this deployment. Optional
+                Tagged Prod, Module                         # One or more tags for this deployment. Optional
                 WithOptions @{                              # Deployment options hash table to pass as parameters to DeploymentType script. Optional.
                     Mirror = $True
                 }

@@ -18,7 +18,7 @@ Function To {
         Deploy DeployMyModule
             By FileSystem {
                 FromSource 'MyModule'
-                To 'C:\sc\'
+                To 'C:\sc\MyModule'
                 WithOptions @{
                     Mirror = $True
                 }
@@ -42,7 +42,7 @@ Function To {
 
             By FileSystem Tasks {
                 FromSource 'Tasks'
-                To 'C:\sc\'
+                To 'C:\sc\Tasks'
             }
         }
 
@@ -55,7 +55,28 @@ Function To {
         about_PSDeploy
 
     .LINK
+        about_PSDeploy_Definitions
+
+    .LINK
         https://github.com/RamblingCookieMonster/PSDeploy
+
+    .LINK
+        Deploy
+
+    .LINK
+        By
+
+    .LINK
+        FromSource
+
+    .LINK
+        Tagged
+
+    .LINK
+        WithOptions
+
+    .LINK
+        DependingOn
 
     .LINK
         Get-PSDeployment

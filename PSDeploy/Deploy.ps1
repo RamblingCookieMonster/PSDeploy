@@ -20,7 +20,7 @@ Function Deploy {
         be sure to name it with this parameter.
 
     .PARAMETER Script
-        Details on the deployment. You can include the following functions inside your Deploy:
+        Details on the deployment. You can include the following functions inside your Deploy scriptblock:
             - By: Deployment definitions for a particular DeploymentType
 
     .EXAMPLE
@@ -30,7 +30,7 @@ Function Deploy {
         Deploy DeployMyModule
             By FileSystem {
                 FromSource 'MyModule'
-                To 'C:\sc\'
+                To 'C:\sc\MyModule'
                 WithOptions @{
                     Mirror = $True
                 }
@@ -46,7 +46,7 @@ Function Deploy {
         Deploy DeployMyModule
             By FileSystem {
                 FromSource 'MyModule'
-                To 'C:\sc\'
+                To 'C:\sc\MyModule'
                 WithOptions @{
                     Mirror = $True
                 }
@@ -54,7 +54,7 @@ Function Deploy {
 
             By FileSystem Tasks {
                 FromSource 'Tasks'
-                To 'C:\sc\'
+                To 'C:\sc\Tasks'
             }
         }
 
@@ -67,7 +67,28 @@ Function Deploy {
         about_PSDeploy
 
     .LINK
+        about_PSDeploy_Definitions
+
+    .LINK
         https://github.com/RamblingCookieMonster/PSDeploy
+
+    .LINK
+        By
+
+    .LINK
+        To
+
+    .LINK
+        FromSource
+
+    .LINK
+        Tagged
+
+    .LINK
+        WithOptions
+
+    .LINK
+        DependingOn
 
     .LINK
         Get-PSDeployment
