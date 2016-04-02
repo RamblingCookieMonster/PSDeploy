@@ -35,7 +35,7 @@ foreach($Map in $Deployment)
             
             # There are additional parameters to consider.
             # Parameter files should probably always exist but there might be cases where a template is very simple and someone wants the deployment to prompt for input.
-            foreach ($option in $($Map.DeploymentOptions | Get-Member -MemberType NoteProperty).Name) {
+            foreach ($option in $Map.DeploymentOptions.Keys) {
                 $deploymentParameters.Add($option,$Map.DeploymentOptions.$option)
             }
                                     
@@ -48,7 +48,7 @@ foreach($Map in $Deployment)
             
             # The deployment actually happens here
             Write-Verbose "Deploying template '$($Map.Source)' to '$Target'"
-            New-AzureRmResourceGroupDeployment @deploymentParameters -Verbose
+            New-AzureRmResourceGroupDeployment @deploymentParameters
         }
     }
 }
