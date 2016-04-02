@@ -77,7 +77,7 @@ Describe "Get-PSDeploymentType PS$PSVersion" {
 
         It 'Should get definitions' {
             $Definitions = @( Get-PSDeploymentType @Verbose )
-            $Definitions.Count | Should Be 4
+            $Definitions.Count | Should Be 5
             $Definitions.DeploymentType -contains 'FileSystem' | Should Be $True
             $Definitions.DeploymentType -contains 'FileSystemRemote' | Should Be $True
         }
@@ -103,7 +103,7 @@ Describe "Get-PSDeploymentScript PS$PSVersion" {
 
         It 'Should get definitions' {
             $Definitions = Get-PSDeploymentScript @Verbose
-            $Definitions.Keys.Count | Should Be 4
+            $Definitions.Keys.Count | Should Be 5
             $Definitions.GetType().Name | Should Be 'Hashtable'
             $Definitions.ContainsKey('FileSystem') | Should Be $True
             $Definitions.ContainsKey('FileSystemRemote') | Should Be $True
@@ -298,6 +298,24 @@ Describe "Invoke-PSDeploy PS$PSVersion" {
     }
 
 }
+
+<#
+This is staged for now.  The AzureRM cmdlet design requires a workaround be implemented in Pester that is work in progress.
+https://github.com/pester/Pester/issues/491
+
+Describe 'Invoke-PSDeploy ARM script' {
+    Context 'AzureRM module' {
+        $SubscriptionId = new-guid
+        Mock Get-AzureRMSubscription {[PSCustomObject]@{SubscriptionName = $SubscriptionName; SubscriptionId = $SubscriptionId; TenantId = $(new-guid); State='Enabled'}}
+        Mock Get-AzureRMResourceGroup {[PSCustomObject]@{ResourceGroupName = $ResourceGroupName; Location = $Location; ProvisioningState = 'Succeeded'; Tags = ''; ResourceId = "/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName"} }
+        
+        It 'Should include specified options' {        
+            $ARMDeploymentObject = Get-PSDeployment -path $PSScriptRoot\artifacts\DeploymentsARM.psdeploy.ps1
+            $ARMDeploymentObject.DeploymentOptions | Should Be @('administratorLogin', 'administratorLoginPassword')
+        }
+    }
+}
+#>
 
 Remove-Item -Path $FileYML -force
 Remove-Item -Path $FolderYML -force
