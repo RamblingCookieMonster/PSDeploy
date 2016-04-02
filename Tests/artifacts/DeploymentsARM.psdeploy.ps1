@@ -9,7 +9,7 @@ $ResourceGroupLocation = 'central us'
 $s = Get-AzureRMSubscription -SubscriptionName $SubscriptionName -ErrorAction SilentlyContinue
 if (!$s) {Login-AzureRMAccount}
 
-$rg = (Get-AzureRmResourceGroup -name $ResourceGroupName -ErrorAction SilentlyContinue)
+$rg = Get-AzureRmResourceGroup -name $ResourceGroupName -ErrorAction SilentlyContinue
 if (!$rg) {$rg = New-AzureRmResourceGroup -Name $ResourceGroupName -Location $ResourceGroupLocation}
 
 # PSDeploy
