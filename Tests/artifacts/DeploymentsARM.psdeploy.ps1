@@ -19,9 +19,9 @@ Deploy TemplateExample {
         To $rg.ResourceGroupName
         Tagged 'Azure'
         WithOptions @{
-            # this would most likely take a Build variable or it could retrieve information from a secure service
             # note that the ARM script is splatting options as they are passed, it is not a list that will be known ahead of time
             administratorLogin = 'tmpadmin'
+            # this wouldtake a Build variable or it could retrieve information from a secure service
             administratorLoginPassword = Read-Host -AsSecureString -Prompt 'please type the name to use for the administrator password inside the VM'
         }
     }
