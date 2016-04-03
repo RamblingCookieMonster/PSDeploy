@@ -130,6 +130,8 @@ Function By {
         DeploymentOptions = $null
         Tags = $null
         Dependencies = $null
+        PreScript = $null
+        PostScript = $null
     }
 
     if( $PSCmdlet.ParameterSetName -eq 'Name')

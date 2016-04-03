@@ -18,6 +18,8 @@
             Targets           = One or more targets to deploy to.
             Tags              = One or more tags associated with this deployment
             Dependencies      = One or more DeploymentNames that this deployment depends on
+            WithPreScript     = One or more scripts to run before a deployment executes
+            WithPostScript    = One or more scripts to run after a deployment executes
             Raw               = Raw definition for yaml deployments
 
         This is oriented around deployments from a Windows system.
@@ -192,6 +194,8 @@
                         Targets = @($DeploymentHash.Destination)
                         Tags = $DeploymentHash.Tags
                         Dependencies = $DeploymentHash.Dependencies
+                        PreScript = $DeploymentHash.WithPreScript
+                        PostScript = $DeploymentHash.WithPostScript
                         Raw = $DeploymentHash
                     }
                 }
@@ -243,6 +247,8 @@
                     Targets = $DeploymentItem.Targets
                     Tags = $DeploymentItem.Tags
                     Dependencies = $DeploymentItem.Dependencies
+                    PreScript = $DeploymentHash.WithPreScript
+                    PostScript = $DeploymentHash.WithPostScript
                     Raw = $null
                 }
             }

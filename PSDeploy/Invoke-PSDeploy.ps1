@@ -219,7 +219,55 @@
                 $TheseParams.DeploymentParameters = $hash
             }
 
-            $Deployment | Invoke-PSDeployment @TheseParams @InvokePSDeploymentParams
+            $Deploy = $True #anti pattern! Best I could come up with to handle both prescript fail and dependencies
+
+            if($Deployment.Dependencies.ScriptBlock)
+            {
+                if( -not $( . $Deployment.Dependencies.ScriptBlock ) )
+                {
+                    $Deploy = $False
+                    Write-Warning "Skipping Deployment '$($Deployment.DeploymentName)', did not pass scriptblock`n$($Deployment.Dependencies.ScriptBlock | Out-String)"
+                }
+            }
+
+            if($Deployment.PreScript.Count -gt 0)
+            {
+                $ExistingErrorActionPreference = $ErrorActionPreference
+                foreach($script in $Deployment.Prescript)
+                {
+                    if($Script.SkipOnError)
+                    {
+                        Try
+                        {
+                            $ErrorActionPreference = 'Stop'
+                            . $Script.ScriptBlock
+                        }
+                        Catch
+                        {
+                            $Deploy = $False
+                            Write-Error $_
+                        }
+                    }
+                    else
+                    {
+                        . $Script.ScriptBlock
+                    }
+                }
+                $ErrorActionPreference = ExistingErrorActionPreference
+            }
+
+            if($Deploy)
+            {
+                $Deployment | Invoke-PSDeployment @TheseParams @InvokePSDeploymentParams
+            }
+
+            if($Deployment.PostScript.Count -gt 0)
+            {
+                foreach($script in $Deployment.PostScript)
+                {
+                    . $Script.ScriptBlock
+                }
+            }
         }
     }
 }
