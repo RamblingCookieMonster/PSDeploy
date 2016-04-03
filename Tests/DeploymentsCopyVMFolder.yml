@@ -1,0 +1,11 @@
+Files:
+  Author: 'DexterPOSH'
+  Source:
+    - 'Modules'
+    #- 'Modules\File2.ps1'
+  Destination:
+    - 'C:\Users\Administrator\Documents\'
+  DeploymentType: CopyVMFile
+  Options:
+    FileSource: Host
+    CreateFullPath: True
