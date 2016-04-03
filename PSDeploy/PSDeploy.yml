@@ -18,3 +18,7 @@ MkDocs:
 Noop:
   Script: noop.ps1
   Description: Display parameters that a deployment script would receive. Use for testing and validation.
+
+CopyVMfile:
+  Script: CopyVMFile.ps1
+  Description: Uses Copy-VMFile cmdlet available with Hyper-V on Server 2012 R2 for folder and file deployments.

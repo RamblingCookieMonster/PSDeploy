@@ -5,6 +5,11 @@ if($env:APPVEYOR_REPO_BRANCH -and $env:APPVEYOR_REPO_BRANCH -notlike "master")
 }
 
 $PSVersion = $PSVersionTable.PSVersion.Major
+
+# Create a Dummy Hyper-V Module, to mock the Copy-VMfile cmdlet later
+$DummyModule = New-Module -Name Hyper-V  -Function "Copy-VMFile" -ScriptBlock {  Function Copy-VMFile { Write-Host "Invoking Copy-VMFile -> $Args"}; }
+$DummyModule | Import-Module
+
 Import-Module $PSScriptRoot\..\PSDeploy -Force
 
 #Set up some data we will use in testing
@@ -13,6 +18,9 @@ Import-Module $PSScriptRoot\..\PSDeploy -Force
     $FolderYML = "$PSScriptRoot\artifacts\IntegrationFolder.yml"
     $FilePS1 = "$PSScriptRoot\artifacts\IntegrationFile.PSDeploy.ps1"
     $FolderPS1 = "$PSScriptRoot\artifacts\IntegrationFolder.PSDeploy.ps1"
+    $CopyVMYML = "$PSScriptRoot\DeploymentsCopyVMFile.yml"
+    $CopyVMFolderYML= "$PSScriptRoot\DeploymentsCopyVMFolder.yml"
+
     $WaitForFilesystem = .5
     $MyVariable = 42
 
@@ -77,9 +85,10 @@ Describe "Get-PSDeploymentType PS$PSVersion" {
 
         It 'Should get definitions' {
             $Definitions = @( Get-PSDeploymentType @Verbose )
-            $Definitions.Count | Should Be 4
+            $Definitions.Count | Should Be 5
             $Definitions.DeploymentType -contains 'FileSystem' | Should Be $True
             $Definitions.DeploymentType -contains 'FileSystemRemote' | Should Be $True
+            $Definitions.DeploymentType -contains 'CopyVMfile' | Should Be $True
         }
 
         It 'Should return valid paths' {
@@ -103,10 +112,12 @@ Describe "Get-PSDeploymentScript PS$PSVersion" {
 
         It 'Should get definitions' {
             $Definitions = Get-PSDeploymentScript @Verbose
-            $Definitions.Keys.Count | Should Be 4
+            $Definitions.Keys.Count | Should Be 5
             $Definitions.GetType().Name | Should Be 'Hashtable'
             $Definitions.ContainsKey('FileSystem') | Should Be $True
             $Definitions.ContainsKey('FileSystemRemote') | Should Be $True
+            $Definitions.ContainsKey('FileSystemRemote') | Should Be $True
+            $Definitions.ContainsKey('CopyVMFile') | Should Be $True
         }
 
         It 'Should return valid paths' {
@@ -183,8 +194,8 @@ Describe "Get-PSDeployment PS$PSVersion" {
         It 'Should allow user-specified, properly formed YAML' {
             $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\artifacts\DeploymentsRaw.yml )
             $Deployments.Count | Should Be 1
-            $Deployments.Raw.Options.List.Count | Should be 2
-            $Deployments.Raw.Options.Making | Should be "Stuff up"
+            $Deployments[0].DeploymentOptions.List.Count | Should be 2
+            $Deployments[0].DeploymentOptions.Making | Should be "Stuff up"
         }
 
         It 'Should allow user-specified options from ps1' {
@@ -255,6 +266,24 @@ Describe "Invoke-PSDeployment PS$PSVersion" {
 
             Test-Path (Join-Path $IntegrationTarget File1.ps1) | Should Be $True
         }
+
+        It 'Should copy file to VM' {
+            Mock -CommandName Copy-VMFile -MockWith {}   -ModuleName PSdeploy
+            $deployment = Get-PSDeployment @Verbose -Path $CopyVMYML 
+            Invoke-PSDeployment -Deployment $deployment  @Verbose -Force
+            Assert-MockCalled -CommandName Copy-VMfile -Times 1 -Exactly -ModuleName PSDeploy
+        }
+
+        It 'Should copy folder to VM' {
+            Mock -CommandName Copy-VMFile -MockWith {}  -ModuleName PSDeploy
+            $Deployment = Get-PSDeployment @Verbose -Path $CopyVMFolderYML 
+            Invoke-PSDeployment -Deployment $Deployment @Verbose -Force
+            $TotalFiles = Get-Childitem -Path $Deployment.Source -File -Recurse
+            $count = $TotalFiles.Count  # had to factor that Pester stores the mock history of the last Mock command too
+            $count++ # increase the expected mock count by 1 (last It block ran a mock)
+            Assert-MockCalled -CommandName Copy-VMfile -Times $count -Exactly -ModuleName PSDeploy
+
+        }
     }
 }
 
@@ -304,3 +333,5 @@ Remove-Item -Path $FolderYML -force
 Remove-Item -Path $FilePS1 -force
 Remove-Item -Path $FolderPS1 -force
 Remove-Item -Path $IntegrationTarget -Recurse -Force
+Remove-Module -Name Hyper-V -Force
+

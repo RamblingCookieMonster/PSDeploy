@@ -21,7 +21,7 @@ Deploy ActiveDirectory1 {                        # Deployment name. This needs t
         To '\\contoso.org\share$\Tasks'          # One or more destinations to deploy the sources to
         Tagged Prod                              # One or more tags you can use to restrict deployments or queries
         WithOptions @{
-            Mirror: True                         # If the source is a folder, triggers robocopy purge. Danger
+            Mirror = $True                         # If the source is a folder, triggers robocopy purge. Danger
         }
     }
 }
@@ -71,9 +71,6 @@ The [PSDeploy Wiki](https://github.com/RamblingCookieMonster/PSDeploy/wiki) will
 * Details on the PSDeploy Configuration Files
 
 They will become out of date over time, but the original (yaml-focused) and updated (*.psdeploy.ps1-focused) blog posts may include helpful details:
-
-* [Original PSDeploy post](http://ramblingcookiemonster.github.io/PSDeploy/)
-* [*.PSDeploy.ps1 post](http://ramblingcookiemonster.github.io/PSDeploy-Take-Two/)
 
 ## Notes
 
