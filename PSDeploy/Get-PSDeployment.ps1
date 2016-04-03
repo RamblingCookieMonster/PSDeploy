@@ -194,8 +194,8 @@
                         Targets = @($DeploymentHash.Destination)
                         Tags = $DeploymentHash.Tags
                         Dependencies = $DeploymentHash.Dependencies
-                        PreScript = $DeploymentHash.WithPreScript
-                        PostScript = $DeploymentHash.WithPostScript
+                        PreScript = $DeploymentHash.PreScript
+                        PostScript = $DeploymentHash.PostScript
                         Raw = $DeploymentHash
                     }
                 }
@@ -247,8 +247,8 @@
                     Targets = $DeploymentItem.Targets
                     Tags = $DeploymentItem.Tags
                     Dependencies = $DeploymentItem.Dependencies
-                    PreScript = $DeploymentHash.WithPreScript
-                    PostScript = $DeploymentHash.WithPostScript
+                    PreScript = $DeploymentHash.PreScript
+                    PostScript = $DeploymentHash.PostScript
                     Raw = $null
                 }
             }

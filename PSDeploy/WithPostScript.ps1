@@ -123,6 +123,6 @@ Function WithPostScript {
     }
     end
     {
-        $Script:ThisBy.PreScript = @( $ScriptsToProcess )
+        $Script:ThisBy.PostScript = @( $ScriptsToProcess )
     }
 }
