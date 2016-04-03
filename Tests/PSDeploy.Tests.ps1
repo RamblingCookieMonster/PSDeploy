@@ -18,8 +18,8 @@ Import-Module $PSScriptRoot\..\PSDeploy -Force
     $FolderYML = "$PSScriptRoot\artifacts\IntegrationFolder.yml"
     $FilePS1 = "$PSScriptRoot\artifacts\IntegrationFile.PSDeploy.ps1"
     $FolderPS1 = "$PSScriptRoot\artifacts\IntegrationFolder.PSDeploy.ps1"
-    $CopyVMYML = "$PSScriptRoot\DeploymentsCopyVMFile.yml"
-    $CopyVMFolderYML= "$PSScriptRoot\DeploymentsCopyVMFolder.yml"
+    $CopyVMYML = "$PSScriptRoot\artifacts\DeploymentsCopyVMFile.yml"
+    $CopyVMFolderYML= "$PSScriptRoot\artifacts\DeploymentsCopyVMFolder.yml"
 
     $WaitForFilesystem = .5
     $MyVariable = 42
