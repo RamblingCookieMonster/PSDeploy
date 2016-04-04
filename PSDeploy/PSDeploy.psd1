@@ -70,7 +70,9 @@ FunctionsToExport = @('Get-PSDeployment',
                       'Tagged',
                       'WithOptions',
                       'DependingOn',
-                      'Initialize-PSDeployment')
+                      'Initialize-PSDeployment',
+                      'WithPreScript',
+                      'WithPostScript')
 # FunctionsToExport = '*'
 
 # Cmdlets to export from this module

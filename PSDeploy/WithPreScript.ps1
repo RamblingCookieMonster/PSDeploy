@@ -95,7 +95,7 @@ Function WithPreScript {
 
         [parameter( Position = 1 )]
         [validatescript({Test-Path $_})]
-        [string[]]$Path
+        [string[]]$Path,
 
         [switch]$SkipOnError
     )

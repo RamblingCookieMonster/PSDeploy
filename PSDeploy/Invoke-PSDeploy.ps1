@@ -223,6 +223,7 @@
 
             if($Deployment.Dependencies.ScriptBlock)
             {
+                Write-Verbose "Checking dependency:`n$($Deployment.Dependencies.ScriptBlock)"
                 if( -not $( . $Deployment.Dependencies.ScriptBlock ) )
                 {
                     $Deploy = $False
@@ -232,13 +233,14 @@
 
             if($Deployment.PreScript.Count -gt 0)
             {
-                $ExistingErrorActionPreference = $ErrorActionPreference
+                $ExistingEA = $ErrorActionPreference
                 foreach($script in $Deployment.Prescript)
                 {
                     if($Script.SkipOnError)
                     {
                         Try
                         {
+                            Write-Verbose "Invoking pre script: $($Script.ScriptBlock)"
                             $ErrorActionPreference = 'Stop'
                             . $Script.ScriptBlock
                         }
@@ -253,7 +255,7 @@
                         . $Script.ScriptBlock
                     }
                 }
-                $ErrorActionPreference = ExistingErrorActionPreference
+                $ErrorActionPreference = $ExistingEA
             }
 
             if($Deploy)
@@ -265,6 +267,7 @@
             {
                 foreach($script in $Deployment.PostScript)
                 {
+                    Write-Verbose "Invoking post script: $($Script.ScriptBlock)"
                     . $Script.ScriptBlock
                 }
             }

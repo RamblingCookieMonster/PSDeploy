@@ -324,6 +324,15 @@ Describe "Invoke-PSDeploy PS$PSVersion" {
             $NoopOutput = Invoke-PSDeploy @Verbose -Path $PSScriptRoot\artifacts\DeploymentsTags.psdeploy.ps1 -Tags Dev, Prod -Force
             $NoopOutput.Count | Should Be 4
         }
+
+        It 'Should handle pre and post scriptblocks' {
+            $NoopOutput = Invoke-PSDeploy @Verbose -Path $PSScriptRoot\artifacts\DeploymentsBeforeAfter.psdeploy.ps1 -Force
+            $NoopOutput.Count | Should Be 3
+            $NoopOutput[0] | Should be "Setting things up for a deployment..."
+            $NoopOutput[1].Deployment.PreScript
+            $NoopOutput[1].Deployment.PostScript
+            $NoopOutput[2] | Should be "Tearing things down from a deployment..."
+        }
     }
 
 }
