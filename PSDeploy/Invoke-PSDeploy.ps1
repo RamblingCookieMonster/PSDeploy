@@ -267,6 +267,7 @@
                     . $Deployment.Source
                 }
                 else
+                {
                     $Deployment | Invoke-PSDeployment @TheseParams @InvokePSDeploymentParams
                 }
             }
