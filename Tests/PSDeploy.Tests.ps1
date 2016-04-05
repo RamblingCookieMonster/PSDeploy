@@ -85,7 +85,7 @@ Describe "Get-PSDeploymentType PS$PSVersion" {
 
         It 'Should get definitions' {
             $Definitions = @( Get-PSDeploymentType @Verbose )
-            $Definitions.Count | Should Be 5
+            $Definitions.Count | Should Be 6
             $Definitions.DeploymentType -contains 'FileSystem' | Should Be $True
             $Definitions.DeploymentType -contains 'FileSystemRemote' | Should Be $True
             $Definitions.DeploymentType -contains 'CopyVMfile' | Should Be $True
@@ -112,7 +112,7 @@ Describe "Get-PSDeploymentScript PS$PSVersion" {
 
         It 'Should get definitions' {
             $Definitions = Get-PSDeploymentScript @Verbose
-            $Definitions.Keys.Count | Should Be 5
+            $Definitions.Keys.Count | Should Be 6
             $Definitions.GetType().Name | Should Be 'Hashtable'
             $Definitions.ContainsKey('FileSystem') | Should Be $True
             $Definitions.ContainsKey('FileSystemRemote') | Should Be $True
