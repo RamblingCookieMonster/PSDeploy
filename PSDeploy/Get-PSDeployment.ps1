@@ -213,27 +213,33 @@
             #TODO: Move this, not applicable to all deployment types
             foreach($Source in $Sources)
             {
-                #Determine the path to this source. Try absolute, fall back on relative
-                if(Test-Path $Source -ErrorAction SilentlyContinue)
+                $LocalSource = $null
+                $Exists = $null
+                $Type = 'Scriptblock'
+                if($Source -isnot [scriptblock])
                 {
-                    $LocalSource = ( Resolve-Path $Source ).Path
-                }
-                else
-                {
-                    $LocalSource = Join-Path $DeploymentRoot $Source -ErrorAction SilentlyContinue
-                }
-
-                $Exists = Test-Path $LocalSource -ErrorAction SilentlyContinue
-                if($Exists)
-                {
-                    $Item = Get-Item $LocalSource
-                    if($Item.PSIsContainer)
+                    #Determine the path to this source. Try absolute, fall back on relative
+                    if(Test-Path $Source -ErrorAction SilentlyContinue)
                     {
-                        $Type = 'Directory'
+                        $LocalSource = ( Resolve-Path $Source ).Path
                     }
                     else
                     {
-                        $Type = 'File'
+                        $LocalSource = Join-Path $DeploymentRoot $Source -ErrorAction SilentlyContinue
+                    }
+
+                    $Exists = Test-Path $LocalSource -ErrorAction SilentlyContinue
+                    if($Exists)
+                    {
+                        $Item = Get-Item $LocalSource
+                        if($Item.PSIsContainer)
+                        {
+                            $Type = 'Directory'
+                        }
+                        else
+                        {
+                            $Type = 'File'
+                        }
                     }
                 }
 
