@@ -159,16 +159,17 @@
                 foreach($Source in $Sources)
                 {
                     #Determine the path to this source. Try absolute, fall back on relative
+                    #Fail silently if not file/folder...
                     if(Test-Path $Source -ErrorAction SilentlyContinue)
                     {
                         $LocalSource = ( Resolve-Path $Source ).Path
                     }
                     else
                     {
-                       $LocalSource = Join-Path $DeploymentRoot $Source
+                       $LocalSource = Join-Path $DeploymentRoot $Source -ErrorAction SilentlyContinue
                     }
 
-                    $Exists = Test-Path $LocalSource
+                    $Exists = Test-Path $LocalSource -ErrorAction SilentlyContinue
                     if($Exists)
                     {
                         $Item = Get-Item $LocalSource
@@ -219,10 +220,10 @@
                 }
                 else
                 {
-                    $LocalSource = Join-Path $DeploymentRoot $Source
+                    $LocalSource = Join-Path $DeploymentRoot $Source -ErrorAction SilentlyContinue
                 }
 
-                $Exists = Test-Path $LocalSource
+                $Exists = Test-Path $LocalSource -ErrorAction SilentlyContinue
                 if($Exists)
                 {
                     $Item = Get-Item $LocalSource

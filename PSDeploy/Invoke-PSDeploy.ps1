@@ -192,10 +192,11 @@
         $ToDeploy = Get-PSDeployment @GetPSDeployParams
         foreach($Deployment in $ToDeploy)
         {
+            $Type = $Deployment.DeploymentType
+
             $TheseParams = @{'DeploymentParameters' = @{}}
-            if($Deployment.DeploymentOptions.Keys.Count -gt 0)
+            if($Deployment.DeploymentOptions.Keys.Count -gt 0 -and $Type -ne 'Task')
             {
-                $Type = $Deployment.DeploymentType
                 # Shoehorn Deployment Options into DeploymentParameters
                 # Needed if we support both yml and ps1 definitions...
 
@@ -260,7 +261,14 @@
 
             if($Deploy)
             {
-                $Deployment | Invoke-PSDeployment @TheseParams @InvokePSDeploymentParams
+                # Handle arbitrary task type, otherwise invoke the deployment
+                if($Deployment.Source -is [scriptblock])
+                {
+                    . $Deployment.Source
+                }
+                else
+                    $Deployment | Invoke-PSDeployment @TheseParams @InvokePSDeploymentParams
+                }
             }
 
             if($Deployment.PostScript.Count -gt 0)
