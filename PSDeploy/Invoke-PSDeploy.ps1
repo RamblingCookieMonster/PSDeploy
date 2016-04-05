@@ -261,15 +261,7 @@
 
             if($Deploy)
             {
-                # Handle arbitrary task type, otherwise invoke the deployment
-                if($Deployment.Source -is [scriptblock])
-                {
-                    . $Deployment.Source
-                }
-                else
-                {
-                    $Deployment | Invoke-PSDeployment @TheseParams @InvokePSDeploymentParams
-                }
+                $Deployment | Invoke-PSDeployment @TheseParams @InvokePSDeploymentParams
             }
 
             if($Deployment.PostScript.Count -gt 0)

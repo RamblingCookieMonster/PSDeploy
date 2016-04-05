@@ -176,8 +176,18 @@
 
                 $splat.add('Deployment', $TheseDeployments)
 
-                #Run the associated script, splat the parameters
-                & $DeploymentScript @splat
+                if($DeploymentType -eq 'Task')
+                {
+                    foreach($Deployment in $TheseDeployments)
+                    {
+                        . $Deployment.Source
+                    }
+                }
+                else
+                {
+                    #Run the associated script, splat the parameters
+                    & $DeploymentScript @splat
+                }
             }
         }
     }

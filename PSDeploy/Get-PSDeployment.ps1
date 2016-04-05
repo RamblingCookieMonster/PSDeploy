@@ -109,7 +109,7 @@
     }
 
     # Handle PSDeploy.ps1 parsing
-    if($PSCmdlet.ParameterSetName -eq 'File' -and $Path -like "*.psdeploy.ps1" )
+    if($PSCmdlet.ParameterSetName -eq 'File' -and $Path -like "*.ps1" )
     {
         foreach($DeploymentFile in $Path)
         {
@@ -213,10 +213,10 @@
             #TODO: Move this, not applicable to all deployment types
             foreach($Source in $Sources)
             {
-                $LocalSource = $null
+                $LocalSource = $Source
                 $Exists = $null
-                $Type = 'Scriptblock'
-                if($Source -isnot [scriptblock])
+                $Type = $null
+                if($DeploymentItem.DeploymentType -ne 'Task')
                 {
                     #Determine the path to this source. Try absolute, fall back on relative
                     if(Test-Path $Source -ErrorAction SilentlyContinue)

@@ -156,10 +156,13 @@ Function By {
         # Handle arbitrary tasks
         if($DeploymentType -eq 'Task')
         {
-            $ThisBy.Source = $Script
+            Write-Verbose "Adding script to source: $($Script | Out-String)"
+            $Script:ThisBy.Source = $Script
         }
-
-        . $Script
+        else
+        {
+            . $Script
+        }
 
         # One might imagine a case where a deployment has a source or a target but not both.
         # So... Don't stop them if one or the other is missing.
