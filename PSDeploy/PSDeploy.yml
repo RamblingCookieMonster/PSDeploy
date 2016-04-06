@@ -26,3 +26,7 @@ CopyVMfile:
 Task:
   Script: .
   Description: Invoke the specified scriptblock. You can use this to depend on arbitrary PowerShell code
+
+ARM:
+  Script: ARM.ps1
+  Description: Uses Azure Resource Manager PowerShell cmdlets to deploy a template to Microsoft Azure or Azure Stack 
