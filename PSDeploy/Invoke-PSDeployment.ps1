@@ -186,7 +186,7 @@
                 else
                 {
                     #Run the associated script, splat the parameters
-                    & $DeploymentScript @splat
+                    . $DeploymentScript @splat
                 }
             }
         }
