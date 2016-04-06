@@ -10,7 +10,7 @@ Function DependingOn {
 
         This is not intended to be used anywhere but in a *.PSDeploy.ps1 file. It is included here for intellisense support
 
-    .PARAMETER Dependencies
+    .PARAMETER DeploymentName
         One or more Deployment names that we will depend upon.
 
         Keep in mind if you name your 'By' block, the final DeploymentName will be:
@@ -81,10 +81,17 @@ Function DependingOn {
     #>
     [cmdletbinding()]
     param(
-        [parameter( Position = 0,
-                    Mandatory = $True)]
-        [string[]]$Dependencies
+        [parameter( Position = 0)]
+        [string[]]$DeploymentName,
+
+        [parameter( Position = 1)]
+        [scriptblock]$ScriptBlock
     )
+
+    $Dependencies = [pscustomobject]@{
+        DeploymentName = $DeploymentName
+        ScriptBlock = $ScriptBlock
+    }
 
     $Script:ThisBy.Dependencies = $Dependencies
 }

@@ -76,27 +76,29 @@
 
     foreach($Type in ($DeploymentDefinitions.Keys | Where {$_ -like $DeploymentType}))
     {
-        #Determine the path to this script
+        #Determine the path to this script. Skip task deployments...
         $Script =  $DeploymentDefinitions.$Type.Script
-        if(Test-Path $Script)
+        if($Script -ne '.')
         {
-            $ScriptPath = $Script
-        }
-        else
-        {
-            # account for missing ps1
-            $ScriptPath = Join-Path $PSScriptRoot "PSDeployScripts\$($Script -replace ".ps1$").ps1"
-        }
+            if(Test-Path $Script)
+            {
+                $ScriptPath = $Script
+            }
+            else
+            {
+                # account for missing ps1
+                $ScriptPath = Join-Path $PSScriptRoot "PSDeployScripts\$($Script -replace ".ps1$").ps1"
+            }
 
-        Try
-        {
-            $ScriptHelp = Get-Help $ScriptPath -Full -ErrorAction Stop
+            Try
+            {
+                $ScriptHelp = Get-Help $ScriptPath -Full -ErrorAction Stop
+            }
+            Catch
+            {
+                $ScriptHelp = "Error retrieving help: $_"
+            }
         }
-        Catch
-        {
-            $ScriptHelp = "Error retrieving help: $_"
-        }
-
         if($ShowHelp)
         {
             $ScriptHelp

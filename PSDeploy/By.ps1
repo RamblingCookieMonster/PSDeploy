@@ -130,6 +130,8 @@ Function By {
         DeploymentOptions = $null
         Tags = $null
         Dependencies = $null
+        PreScript = $null
+        PostScript = $null
     }
 
     if( $PSCmdlet.ParameterSetName -eq 'Name')
@@ -150,27 +152,32 @@ Function By {
     {
         $Script:ThisBy.DeploymentName = $Name
         $Script:ThisBy.DeploymentType = $DeploymentType
-        . $Script
+
+        # Handle arbitrary tasks
+        if($DeploymentType -eq 'Task')
+        {
+            Write-Verbose "Adding script to source: $($Script | Out-String)"
+            $Script:ThisBy.Source = $Script
+        }
+        else
+        {
+            . $Script
+        }
 
         # One might imagine a case where a deployment has a source or a target but not both.
         # So... Don't stop them if one or the other is missing.
         if($null -eq $Script:ThisBy.Source)
         {
-            Write-Warning "Missing Source for By '$($ThisBy.DeploymentName)'"
+            Write-Verbose "Missing Source for By '$($ThisBy.DeploymentName)'"
         }
         if($null -eq $Script:ThisBy.Targets)
         {
-            Write-Warning "Missing Targets for By '$($ThisBy.DeploymentName)'"
+            Write-Verbose "Missing Targets for By '$($ThisBy.DeploymentName)'"
         }
 
         try
         {
-            # Users might wrap By blocks or other DSL components in logic.
-            # If both a target and source aren't defined, don't add it...
-            if($Script:ThisBy.Source -or $Script:ThisBy.Targets)
-            {
-                [void]$Script:Deployments.Add($Script:ThisBy)
-            }
+            [void]$Script:Deployments.Add($Script:ThisBy)
         }
         catch
         {

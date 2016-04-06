@@ -19,6 +19,14 @@ Noop:
   Script: noop.ps1
   Description: Display parameters that a deployment script would receive. Use for testing and validation.
 
+CopyVMfile:
+  Script: CopyVMFile.ps1
+  Description: Uses Copy-VMFile cmdlet available with Hyper-V on Server 2012 R2 for folder and file deployments.
+
+Task:
+  Script: .
+  Description: Invoke the specified scriptblock. You can use this to depend on arbitrary PowerShell code
+
 ARM:
   Script: ARM.ps1
   Description: Uses Azure Resource Manager PowerShell cmdlets to deploy a template to Microsoft Azure or Azure Stack 

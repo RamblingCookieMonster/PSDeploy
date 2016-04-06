@@ -150,7 +150,7 @@
             #Get definitions, and deployments in this particular yml
             $DeploymentDefs = Get-PSDeploymentScript
             $TheseDeploymentTypes = @( $Deployment.DeploymentType | Sort -Unique )
-            
+
             #Build up hash, we call each deploymenttype script for applicable deployments
             $ToDeploy = @{}
             foreach($DeploymentType in $TheseDeploymentTypes)
@@ -162,7 +162,7 @@
                     continue
                 }
                 $TheseDeployments = @( $Deployment | Where-Object {$_.DeploymentType -eq $DeploymentType})
-            
+
                 #Define params for the script
                 #Each deployment type can have a hashtable to splat.
                 if($PSBoundParameters.ContainsKey('DeploymentParameters') -and $DeploymentParameters.ContainsKey($DeploymentType))
@@ -173,11 +173,21 @@
                 {
                     $splat = @{}
                 }
-            
+
                 $splat.add('Deployment', $TheseDeployments)
-            
-                #Run the associated script, splat the parameters
-                & $DeploymentScript @splat
+
+                if($DeploymentType -eq 'Task')
+                {
+                    foreach($Deployment in $TheseDeployments)
+                    {
+                        . $Deployment.Source
+                    }
+                }
+                else
+                {
+                    #Run the associated script, splat the parameters
+                    . $DeploymentScript @splat
+                }
             }
         }
     }

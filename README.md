@@ -72,9 +72,6 @@ The [PSDeploy Wiki](https://github.com/RamblingCookieMonster/PSDeploy/wiki) will
 
 They will become out of date over time, but the original (yaml-focused) and updated (*.psdeploy.ps1-focused) blog posts may include helpful details:
 
-* [Original PSDeploy post](http://ramblingcookiemonster.github.io/PSDeploy/)
-* [*.PSDeploy.ps1 post](http://ramblingcookiemonster.github.io/PSDeploy-Take-Two/)
-
 ## Notes
 
 Thanks go to:
