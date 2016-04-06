@@ -211,6 +211,12 @@ Describe "Get-PSDeployment PS$PSVersion" {
             $Deployments[0].DeploymentName | Should Be 'ModuleFiles-Files'
             $Deployments[3].DeploymentName | Should Be 'ModuleFiles-Misc'
         }
+
+        It 'Should handle task "deployments"' {
+            $Deployments = Get-PSDeployment @verbose -Path $PSScriptRoot\artifacts\DeploymentsTasks.psdeploy.ps1
+            $Deployments.count | Should be 2
+            $Deployments[0].Source -Match '"Running a task!"' | Should be $True
+        }
     }
 }
 
@@ -332,6 +338,11 @@ Describe "Invoke-PSDeploy PS$PSVersion" {
             $NoopOutput[1].Deployment.PreScript
             $NoopOutput[1].Deployment.PostScript
             $NoopOutput[2] | Should be "Tearing things down from a deployment..."
+        }
+
+        It 'Should handle task "deployments"' {
+            $Deployments = @( Invoke-PSDeploy @verbose -Path $PSScriptRoot\artifacts\DeploymentsTasks.psdeploy.ps1 -Force )
+            $Deployments[0] | Should Be 'Running a task!'
         }
     }
 
