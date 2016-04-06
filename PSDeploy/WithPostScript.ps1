@@ -28,8 +28,9 @@ Function WithPostScript {
                 FromSource 'MyModule'
                 To 'C:\sc\MyModule'
                 Tagged Prod, Module
-                WithOptions @{
-                    Mirror = $True
+                WithPreScript {
+                    "Set up a thing"
+                    "Do another thing"
                 }
             }
 
@@ -37,6 +38,9 @@ Function WithPostScript {
                 FromSource 'Tasks'
                 To 'C:\sc\Tasks'
                 Tagged Prod
+                WithPostScript {
+                    "Tear down a thing"
+                }
             }
         }
 
@@ -44,8 +48,8 @@ Function WithPostScript {
         # We specify a name to ensure uniqueness of the resulting DeploymentName: DeployMyModule and DeployMyModule-Tasks
         # This would deploy the folder 'MyModule' to C:\sc\MyModule. It would mirror (i.e. remove items that are not in the source)
         # This would deploy the folder Tasks to C:\sc\Tasks, without mirroring.
-
-        # Tags are provided for each.  If Invoke-PSDeploy or Get-PSDeployment are called with -Tags, only the associated deployments would go through.
+        # This will run a setup script for the MyModule deployment.  You can include arbitrary PowerShell in this scriptblock
+        # THis will run a teardown script for the Tasks deployment.
 
     .LINK
         about_PSDeploy
