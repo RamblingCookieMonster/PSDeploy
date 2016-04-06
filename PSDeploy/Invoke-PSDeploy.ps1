@@ -73,6 +73,12 @@
         WithOptions
 
     .LINK
+        WithPreScript
+
+    .LINK
+        WithPostScript
+
+    .LINK
         DependingOn
 
     .LINK

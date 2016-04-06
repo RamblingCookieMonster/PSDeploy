@@ -28,6 +28,8 @@ DETAILED DESCRIPTION
             Source:            One or more source items to deploy
             Targets:           One or more targets to deploy to
             Dependencies:      One or more DeploymentNames that this deployment depends on
+            WithPreScript:     One or more scripts to invoke before this deployment
+            WithPostScript:    One or more scripts to invoke after this deploymeny
 
         A *.PSDeploy.ps1 file will have one or more deployment blocks like this:
 
@@ -43,6 +45,12 @@ DETAILED DESCRIPTION
                     Mirror = $True
                 }
                 DependingOn SomeOtherDeployment             # Run this deployment only after SomeOtherDeployment has run
+                WithPreScript {                             # Run this script before deploying anything
+                    "Set something up"
+                }
+                WithPostScript {                            # Run this script after deploying things
+                    "Tear something down"
+                }
             }
 
         These are each PowerShell functions (only useful in a PSDeploy.ps1 file), so you can run get help to find out more information:
@@ -54,6 +62,8 @@ DETAILED DESCRIPTION
         Get-Help Tagged -Full
         Get-Help WithOptions -Full
         Get-Help DependingOn -Full
+        Get-Help WithPostScript -Full
+        Get-Help WithPreScript -Full
 
         Keep in mind that this is a PowerShell script. You can use the language to make your deployments more flexible.
 
