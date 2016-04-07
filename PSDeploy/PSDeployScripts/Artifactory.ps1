@@ -1,3 +1,54 @@
+<#
+    .SYNOPSIS
+        Deploys file(s) to an Artifactory endpoint.
+
+    .DESCRIPTION
+        Deploys files to an Artifactory endpoint and optionally extract the file contents in Artifactory
+        if the source file is an archive (zip, tar, tar.gz, or tgz).
+
+    .PARAMETER Deployment
+        Deployment to run
+        
+    .PARAMETER Credential
+        The credential with 'deploy' permissions in Artifactory
+        
+    .PARAMETER Repository
+        Specified the artifact repository to deploy in to.
+        
+        Example: 'powershell-scripts'
+    
+    .PARAMETER OrgPath
+        Identifies the artifact's organization
+    
+        Example: 'server_group'
+        
+    .PARAMETER Module
+        Identifies the artifact's module
+        
+        Example: 'my_module'     
+    
+    .PARAMETER BaseRev
+        Identifies the base revision part of the artifact version, excluding any integration information.
+        
+        Example: '1.5.10', or in case of an integration revision '1.2-SNAPSHOT' the base revision is '1.2'
+    
+    .PARAMETER FileItegRev
+        Identifies the integration revision part in the artifact's file name, excluding the base revision.
+        
+        Example: In case of an integration revision '1.2-20110202.144533-'" the file integration revision is '20110202.144533-3'
+        
+    .PARAMETER Extension
+        Specify an alternate file extension for the artifact
+            
+    .PARAMETER DeployArchive
+        Extract archive file (zip, tar, tar.gz, or tgz) once deployed.
+    
+    .PARAMETER Properties
+        Specifies additional key-value pairs to be associated with the artifact.
+        
+        Example: @{generatedOn='2016-04-01'; generatedBy='Joe User'} 
+
+#>
 param(
     [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
     [psobject[]]$Deployment,
@@ -7,7 +58,6 @@ param(
     [Parameter(Mandatory)]
     [string]$Repository,
 
-    # simple-default repository layout
     [Parameter(Mandatory)]
     [string]$OrgPath,
 
@@ -30,13 +80,13 @@ foreach($Deploy in $Deployment) {
     Write-Verbose -Message "Starting deployment [$($Deploy.DeploymentName)] to Artifactory"
 
     if (Test-Path -Path $Deploy.Source) {
-        if ($Deploy.SourceType -eq 'Directory') {
-            Write-Verbose 'Source is a directory!'
-            throw 'This is not implemented yet!'
-        } else {
-            Write-Verbose 'Source is a file'
+        
+        $src = Get-Item -Path $Deploy.Source
+        
+        if ($src.PSIsContainer) {
+            throw 'The source is a directory. Please specify an individual file or multiple files to deploy.'
         }
-
+        
         foreach($Target in $Deploy.Targets) {
 
             # Get the file extension of the source file if none is specified in the deployment
@@ -46,17 +96,18 @@ foreach($Deploy in $Deployment) {
             }
 
             # Build URL to deploy to
-            $url = "$Target/$Repository/$Module/$module`-$BaseRev"
+            $url = "$Target/$Repository/$OrgPath/$Module/$module`-$BaseRev"
             if ($PSBoundParameters.ContainsKey('FileItegRev')) {
                 $url += "-$FileItegRev`.$Extension"
             } else {
                 $url += "`.$Extension"
             }
             
-            # If extra properties are specified, append them to the URL
+            # If extra properties are specified, append them to the URL as query parameters
+            # These will be presented as additional properties on the artifact in Artifactory
             if ($PSBoundParameters.ContainsKey('Properties')) {
                 foreach ($prop in $Properties.GetEnumerator()) {
-                    $url += "$($prop.Name)=$($prop.Value)"
+                    $url += ";$($prop.Name)=$($prop.Value)"
                 }
             }
 
