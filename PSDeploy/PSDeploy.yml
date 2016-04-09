@@ -18,3 +18,7 @@ MkDocs:
 Noop:
   Script: noop.ps1
   Description: Display parameters that a deployment script would receive. Use for testing and validation.
+
+Task:
+  Script: Task.ps1
+  Description: Support deployments by handling simple tasks.
