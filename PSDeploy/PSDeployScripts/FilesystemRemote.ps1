@@ -35,6 +35,8 @@
 #>
 [cmdletbinding()]
 param (
+    [switch]$Mirror,
+
     [string]$ComputerName,
     
     [pscredential]$Credential,
@@ -59,9 +61,29 @@ Catch
     Write-Error $_
     Throw "Could not determine remote source for $($Map.Source), skipping"
 }
-    
+
+# Set up module functions that need to be injected into the remote session.
+$FunctionsToInject = @(
+    'Get-Hash'
+)
+$InjectedFunctions = @()
+
+foreach ($FunctionName in $FunctionsToInject) {
+    $FunctionObject = Get-Command -Name $FunctionName -Module 'PSDeploy' -ErrorAction SilentlyContinue
+    if ($FunctionObject) {
+        $InjectedFunctions += "Function $FunctionName { $($FunctionObject.Definition) }"
+    } else {
+        Write-Warning -Message "Unable to prepare function $FunctionName for remote injection"
+    }
+}
+
 #Remote deployment
 Invoke-Command @PSBoundParameters -ScriptBlock {
+
+    # Inject required functions from local variable
+    foreach ($FunctionDefinition in $Using:InjectedFunctions) {
+        Invoke-Expression -Command $FunctionDefinition
+    }
 
     foreach($Map in $Using:Deployment)
     {
