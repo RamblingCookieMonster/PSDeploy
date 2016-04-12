@@ -10,7 +10,7 @@ There are many ways to contribute, including:
   * A bug you find
   * A feature you think would be valuable
   * A question on using PSDeploy (you might not be the only one with the question)
-* Edit the wiki ([Instructions here](https://help.github.com/articles/adding-and-editing-wiki-pages-locally/)): *Waiting on move to ReadtTheDocs*
+* Edit the wiki ([Instructions here](https://help.github.com/articles/adding-and-editing-wiki-pages-locally/)): *Waiting on move to ReadTheDocs*
   * Improve or expand on [existing wiki content](https://github.com/RamblingCookieMonster/PSDeploy/wiki)
   * [Document a deployment type](https://github.com/RamblingCookieMonster/PSDeploy/wiki#deploymenttype-examples)
   * [Describe a real world scenario](https://github.com/RamblingCookieMonster/PSDeploy/wiki#practical-examples)
@@ -29,7 +29,7 @@ All of these require that you [have a GitHub account](https://github.com/signup/
   * Use the search box and flip through open/closed issues to avoid duplication
   * If the issue is for a bug fix, provide reproducible code.  If you can't, and you think an issue is still warranted, provide your code, and related details on your environment
 * Contribute to the wiki
-  * *Waiting on move to ReadtTheDocs*
+  * *Waiting on move to ReadTheDocs*
   * Changes welcome in the interim
 * Submit a pull request
   * Fork the repo
