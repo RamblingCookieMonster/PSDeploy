@@ -1,0 +1,5 @@
+site_name: PSDeploy Docs
+repo_url: https://github.com/RamblingCookieMonster/PSDeploy
+theme: readthedocs
+pages:
+  - PSDeploy Docs Home: 'index.md'
