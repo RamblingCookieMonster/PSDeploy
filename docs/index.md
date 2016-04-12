@@ -8,7 +8,7 @@
 ### DeploymentType Examples
 
 * [Example Filesystem Deployment](Example-Filesystem-Deployment.md)
-  * [[xample Filesystem Deployment Follow Along](Example-Filesystem-Deployment-Follow-Along.md)
+  * [Example Filesystem Deployment Follow Along](Example-Filesystem-Deployment-Follow-Along.md)
 * [Example FilesystemRemote Deployment](Example-FilesystemRemote-Deployment.md)
 * [Example Task 'Deployment'](Example-Task-Deployment.md)
 
