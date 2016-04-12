@@ -7,7 +7,7 @@ PSDeploy is a quick and dirty module to simplify PowerShell based deployments.
 
 The idea is that you write a *.psdeploy.ps1 deployment configuration with sources and targets, and PSDeploy will deploy these.
 
-Suggestions, pull requests, and other contributions would be more than welcome!
+Suggestions, pull requests, and other contributions would be more than welcome! See the [contributing guidlines](Contributing.md) for more info.
 
 ## Deployments
 
@@ -64,7 +64,7 @@ Invoke-PSDeploy -Path C:\Git\Misc
 
 ## More Information
 
-The [PSDeploy Wiki](https://github.com/RamblingCookieMonster/PSDeploy/wiki) will include more information, including:
+The [PSDeploy docs](http://psdeploy.readthedocs.org/) will include more information, including:
 
 * Examples for different DeploymentTypes - will try to keep these in sync with new types when they are added
 * Illustrations of features like tags and dependencies

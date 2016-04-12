@@ -1,26 +1,13 @@
-# PSDeploy Basics
+# PSDeploy Docs
 
-* [Quick Start. Installation and Example](Quick-Start.-Installation-and-Example.md)
-* [PSDeploy Configuration Files](PSDeploy-Configuration-Files.md)
+PSDeploy uses ReadTheDocs to host our documentation.  This allows us to keep our docs in the repository, without the various limitations that come with the built in GitHub repo wiki.
 
-# Examples and Illustrations
+Contributions welcome:
 
-### DeploymentType Examples
-
-* [Example Filesystem Deployment](Example-Filesystem-Deployment.md)
-  * [Example Filesystem Deployment Follow Along](Example-Filesystem-Deployment-Follow-Along.md)
-* [Example FilesystemRemote Deployment](Example-FilesystemRemote-Deployment.md)
-* [Example Task 'Deployment'](Example-Task-Deployment.md)
-
-### How do I...
-
-* [Use tags](Feature.-Tags.md)
-* [Create dependencies](Feature.-Dependencies.md)
-* [Call setup or teardown scripts](Feature.-Setup-and-Teardown-Scripts.md)
-
-### Practical Examples
-* ...
-
-# Advanced
-
-* [Extending PSDeploy](Extending-PSDeploy.md)
+* Clone the PSDeploy
+* Checkout the [dev branch](https://github.com/RamblingCookieMonster/PSDeploy/tree/dev)
+* Commit changes
+  * Organization is described in the [mkdocs.yml](https://github.com/RamblingCookieMonster/PSDeploy/blob/dev/mkdocs.yml) file
+  * mkdocs.yml points to markdown files in [the docs folder](https://github.com/RamblingCookieMonster/PSDeploy/tree/dev/docs)
+  * Images are stored and accessible from docs/images
+* Submit a pull request to the dev branch

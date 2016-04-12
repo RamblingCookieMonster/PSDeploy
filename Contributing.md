@@ -10,11 +10,10 @@ There are many ways to contribute, including:
   * A bug you find
   * A feature you think would be valuable
   * A question on using PSDeploy (you might not be the only one with the question)
-* Edit the wiki ([Instructions here](https://help.github.com/articles/adding-and-editing-wiki-pages-locally/)): *Waiting on move to ReadTheDocs*
-  * Improve or expand on [existing wiki content](https://github.com/RamblingCookieMonster/PSDeploy/wiki)
-  * [Document a deployment type](https://github.com/RamblingCookieMonster/PSDeploy/wiki#deploymenttype-examples)
-  * [Describe a real world scenario](https://github.com/RamblingCookieMonster/PSDeploy/wiki#practical-examples)
-  * Provide a '[How do I...](https://github.com/RamblingCookieMonster/PSDeploy/wiki#how-do-i)' explanation
+* Edit the docs to...
+  * Improve or expand on [existing docs](https://psdeploy.readthedocs.org)
+  * Document a deployment type
+  * Write a 'How do I...' scenario
 * Submit pull requests to...
   * Improve or expand on the [Readme.md](https://github.com/RamblingCookieMonster/PSDeploy/blob/master/README.md) or this Contributing.md
   * [Add or extend existing PSDeploy testing](https://github.com/RamblingCookieMonster/PSDeploy/blob/master/Tests/PSDeploy.Tests.ps1)
@@ -25,17 +24,22 @@ There are many ways to contribute, including:
 
 All of these require that you [have a GitHub account](https://github.com/signup/free).
 
-* [Submit an issue](https://github.com/RamblingCookieMonster/PSDeploy/issues).
+* [Submit an issue](https://github.com/RamblingCookieMonster/PSDeploy/issues)
   * Use the search box and flip through open/closed issues to avoid duplication
   * If the issue is for a bug fix, provide reproducible code.  If you can't, and you think an issue is still warranted, provide your code, and related details on your environment
-* Contribute to the wiki
-  * *Waiting on move to ReadTheDocs*
-  * Changes welcome in the interim
+* Contribute to [the docs](https://psdeploy.readthedocs.org)
+  * Fork the repo
+  * Checkout and work in the dev branch
+    * Organization is described in the [mkdocs.yml](https://github.com/RamblingCookieMonster/PSDeploy/blob/dev/mkdocs.yml) file. If you add a file or section, mkdocs.yml needs to know
+    * mkdocs.yml points to markdown files in [the docs folder](https://github.com/RamblingCookieMonster/PSDeploy/tree/dev/docs)
+    * Images are stored and accessible from docs/images
+  * Commit changes
+  * Submit a pull request to the dev branch
 * Submit a pull request
   * Fork the repo
   * Checkout and work in the dev branch
   * Where possible, add Pester tests for your change
-  * Submit your pull request to the Dev branch
+  * Submit your pull request to the dev branch
 
 # Additional Resources
 * [General GitHub documentation](https://help.github.com/)
