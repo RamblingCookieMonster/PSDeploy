@@ -20,6 +20,7 @@ foreach($task in $Deployment)
 {
     if($task.SourceExists)
     {
-        PowerShell.exe -noninteractive -executionpolicy remotesigned -file "$($task.Source)"
+        $param = $task.DeploymentOptions
+        & "$($task.Source)" @param
     }
 }
