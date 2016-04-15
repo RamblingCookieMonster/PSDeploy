@@ -1,11 +1,15 @@
-Deploy LocalFileContentExample {
-    By Task {
+Deploy LocalExample {
+    By Task randomtask {
+        "Running a task!"
+    }
+    By Task filecontent {
         FromSource .\Tasks\createfile.ps1
     }
 }
-Deploy ARMLoginExample {
-    By Task {
-        FromSource .\Tasks\loginazurerm.ps1
+Deploy ARMExample {
+    By Task login {
+        FromSource .\Tasks\armlogin.ps1
+        Tagged 'Before'
         WithOptions @{
             SubscriptionID = 'YOURSUBSCRIPTIONID'
             Tenant = 'YOURTENANTID'
