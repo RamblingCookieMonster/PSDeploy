@@ -73,6 +73,12 @@
         WithOptions
 
     .LINK
+        WithPreScript
+
+    .LINK
+        WithPostScript
+
+    .LINK
         DependingOn
 
     .LINK
@@ -192,10 +198,11 @@
         $ToDeploy = Get-PSDeployment @GetPSDeployParams
         foreach($Deployment in $ToDeploy)
         {
+            $Type = $Deployment.DeploymentType
+
             $TheseParams = @{'DeploymentParameters' = @{}}
-            if($Deployment.DeploymentOptions.Keys.Count -gt 0)
+            if($Deployment.DeploymentOptions.Keys.Count -gt 0 -and $Type -ne 'Task')
             {
-                $Type = $Deployment.DeploymentType
                 # Shoehorn Deployment Options into DeploymentParameters
                 # Needed if we support both yml and ps1 definitions...
 
@@ -219,7 +226,58 @@
                 $TheseParams.DeploymentParameters = $hash
             }
 
-            $Deployment | Invoke-PSDeployment @TheseParams @InvokePSDeploymentParams
+            $Deploy = $True #anti pattern! Best I could come up with to handle both prescript fail and dependencies
+
+            if($Deployment.Dependencies.ScriptBlock)
+            {
+                Write-Verbose "Checking dependency:`n$($Deployment.Dependencies.ScriptBlock)"
+                if( -not $( . $Deployment.Dependencies.ScriptBlock ) )
+                {
+                    $Deploy = $False
+                    Write-Warning "Skipping Deployment '$($Deployment.DeploymentName)', did not pass scriptblock`n$($Deployment.Dependencies.ScriptBlock | Out-String)"
+                }
+            }
+
+            if($Deployment.PreScript.Count -gt 0)
+            {
+                $ExistingEA = $ErrorActionPreference
+                foreach($script in $Deployment.Prescript)
+                {
+                    if($Script.SkipOnError)
+                    {
+                        Try
+                        {
+                            Write-Verbose "Invoking pre script: $($Script.ScriptBlock)"
+                            $ErrorActionPreference = 'Stop'
+                            . $Script.ScriptBlock
+                        }
+                        Catch
+                        {
+                            $Deploy = $False
+                            Write-Error $_
+                        }
+                    }
+                    else
+                    {
+                        . $Script.ScriptBlock
+                    }
+                }
+                $ErrorActionPreference = $ExistingEA
+            }
+
+            if($Deploy)
+            {
+                $Deployment | Invoke-PSDeployment @TheseParams @InvokePSDeploymentParams
+            }
+
+            if($Deployment.PostScript.Count -gt 0)
+            {
+                foreach($script in $Deployment.PostScript)
+                {
+                    Write-Verbose "Invoking post script: $($Script.ScriptBlock)"
+                    . $Script.ScriptBlock
+                }
+            }
         }
     }
 }

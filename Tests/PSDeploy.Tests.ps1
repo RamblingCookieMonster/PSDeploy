@@ -5,6 +5,11 @@ if($env:APPVEYOR_REPO_BRANCH -and $env:APPVEYOR_REPO_BRANCH -notlike "master")
 }
 
 $PSVersion = $PSVersionTable.PSVersion.Major
+
+# Create a Dummy Hyper-V Module, to mock the Copy-VMfile cmdlet later
+$DummyModule = New-Module -Name Hyper-V  -Function "Copy-VMFile" -ScriptBlock {  Function Copy-VMFile { Write-Host "Invoking Copy-VMFile -> $Args"}; }
+$DummyModule | Import-Module
+
 Import-Module $PSScriptRoot\..\PSDeploy -Force
 
 #Set up some data we will use in testing
@@ -13,6 +18,9 @@ Import-Module $PSScriptRoot\..\PSDeploy -Force
     $FolderYML = "$PSScriptRoot\artifacts\IntegrationFolder.yml"
     $FilePS1 = "$PSScriptRoot\artifacts\IntegrationFile.PSDeploy.ps1"
     $FolderPS1 = "$PSScriptRoot\artifacts\IntegrationFolder.PSDeploy.ps1"
+    $CopyVMYML = "$PSScriptRoot\artifacts\DeploymentsCopyVMFile.yml"
+    $CopyVMFolderYML= "$PSScriptRoot\artifacts\DeploymentsCopyVMFolder.yml"
+
     $WaitForFilesystem = .5
     $MyVariable = 42
 
@@ -77,9 +85,11 @@ Describe "Get-PSDeploymentType PS$PSVersion" {
 
         It 'Should get definitions' {
             $Definitions = @( Get-PSDeploymentType @Verbose )
-            $Definitions.Count | Should Be 4
+
+            $Definitions.Count | Should Be 8
             $Definitions.DeploymentType -contains 'FileSystem' | Should Be $True
             $Definitions.DeploymentType -contains 'FileSystemRemote' | Should Be $True
+            $Definitions.DeploymentType -contains 'CopyVMfile' | Should Be $True
         }
 
         It 'Should return valid paths' {
@@ -103,10 +113,13 @@ Describe "Get-PSDeploymentScript PS$PSVersion" {
 
         It 'Should get definitions' {
             $Definitions = Get-PSDeploymentScript @Verbose
-            $Definitions.Keys.Count | Should Be 4
+
+            $Definitions.Keys.Count | Should Be 8
             $Definitions.GetType().Name | Should Be 'Hashtable'
             $Definitions.ContainsKey('FileSystem') | Should Be $True
             $Definitions.ContainsKey('FileSystemRemote') | Should Be $True
+            $Definitions.ContainsKey('FileSystemRemote') | Should Be $True
+            $Definitions.ContainsKey('CopyVMFile') | Should Be $True
         }
 
         It 'Should return valid paths' {
@@ -183,8 +196,8 @@ Describe "Get-PSDeployment PS$PSVersion" {
         It 'Should allow user-specified, properly formed YAML' {
             $Deployments = @( Get-PSDeployment @Verbose -Path $PSScriptRoot\artifacts\DeploymentsRaw.yml )
             $Deployments.Count | Should Be 1
-            $Deployments.Raw.Options.List.Count | Should be 2
-            $Deployments.Raw.Options.Making | Should be "Stuff up"
+            $Deployments[0].DeploymentOptions.List.Count | Should be 2
+            $Deployments[0].DeploymentOptions.Making | Should be "Stuff up"
         }
 
         It 'Should allow user-specified options from ps1' {
@@ -199,6 +212,12 @@ Describe "Get-PSDeployment PS$PSVersion" {
             $Deployments.Count | Should be 4
             $Deployments[0].DeploymentName | Should Be 'ModuleFiles-Files'
             $Deployments[3].DeploymentName | Should Be 'ModuleFiles-Misc'
+        }
+
+        It 'Should handle task "deployments"' {
+            $Deployments = Get-PSDeployment @verbose -Path $PSScriptRoot\artifacts\DeploymentsTasks.psdeploy.ps1
+            $Deployments.count | Should be 2
+            $Deployments[0].Source -Match '"Running a task!"' | Should be $True
         }
     }
 }
@@ -255,6 +274,24 @@ Describe "Invoke-PSDeployment PS$PSVersion" {
 
             Test-Path (Join-Path $IntegrationTarget File1.ps1) | Should Be $True
         }
+
+        It 'Should copy file to VM' {
+            Mock -CommandName Copy-VMFile -MockWith {}   -ModuleName PSdeploy
+            $deployment = Get-PSDeployment @Verbose -Path $CopyVMYML 
+            Invoke-PSDeployment -Deployment $deployment  @Verbose -Force
+            Assert-MockCalled -CommandName Copy-VMfile -Times 1 -Exactly -ModuleName PSDeploy
+        }
+
+        It 'Should copy folder to VM' {
+            Mock -CommandName Copy-VMFile -MockWith {}  -ModuleName PSDeploy
+            $Deployment = Get-PSDeployment @Verbose -Path $CopyVMFolderYML 
+            Invoke-PSDeployment -Deployment $Deployment @Verbose -Force
+            $TotalFiles = Get-Childitem -Path $Deployment.Source -File -Recurse
+            $count = $TotalFiles.Count  # had to factor that Pester stores the mock history of the last Mock command too
+            $count++ # increase the expected mock count by 1 (last It block ran a mock)
+            Assert-MockCalled -CommandName Copy-VMfile -Times $count -Exactly -ModuleName PSDeploy
+
+        }
     }
 }
 
@@ -295,12 +332,46 @@ Describe "Invoke-PSDeploy PS$PSVersion" {
             $NoopOutput = Invoke-PSDeploy @Verbose -Path $PSScriptRoot\artifacts\DeploymentsTags.psdeploy.ps1 -Tags Dev, Prod -Force
             $NoopOutput.Count | Should Be 4
         }
+
+        It 'Should handle pre and post scriptblocks' {
+            $NoopOutput = Invoke-PSDeploy @Verbose -Path $PSScriptRoot\artifacts\DeploymentsBeforeAfter.psdeploy.ps1 -Force
+            $NoopOutput.Count | Should Be 3
+            $NoopOutput[0] | Should be "Setting things up for a deployment..."
+            $NoopOutput[1].Deployment.PreScript
+            $NoopOutput[1].Deployment.PostScript
+            $NoopOutput[2] | Should be "Tearing things down from a deployment..."
+        }
+
+        It 'Should handle task "deployments"' {
+            $Deployments = @( Invoke-PSDeploy @verbose -Path $PSScriptRoot\artifacts\DeploymentsTasks.psdeploy.ps1 -Force )
+            $Deployments[0] | Should Be 'Running a task!'
+        }
     }
 
 }
+
+<#
+This is staged for now.  The AzureRM cmdlet design requires a workaround be implemented in Pester that is work in progress.
+https://github.com/pester/Pester/issues/491
+
+Describe 'Invoke-PSDeploy ARM script' {
+    Context 'AzureRM module' {
+        $SubscriptionId = new-guid
+        Mock Get-AzureRMSubscription {[PSCustomObject]@{SubscriptionName = $SubscriptionName; SubscriptionId = $SubscriptionId; TenantId = $(new-guid); State='Enabled'}}
+        Mock Get-AzureRMResourceGroup {[PSCustomObject]@{ResourceGroupName = $ResourceGroupName; Location = $Location; ProvisioningState = 'Succeeded'; Tags = ''; ResourceId = "/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName"} }
+
+        It 'Should include specified options' {
+            $ARMDeploymentObject = Get-PSDeployment -path $PSScriptRoot\artifacts\DeploymentsARM.psdeploy.ps1
+            $ARMDeploymentObject.DeploymentOptions | Should Be @('administratorLogin', 'administratorLoginPassword')
+        }
+    }
+}
+#>
 
 Remove-Item -Path $FileYML -force
 Remove-Item -Path $FolderYML -force
 Remove-Item -Path $FilePS1 -force
 Remove-Item -Path $FolderPS1 -force
 Remove-Item -Path $IntegrationTarget -Recurse -Force
+Remove-Module -Name Hyper-V -Force
+

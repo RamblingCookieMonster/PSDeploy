@@ -18,6 +18,8 @@
             Targets           = One or more targets to deploy to.
             Tags              = One or more tags associated with this deployment
             Dependencies      = One or more DeploymentNames that this deployment depends on
+            WithPreScript     = One or more scripts to run before a deployment executes
+            WithPostScript    = One or more scripts to run after a deployment executes
             Raw               = Raw definition for yaml deployments
 
         This is oriented around deployments from a Windows system.
@@ -107,7 +109,7 @@
     }
 
     # Handle PSDeploy.ps1 parsing
-    if($PSCmdlet.ParameterSetName -eq 'File' -and $Path -like "*.psdeploy.ps1" )
+    if($PSCmdlet.ParameterSetName -eq 'File' -and $Path -like "*.ps1" )
     {
         foreach($DeploymentFile in $Path)
         {
@@ -157,16 +159,17 @@
                 foreach($Source in $Sources)
                 {
                     #Determine the path to this source. Try absolute, fall back on relative
+                    #Fail silently if not file/folder...
                     if(Test-Path $Source -ErrorAction SilentlyContinue)
                     {
                         $LocalSource = ( Resolve-Path $Source ).Path
                     }
                     else
                     {
-                       $LocalSource = Join-Path $DeploymentRoot $Source
+                       $LocalSource = Join-Path $DeploymentRoot $Source -ErrorAction SilentlyContinue
                     }
 
-                    $Exists = Test-Path $LocalSource
+                    $Exists = Test-Path $LocalSource -ErrorAction SilentlyContinue
                     if($Exists)
                     {
                         $Item = Get-Item $LocalSource
@@ -192,6 +195,8 @@
                         Targets = @($DeploymentHash.Destination)
                         Tags = $DeploymentHash.Tags
                         Dependencies = $DeploymentHash.Dependencies
+                        PreScript = $DeploymentHash.PreScript
+                        PostScript = $DeploymentHash.PostScript
                         Raw = $DeploymentHash
                     }
                 }
@@ -208,27 +213,33 @@
             #TODO: Move this, not applicable to all deployment types
             foreach($Source in $Sources)
             {
-                #Determine the path to this source. Try absolute, fall back on relative
-                if(Test-Path $Source -ErrorAction SilentlyContinue)
+                $LocalSource = $Source
+                $Exists = $null
+                $Type = $null
+                if($DeploymentItem.DeploymentType -ne 'Task')
                 {
-                    $LocalSource = ( Resolve-Path $Source ).Path
-                }
-                else
-                {
-                    $LocalSource = Join-Path $DeploymentRoot $Source
-                }
-
-                $Exists = Test-Path $LocalSource
-                if($Exists)
-                {
-                    $Item = Get-Item $LocalSource
-                    if($Item.PSIsContainer)
+                    #Determine the path to this source. Try absolute, fall back on relative
+                    if(Test-Path $Source -ErrorAction SilentlyContinue)
                     {
-                        $Type = 'Directory'
+                        $LocalSource = ( Resolve-Path $Source ).Path
                     }
                     else
                     {
-                        $Type = 'File'
+                        $LocalSource = Join-Path $DeploymentRoot $Source -ErrorAction SilentlyContinue
+                    }
+
+                    $Exists = Test-Path $LocalSource -ErrorAction SilentlyContinue
+                    if($Exists)
+                    {
+                        $Item = Get-Item $LocalSource
+                        if($Item.PSIsContainer)
+                        {
+                            $Type = 'Directory'
+                        }
+                        else
+                        {
+                            $Type = 'File'
+                        }
                     }
                 }
 
@@ -243,6 +254,8 @@
                     Targets = $DeploymentItem.Targets
                     Tags = $DeploymentItem.Tags
                     Dependencies = $DeploymentItem.Dependencies
+                    PreScript = $DeploymentItem.PreScript
+                    PostScript = $DeploymentItem.PostScript
                     Raw = $null
                 }
             }

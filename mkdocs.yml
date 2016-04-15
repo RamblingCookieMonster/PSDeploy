@@ -1,0 +1,19 @@
+site_name: PSDeploy Docs
+repo_url: https://github.com/RamblingCookieMonster/PSDeploy
+theme: readthedocs
+pages:
+  - Home: index.md
+  - PSDeploy Basics:
+    - Quick Start: Quick-Start.-Installation-and-Example.md
+    - PSDeploy Configuration Files: PSDeploy-Configuration-Files.md
+  - DeploymentType Examples:
+    - FileSystem Deployment: Example-Filesystem-Deployment.md
+    - Filesystem Deployment Follow Along: Example-Filesystem-Deployment-Follow-Along.md
+    - FilesystemRemote Deployment: Example-FilesystemRemote-Deployment.md
+    - Task Deployment: Example-Task-Deployment.md
+  - How Do I...:
+    - Use Tags: Feature.-Tags.md
+    - Create dependencies: Feature.-Dependencies.md
+    - Call setup or teardown scripts: Feature.-Setup-and-Teardown-Scripts.md
+  - Advanced:
+    - Extending PSDeploy: 'Extending-PSDeploy.md'

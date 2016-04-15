@@ -7,7 +7,7 @@ PSDeploy is a quick and dirty module to simplify PowerShell based deployments.
 
 The idea is that you write a *.psdeploy.ps1 deployment configuration with sources and targets, and PSDeploy will deploy these.
 
-Suggestions, pull requests, and other contributions would be more than welcome!
+Suggestions, pull requests, and other contributions would be more than welcome! See the [contributing guidlines](Contributing.md) for more info.
 
 ## Deployments
 
@@ -21,7 +21,7 @@ Deploy ActiveDirectory1 {                        # Deployment name. This needs t
         To '\\contoso.org\share$\Tasks'          # One or more destinations to deploy the sources to
         Tagged Prod                              # One or more tags you can use to restrict deployments or queries
         WithOptions @{
-            Mirror: True                         # If the source is a folder, triggers robocopy purge. Danger
+            Mirror = $True                       # If the source is a folder, triggers robocopy purge. Danger
         }
     }
 }
@@ -64,16 +64,15 @@ Invoke-PSDeploy -Path C:\Git\Misc
 
 ## More Information
 
-The [PSDeploy Wiki](https://github.com/RamblingCookieMonster/PSDeploy/wiki) will include more information, including:
+The [PSDeploy docs](http://psdeploy.readthedocs.org/) will include more information, including:
 
-* Example deployments - will try to keep these in sync with new types when they are added
+* Examples for different DeploymentTypes - will try to keep these in sync with new types when they are added
+* Illustrations of features like tags and dependencies
+* Common scenarios (todo)
 * How to write new PSDeploy DeploymentTypes
 * Details on the PSDeploy Configuration Files
 
-They will become out of date over time, but the original (yaml-focused) and updated (*.psdeploy.ps1-focused) blog posts may include helpful details:
-
-* [Original PSDeploy post](http://ramblingcookiemonster.github.io/PSDeploy/)
-* [*.PSDeploy.ps1 post](http://ramblingcookiemonster.github.io/PSDeploy-Take-Two/)
+The blog posts ([one](http://ramblingcookiemonster.github.io/PSDeploy/), [two](http://ramblingcookiemonster.github.io/PSDeploy-Take-Two/)) will become out of date over time, but may include helpful details.
 
 ## Notes
 
@@ -82,4 +81,4 @@ Thanks go to:
 * Scott Muc for [PowerYaml](https://github.com/scottmuc/PowerYaml), which we borrow for YAML parsing
 * Boe Prox for [Get-FileHash](http://learn-powershell.net/2013/03/25/use-powershell-to-calculate-the-hash-of-a-file/), which we borrow for downlevel hash support in the deployment scripts
 * Michael Greene, for the idea of using a DSL similar to Pester
-* Folks writing new PSDeploy deployment types - thank you!
+* Folks writing new PSDeploy deployment types and contributing in other ways - thank you!

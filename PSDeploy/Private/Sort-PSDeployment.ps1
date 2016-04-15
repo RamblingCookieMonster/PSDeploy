@@ -7,11 +7,11 @@ function Sort-PSDeployment {
     $Order = @{}
     Foreach($Deployment in $Deployments)
     {
-        if($Deployment.Dependencies)
+        if($Deployment.Dependencies.DeploymentName)
         {
             if(-not $Order.ContainsKey($Deployment.DeploymentName))
             {
-                $Order.add($Deployment.DeploymentName, $Deployment.Dependencies)
+                $Order.add($Deployment.DeploymentName, $Deployment.Dependencies.DeploymentName)
             }
         }
     }

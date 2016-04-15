@@ -137,9 +137,6 @@
                 Throw "Error retrieving deployments from '$Path':`n$_"
             }
         }
-
-        $RejectAll = $false
-        $ConfirmAll = $false
     }
     Process
     {
@@ -150,42 +147,46 @@
                                     "Process the deployment '$($Deployment.DeploymentName -join ", ")'?",
                                     "Processing deployment" ))
         {
-            if($Force -Or $PSCmdlet.ShouldContinue("Are you REALLY sure you want to deploy '$($Deployment.DeploymentName -join ", ")'?",
-                                                   "Deploying '$($Deployment.DeploymentName -join ", ")'",
-                                                   [ref]$ConfirmAll,
-                                                   [ref]$RejectAll))
+            #Get definitions, and deployments in this particular yml
+            $DeploymentDefs = Get-PSDeploymentScript
+            $TheseDeploymentTypes = @( $Deployment.DeploymentType | Sort -Unique )
+
+            #Build up hash, we call each deploymenttype script for applicable deployments
+            $ToDeploy = @{}
+            foreach($DeploymentType in $TheseDeploymentTypes)
             {
-                #Get definitions, and deployments in this particular yml
-                $DeploymentDefs = Get-PSDeploymentScript
-                $TheseDeploymentTypes = @( $Deployment.DeploymentType | Sort -Unique )
-
-                #Build up hash, we call each deploymenttype script for applicable deployments
-                $ToDeploy = @{}
-                foreach($DeploymentType in $TheseDeploymentTypes)
+                $DeploymentScript = $DeploymentDefs.$DeploymentType
+                if(-not $DeploymentScript)
                 {
-                    $DeploymentScript = $DeploymentDefs.$DeploymentType
-                    if(-not $DeploymentScript)
-                    {
-                        Write-Error "DeploymentType $DeploymentType is not defined in PSDeploy.yml"
-                        continue
-                    }
-                    $TheseDeployments = @( $Deployment | Where-Object {$_.DeploymentType -eq $DeploymentType})
+                    Write-Error "DeploymentType $DeploymentType is not defined in PSDeploy.yml"
+                    continue
+                }
+                $TheseDeployments = @( $Deployment | Where-Object {$_.DeploymentType -eq $DeploymentType})
 
-                    #Define params for the script
-                    #Each deployment type can have a hashtable to splat.
-                    if($PSBoundParameters.ContainsKey('DeploymentParameters') -and $DeploymentParameters.ContainsKey($DeploymentType))
-                    {
-                        $splat = $DeploymentParameters.$DeploymentType
-                    }
-                    else
-                    {
-                        $splat = @{}
-                    }
+                #Define params for the script
+                #Each deployment type can have a hashtable to splat.
+                if($PSBoundParameters.ContainsKey('DeploymentParameters') -and $DeploymentParameters.ContainsKey($DeploymentType))
+                {
+                    $splat = $DeploymentParameters.$DeploymentType
+                }
+                else
+                {
+                    $splat = @{}
+                }
 
-                    $splat.add('Deployment', $TheseDeployments)
+                $splat.add('Deployment', $TheseDeployments)
 
+                if($DeploymentType -eq 'Task')
+                {
+                    foreach($Deployment in $TheseDeployments)
+                    {
+                        . $Deployment.Source
+                    }
+                }
+                else
+                {
                     #Run the associated script, splat the parameters
-                    & $DeploymentScript @splat
+                    . $DeploymentScript @splat
                 }
             }
         }

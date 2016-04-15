@@ -3,6 +3,18 @@
 #   Script is the script to run. These are stored in \PSDeploy\PSDeployDefinitions
 #   Description is a quick description of the deployment script
 
+Artifactory:
+  Script: Artifactory.ps1
+  Description: Deploys files to an Artifactory endpoint. Can deploy individual files or in the case of a folder deployment, can zip the folder contents and send to Artifactory as a single file. 
+
+ARM:
+  Script: ARM.ps1
+  Description: Uses Azure Resource Manager PowerShell cmdlets to deploy a template to Microsoft Azure or Azure Stack 
+
+CopyVMfile:
+  Script: CopyVMFile.ps1
+  Description: Uses Copy-VMFile cmdlet available with Hyper-V on Server 2012 R2 for folder and file deployments.
+
 Filesystem:
   Script: Filesystem.ps1
   Description: Uses the current session and Robocopy or Copy-Item for folder and file deployments, respectively.
