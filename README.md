@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/ntgl2679yn4g4m2b/branch/master?svg=true)](https://ci.appveyor.com/project/RamblingCookieMonster/psdeploy/branch/master) [![Readthedocs](https://readthedocs.org/projects/psdeploy/badge/?version=latest)](https://readthedocs.org/projects/psdeploy/badge/?version=latest)
+[![Build status](https://ci.appveyor.com/api/projects/status/ntgl2679yn4g4m2b/branch/master?svg=true)](https://ci.appveyor.com/project/RamblingCookieMonster/psdeploy/branch/master) [![Documentation Status](https://readthedocs.org/projects/psdeploy/badge/?version=latest)](http://psdeploy.readthedocs.org/en/latest/?badge=latest)
 
 PSDeploy
 ========
