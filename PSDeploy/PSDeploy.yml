@@ -32,6 +32,5 @@ Noop:
   Description: Display parameters that a deployment script would receive. Use for testing and validation.
 
 Task:
-  Script: .
-  Description: Invoke the specified scriptblock. You can use this to depend on arbitrary PowerShell code
-
+  Script: Task.ps1
+  Description: Support deployments by handling simple tasks.
