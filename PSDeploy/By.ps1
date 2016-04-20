@@ -153,8 +153,24 @@ Function By {
         $Script:ThisBy.DeploymentName = $Name
         $Script:ThisBy.DeploymentType = $DeploymentType
 
-        # Handle arbitrary tasks
-        if($DeploymentType -eq 'Task')
+        # Determine if task is calling FromSource (ps1 task type) or jut an arbitrary scriptblock (scriptblock task type)
+        $CommandDetails = $script.ast.FindAll(
+            {$args[0] -is [System.Management.Automation.Language.CommandAst]},
+            $true
+        )
+        $Commands = Foreach($Command in $CommandDetails)
+        {
+            Try
+            {
+                $Command.CommandElements[0].SafeGetValue()
+            }
+            Catch
+            {
+            }
+        }
+
+        # If this is a scriptblock (not calling fromsource), add scriptblock to DeploymentSource to call later...
+        if($DeploymentType -eq 'Task' -and $Commands -notcontains 'FromSource')
         {
             Write-Verbose "Adding script to source: $($Script | Out-String)"
             $Script:ThisBy.Source = $Script

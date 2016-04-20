@@ -342,9 +342,13 @@ Describe "Invoke-PSDeploy PS$PSVersion" {
             $NoopOutput[2] | Should be "Tearing things down from a deployment..."
         }
 
-        It 'Should handle task "deployments"' {
+        It 'Should handle task scriptblock "deployments"' {
             $Deployments = @( Invoke-PSDeploy @verbose -Path $PSScriptRoot\artifacts\DeploymentsTasks.psdeploy.ps1 -Force )
             $Deployments[0] | Should Be 'Running a task!'
+        }
+        It 'Should handle task ps1 "deployments"' {
+            $Deployments = @( Invoke-PSDeploy @verbose -Path $PSScriptRoot\artifacts\DeploymentsTasksPS1.psdeploy.ps1 -Force )
+            $Deployments[0] | Should Be 'mmhmm'
         }
     }
 

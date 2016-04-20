@@ -176,11 +176,19 @@
 
                 $splat.add('Deployment', $TheseDeployments)
 
+                # PITA, but tasks can run two ways, each different than typical deployment scripts
                 if($DeploymentType -eq 'Task')
                 {
                     foreach($Deployment in $TheseDeployments)
                     {
-                        . $Deployment.Source
+                        if($Deployment.Source -is [scriptblock])
+                        {
+                            . $Deployment.Source
+                        }
+                        elseif($Deployment.Source)
+                        {
+                            . $DeploymentScript @splat
+                        }
                     }
                 }
                 else

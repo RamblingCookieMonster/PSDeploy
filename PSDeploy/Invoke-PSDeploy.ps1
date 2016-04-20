@@ -201,7 +201,7 @@
             $Type = $Deployment.DeploymentType
 
             $TheseParams = @{'DeploymentParameters' = @{}}
-            if($Deployment.DeploymentOptions.Keys.Count -gt 0 -and $Type -ne 'Task')
+            if($Deployment.DeploymentOptions.Keys.Count -gt 0 -and -not ($Type -eq 'Task' -and $Type.Source -is [scriptblock]))
             {
                 # Shoehorn Deployment Options into DeploymentParameters
                 # Needed if we support both yml and ps1 definitions...
