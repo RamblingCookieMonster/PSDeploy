@@ -21,6 +21,6 @@ foreach($task in $Deployment)
     if($task.SourceExists)
     {
         $param = $task.DeploymentOptions
-        & "$($task.Source)" @param
+        . "$($task.Source)" @param
     }
 }

@@ -216,7 +216,8 @@
                 $LocalSource = $Source
                 $Exists = $null
                 $Type = $null
-                if($DeploymentItem.DeploymentType -ne 'Task')
+
+                if(-not ($DeploymentItem.DeploymentType -eq 'Task' -and $Source -is [scriptblock]))
                 {
                     #Determine the path to this source. Try absolute, fall back on relative
                     if(Test-Path $Source -ErrorAction SilentlyContinue)
