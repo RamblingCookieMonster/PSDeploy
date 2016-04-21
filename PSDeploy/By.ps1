@@ -160,13 +160,7 @@ Function By {
         )
         $Commands = Foreach($Command in $CommandDetails)
         {
-            Try
-            {
-                $Command.CommandElements[0].SafeGetValue()
-            }
-            Catch
-            {
-            }
+            $Command.CommandElements[0].Value
         }
 
         # If this is a scriptblock (not calling fromsource), add scriptblock to DeploymentSource to call later...
