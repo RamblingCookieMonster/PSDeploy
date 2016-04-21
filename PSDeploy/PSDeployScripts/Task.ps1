@@ -1,12 +1,26 @@
 <#
     .SYNOPSIS
-        Execute scripts described in psdeploy files
+        Support deployments by handling simple tasks.
 
     .DESCRIPTION
         Support deployments by handling simple tasks.
 
+        You can use a Task in two ways:
+
+        As a scriptblock:
+
+            By Task {
+                "Run some deployment code in this scriptblock!"
+            }
+
+        As a script:
+
+            By Task {
+                FromSource "Path\To\SomeDeploymentScript.ps1"
+            }
+
     .PARAMETER Deployment
-        Name for the work that will be performed.
+        Deployment to process
 #>
 [cmdletbinding()]
 param (
