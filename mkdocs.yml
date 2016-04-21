@@ -7,6 +7,7 @@ pages:
     - Quick Start: Quick-Start.-Installation-and-Example.md
     - PSDeploy Configuration Files: PSDeploy-Configuration-Files.md
   - DeploymentType Examples:
+    - Artifactory Deployment: Example-Artifactory-Deployment.md
     - FileSystem Deployment: Example-Filesystem-Deployment.md
     - Filesystem Deployment Follow Along: Example-Filesystem-Deployment-Follow-Along.md
     - FilesystemRemote Deployment: Example-FilesystemRemote-Deployment.md
