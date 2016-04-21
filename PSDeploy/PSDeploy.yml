@@ -22,3 +22,8 @@ Noop:
 ARM:
   Script: ARM.ps1
   Description: Uses Azure Resource Manager PowerShell cmdlets to deploy a template to Microsoft Azure or Azure Stack 
+
+DSC:
+  Script: DSC.ps1
+  Description: Uses PowerShell DSC to deliver a configuration to a computer
+
