@@ -1,14 +1,40 @@
 # This example provdes a better experience when using -verbose if running interactively
 
-# Static
-$SubscriptionName = 'mySubscriptionName'
+# For a silent authentication to Azure, you will need to use a Service Principle.
+# See the following article for details on configuring this option.
+# http://go.microsoft.com/fwlink/?LinkID=623000&clcid=0x409
+
+# If running interactively, this would be another option to authenticate
+<#
+$SubscriptionID = 'INSERT_GUID'
 $ResourceGroupName = 'testrg1'
 $ResourceGroupLocation = 'central us'
-
-# Tasks to complete before deployment
-$s = Get-AzureRMSubscription -SubscriptionName $SubscriptionName -ErrorAction SilentlyContinue
+$s = Get-AzureRMSubscription -SubscriptionID $SubscriptionID -ErrorAction SilentlyContinue
 if (!$s) {Login-AzureRMAccount}
+#>
 
+# Map variables from Build system (store encrypted).  This might not be required, depending on the build service, thought it is nice for keeping track of needed variables.
+[string]$registrationKey = [string]$registrationKey
+[string]$tenant = [string]$tenant
+[string]$ID = [string]$ID
+[string]$key = [string]$key
+[string]$subscriptionid = [string]$subscriptionid
+[string]$ResourceGroupName = [string]$ResourceGroupName
+[string]$ResourceGroupLocation = [string]$ResourceGroupLocation
+[string]$administratorLogin = [string]$administratorLogin
+[string]$administratorLoginPassword = [string]$administratorLoginPassword
+
+# SPN based authentication to Azure
+$key = $key | ConvertTo-SecureString -AsPlainText -Force
+$Credential = new-object -typename System.Management.Automation.PSCredential -argumentlist $ID, $key
+Add-AzureRMAccount -ServicePrincipal -Tenant $Tenant -Credential $Credential
+Select-AzureRMSubscription -SubscriptionId $SubscriptionID
+
+# Convert string values from Build in to securestring values for Azure cmdlets
+$registrationKey = $registrationKey | ConvertTo-SecureString -AsPlainText -Force
+$administratorLoginPassword = $administratorLoginPassword | ConvertTo-SecureString -AsPlainText -Force
+
+# Verify Resource Group
 $rg = Get-AzureRmResourceGroup -name $ResourceGroupName -ErrorAction SilentlyContinue
 if (!$rg) {$rg = New-AzureRmResourceGroup -Name $ResourceGroupName -Location $ResourceGroupLocation}
 
@@ -20,9 +46,9 @@ Deploy TemplateExample {
         Tagged 'Azure'
         WithOptions @{
             # note that the ARM script is splatting options as they are passed, it is not a list that will be known ahead of time
-            administratorLogin = 'tmpadmin'
-            # this wouldtake a Build variable or it could retrieve information from a secure service
-            administratorLoginPassword = Read-Host -AsSecureString -Prompt 'please type the name to use for the administrator password inside the VM'
+            registrationKey = $registrationKey
+            administratorLogin = $administratorLogin
+            administratorLoginPassword = $administratorLoginPassword
         }
     }
     # Todo - Azure Stack tagged example
