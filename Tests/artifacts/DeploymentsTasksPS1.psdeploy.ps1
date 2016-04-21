@@ -5,6 +5,6 @@ Deploy Test {
         DependingOn Test-randomtask #yeah, this is more of an integration test...
     }
     By task randomtask {
-        FromSource 'Tests\artifacts\Tasks\testtask.ps1'
+        FromSource 'Tasks\testtask.ps1'
     }
 }
