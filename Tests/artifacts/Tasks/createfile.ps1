@@ -1,0 +1,1 @@
+'example' | set-content c:\file.txt

@@ -7,6 +7,14 @@ Artifactory:
   Script: Artifactory.ps1
   Description: Deploys files to an Artifactory endpoint. Can deploy individual files or in the case of a folder deployment, can zip the folder contents and send to Artifactory as a single file. 
 
+ARM:
+  Script: ARM.ps1
+  Description: Uses Azure Resource Manager PowerShell cmdlets to deploy a template to Microsoft Azure or Azure Stack 
+
+CopyVMfile:
+  Script: CopyVMFile.ps1
+  Description: Uses Copy-VMFile cmdlet available with Hyper-V on Server 2012 R2 for folder and file deployments.
+
 Filesystem:
   Script: Filesystem.ps1
   Description: Uses the current session and Robocopy or Copy-Item for folder and file deployments, respectively.
@@ -23,14 +31,6 @@ Noop:
   Script: noop.ps1
   Description: Display parameters that a deployment script would receive. Use for testing and validation.
 
-CopyVMfile:
-  Script: CopyVMFile.ps1
-  Description: Uses Copy-VMFile cmdlet available with Hyper-V on Server 2012 R2 for folder and file deployments.
-
 Task:
-  Script: .
-  Description: Invoke the specified scriptblock. You can use this to depend on arbitrary PowerShell code
-
-ARM:
-  Script: ARM.ps1
-  Description: Uses Azure Resource Manager PowerShell cmdlets to deploy a template to Microsoft Azure or Azure Stack 
+  Script: Task.ps1
+  Description: Support deployments by handling simple tasks.

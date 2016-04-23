@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/ntgl2679yn4g4m2b/branch/master?svg=true)](https://ci.appveyor.com/project/RamblingCookieMonster/psdeploy/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/ntgl2679yn4g4m2b/branch/master?svg=true)](https://ci.appveyor.com/project/RamblingCookieMonster/psdeploy/branch/master) [![Documentation Status](https://readthedocs.org/projects/psdeploy/badge/?version=latest)](http://psdeploy.readthedocs.org/en/latest/?badge=latest)
 
 PSDeploy
 ========
@@ -7,7 +7,7 @@ PSDeploy is a quick and dirty module to simplify PowerShell based deployments.
 
 The idea is that you write a *.psdeploy.ps1 deployment configuration with sources and targets, and PSDeploy will deploy these.
 
-Suggestions, pull requests, and other contributions would be more than welcome!
+Suggestions, pull requests, and other contributions would be more than welcome! See the [contributing guidlines](Contributing.md) for more info.
 
 ## Deployments
 
@@ -64,7 +64,7 @@ Invoke-PSDeploy -Path C:\Git\Misc
 
 ## More Information
 
-The [PSDeploy Wiki](https://github.com/RamblingCookieMonster/PSDeploy/wiki) will include more information, including:
+The [PSDeploy docs](http://psdeploy.readthedocs.org/) will include more information, including:
 
 * Examples for different DeploymentTypes - will try to keep these in sync with new types when they are added
 * Illustrations of features like tags and dependencies
