@@ -1,4 +1,6 @@
-This is an example script you might call from Jenkins, illustrating the FilesystemRemote deployment type. You should ideally gate deployments with Pester and ScriptAnalyzer, among other options.
+# Example: FileSystem Remote Deployment
+This is an example script you might call from Jenkins, illustrating the FilesystemRemote deployment type.
+You should ideally gate deployments with Pester and ScriptAnalyzer, among other options.
 
 Some.PSDeploy.ps1 has FilesystemRemote deployments, which deploys from a remote session (consider the double hop implications):
 

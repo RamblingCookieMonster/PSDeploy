@@ -1,4 +1,7 @@
-If you've used Pester, you might have noticed the Before/After constucts that allow you to call setup and teardown code, respectively. We borrowed this idea.  You might imagine a scenario where you always want a particular script to run before or after a deployment, ensuring you are set up for the deployment, and cleaned up afterwards.
+# Setup and Teardown
+If you've used Pester, you might have noticed the Before/After constucts that allow you to call setup and teardown code, respectively.
+We borrowed this idea.
+You might imagine a scenario where you always want a particular script to run before or after a deployment, ensuring you are set up for the deployment, and cleaned up afterwards.
 
 We'll ilustrate two uses:  Scripts that you want to run before a single Deployment, or re-usable scripts to use on multiple deployments.
 
@@ -21,7 +24,7 @@ Deploy Example {
 }
 ```
 
-![[Pre and Post scripts](images/prepost.png)](images/prepost.png)
+![[Pre and Post scripts](images/prepost.png)](../images/prepost.png)
 
 Notice that the WithPreScript ran before the Pre deployment, and WithPostScript ran before the Post deployment.
 
@@ -47,7 +50,7 @@ Deploy Example {
 }
 ```
 
-![[Reusable](images/prepost.reuse.png)](images/prepost.reuse.png)
+![[Reusable](images/prepost.reuse.png)](../images/prepost.reuse.png)
 
 Notice that you can use the Deployment variable in the scriptblock, allowing some degree of dynamic scripting.
 

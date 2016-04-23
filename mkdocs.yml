@@ -1,20 +1,23 @@
 site_name: PSDeploy Docs
 repo_url: https://github.com/RamblingCookieMonster/PSDeploy
-theme: readthedocs
+theme: psinder
 pages:
   - Home: index.md
   - PSDeploy Basics:
-    - Quick Start: Quick-Start.-Installation-and-Example.md
-    - PSDeploy Configuration Files: PSDeploy-Configuration-Files.md
+    - Quick Start: Basics/Quick-Start.-Installation-and-Example.md
+    - PSDeploy Configuration Files: Basics/PSDeploy-Configuration-Files.md
   - DeploymentType Examples:
-    - Artifactory Deployment: Example-Artifactory-Deployment.md
-    - FileSystem Deployment: Example-Filesystem-Deployment.md
-    - Filesystem Deployment Follow Along: Example-Filesystem-Deployment-Follow-Along.md
-    - FilesystemRemote Deployment: Example-FilesystemRemote-Deployment.md
-    - Task Deployment: Example-Task-Deployment.md
+    - Artifactory Deployment: Examples/Example-Artifactory-Deployment.md
+    - FileSystem Deployment: Examples/Example-Filesystem-Deployment.md
+    - Filesystem Deployment Follow Along: Examples/Example-Filesystem-Deployment-Follow-Along.md
+    - FilesystemRemote Deployment: Examples/Example-FilesystemRemote-Deployment.md
+    - Task Deployment: Examples/Example-Task-Deployment.md
   - How Do I...:
-    - Use Tags: Feature.-Tags.md
-    - Create dependencies: Feature.-Dependencies.md
-    - Call setup or teardown scripts: Feature.-Setup-and-Teardown-Scripts.md
+    - Use Tags: HowTo/Feature.-Tags.md
+    - Create dependencies: HowTo/Feature.-Dependencies.md
+    - Call setup or teardown scripts: HowTo/Feature.-Setup-and-Teardown-Scripts.md
   - Advanced:
-    - Extending PSDeploy: 'Extending-PSDeploy.md'
+    - Extending PSDeploy: Advanced/Extending-PSDeploy.md
+extra:
+    version: 0.1.3
+    repo_branch: dev

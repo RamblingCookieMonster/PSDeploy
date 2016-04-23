@@ -1,11 +1,15 @@
-PSDeploy is somewhat extensible. There are two quick steps to add your own deployment:
+# Extending PSDeploy
+
+PSDeploy is somewhat extensible. 
+There are two quick steps to add your own deployment:
 
 * Update PSDeploy.yml to tell PSDeploy about your new DeploymentType, and the script that it uses
 * Create the script that your DeploymentType runs
 
 ## Updating PSDeploy.yml
 
-PSDeploy.yml can be found in the root of the PSDeploy module folder. Edit this to add a new DeploymentType.
+PSDeploy.yml can be found in the root of the PSDeploy module folder.
+Edit this to add a new DeploymentType.
 
   * The DeploymentType name is the root node
   * The script node defines what script to run for these deployment types (This looks in PSDeploy\PSDeployScripts\)
@@ -60,7 +64,8 @@ See [PSDeployScripts](https://github.com/RamblingCookieMonster/PSDeploy/blob/mas
 
 ## Viewing the Environment State in a DeploymentScript
 
-You can absolutely write your own debug or verbose output to handle this, but if you want a quick and dirty view into the environment of a DeploymentScript, you can invoke a deployment using the noop DeploymentType.  This simply spits back the deployments, bound parameters, session variables, and environment variables seen within the deployment script.
+You can absolutely write your own debug or verbose output to handle this, but if you want a quick and dirty view into the environment of a DeploymentScript, you can invoke a deployment using the noop DeploymentType.
+This simply spits back the deployments, bound parameters, session variables, and environment variables seen within the deployment script.
 
 Here's a quick example:
 
@@ -82,21 +87,58 @@ Deploy SomeDeploymentName {
 ```
 
 Let's invoke this and explore:
+```powershell
+$Environment = 'Prod'
+$Output = Invoke-PSDeploy -Path C:\PSDeployFrom\Deployments\my.psdeploy.ps1 -Force
+WARNING: WithOption 'Environment' is not a valid parameter for 'noop'
+WARNING: WithOption 'Mirror' is not a valid parameter for 'noop'
 
-[![noop](images/noop1.png)](images/noop1.png)
+Output.Deployment | Select-Object -Property *
 
-You'll notice some warnings.  When using WithOptions, PSDeploy attempts to [splat](https://ramblingcookiemonster.wordpress.com/2014/12/01/powershell-splatting-build-parameters-dynamically/) the provided hash table against the deployment script, leaving out keys that aren't actually parameters.  Of the three WithOptions we provided, only StringParameter is a parameter that our DeploymentScript Noop.ps1 accepts, so we see warnings for the two others.  These are still accessible in the deployment script through the Deployment's DeploymentOptions:
+DeploymentFile    : C:\PSDeployFrom\Deployments\my.psdeploy.ps1
+DeploymentName    : SomeDeploymentName
+DeploymentType    : noop
+DeploymentOptions : {Environment, Mirror, StringParameter}
+Source            : C:\PSDeployFrom\MyModule
+SourceType        : Directory
+SourceExists      : True
+Targets           : {C:\PSDeployTo}
+Tags              :
+Dependencies      :
+Raw               :
+```
 
-[![noop](images/noop2.png)](images/noop2.png)
+You'll notice some warnings.
+When using WithOptions, PSDeploy attempts to [splat](https://ramblingcookiemonster.wordpress.com/2014/12/01/powershell-splatting-build-parameters-dynamically/) the provided hash table against the deployment script, leaving out keys that aren't actually parameters.
+Of the three WithOptions we provided, only StringParameter is a parameter that our DeploymentScript Noop.ps1 accepts, so we see warnings for the two others.
+These are still accessible in the deployment script through the Deployment's DeploymentOptions:
 
-Another interesting thing to note is that you have access to any variables in the PowerShell session.  We defined $Environment outside of PSDeploy, used it in our PSDeploy.ps1, and the value is used by the deployment script without issue.  Take care with this, but keep in mind it will generally work.
+```powershell
+$Output.Deployment.DeploymentOptions
+
+Name                   Value
+----                   -----
+Environment            Prod
+Mirror                 True
+StringParameter        C:\Windows\explorer.exe
+```
+
+Another interesting thing to note is that you have access to any variables in the PowerShell session.
+We defined $Environment outside of PSDeploy, used it in our PSDeploy.ps1, and the value is used by the deployment script without issue.
+Take care with this, but keep in mind it will generally work.
 
 Feel free to explore the rest of the output from the noop deployment:
 
-[![noop](images/noop3.png)](images/noop3.png)
+```powershell
+$Output | Get-Member
+
+<insert appropriate get-member response>
+```
 
 ## Testing
 
-The testing is currently in a monolithic tests file. This will eventually be broken out. Ideally we'll have tests for each DeploymentType.
+The testing is currently in a monolithic tests file.
+This will eventually be broken out.
+Ideally we'll have tests for each DeploymentType.
 
 At the very least, please bump the count for Get-PSDeploymentType and Get-PSDeploymentScript tests for It "Should get definitions"

@@ -1,8 +1,11 @@
-This section will illustrate a simple deployment via a *.psdeploy.ps1 file.  These are more flexible than yaml deployments, given that you can include inline PowerShell code.
+# Example: FileSystem Deployment Follow Along
+This section will illustrate a simple deployment via a *.psdeploy.ps1 file.
+These are more flexible than yaml deployments, given that you can include inline PowerShell code.
 
-This might look convoluted, but most of the code is creating some test data for you to deploy. All you need to do in reality is set up a *.PSDeploy.ps1 file, and Invoke-PSDeploy.
+This might look convoluted, but most of the code is creating some test data for you to deploy.
+All you need to do in reality is set up a *.PSDeploy.ps1 file, and Invoke-PSDeploy.
 
-### Stage Things
+## Stage Things
 
 Let's set up a few folders and files that we will use in our PSDeploy example:
 
@@ -52,9 +55,10 @@ Deploy ExampleDeployment {
 '@
 ```
 
-### Read the PSDeploy.ps1
+## Read the PSDeploy.ps1
 
-That's it! We have some source folders and files, and a psdeploy.ps1 describing where they should be deployed. Let's look at this file:
+That's it! We have some source folders and files, and a psdeploy.ps1 describing where they should be deployed.
+Let's look at this file:
 
 ```powershell
 Deploy ExampleDeployment {
@@ -86,37 +90,66 @@ So! What does this actually translate to?
 # We use relative paths, so we specify a DeploymentRoot
 Get-PSDeployment -Path C:\PSDeployFrom\Deployments\my.psdeploy.ps1 -DeploymentRoot C:\PSDeployFrom |
     Select -Property *
+    
+DeploymentFile    : C:\PSDeployFrom\Deployments\my.psdeploy.ps1
+DeploymentName    : ExampleDeployment-Modules
+DeploymentType    : FileSystem
+DeploymentOptions : {Mirror}
+Source            : C:\PSDeployFrom\MyModule
+SourceType        : Directory
+SourceExists      : True
+Targets           : {C:\PSDeployTo}
+Tags              : {Prod, Module}
+Dependencies      :
+Raw               :
+
+DeploymentFile    : C:\PSDeployFrom\Deployments\my.psdeploy.ps1
+DeploymentName    : ExampleDeployment-Scripts
+DeploymentType    : FileSystem
+DeploymentOptions :
+Source            : C:\PSDeployFrom\SomeScripts
+SourceType        : Directory
+SourceExists      : True
+Targets           : {C:\PSDeployTo}
+Tags              : {Dev}
+Dependencies      : {ExampleDeployment-Modules}
+Raw               :
 ```
 
-[![Get-PSDeployment Output](images/QuickStart-Get-PSD.png)](images/QuickStart-Get-PSD.png)
+Looks good to me.
+Notice that the order takes into account the dependency (DependingOn) we listed.
 
-Looks good to me. Notice that the order takes into account the dependency (DependingOn) we listed.
-
-### Invoke a Deployment
+## Invoke a Deployment
 
 We're ready to deploy!
 
 Let's view the contents of C:\PSDeployTo, invoke a deployment, and see what happened.
 
-Before:
-
-[![GCI Output](images/QuickStart.BeforeInvoke.png)](images/QuickStart.BeforeInvoke.png)
-
 ```powershell
+# Before we invoke the deployment, we check the contents of the destination.
+Get-ChildItem -Path C:\PSDeployTo -Recurse | Select-Object -ExpandProperty FullName
+
+C:\PSDeployTo\MyModule
+C:\PSDeployTo\MyModule\Remnant.ps1
+
 # Browse to the deployment root
-cd C:\PSDeployFrom
+Set-Location -Path C:\PSDeployFrom
 
 # Invoke a deployment!
 Invoke-PSDeploy
+
+# After we invoke the deployment, we check the contents of the destination for comparison.
+Get-ChildItem -Path C:\PSDeployTo -Recurse | Select-Object -ExpandProperty FullName
+
+C:\PSDeployTo\MyModule.psd1
+C:\PSDeployTo\MyModule.psm1
+C:\PSDeployTo\Script1.ps1
+C:\PSDeployTo\Script2.ps
 ```
 
-After:
+The module deployment option 'mirror' removed the Remnant.ps1 file, and all the files we expect have been deployed!
 
-[![GCI Output](images/QuickStart.AfterInvoke.png)](images/QuickStart.AfterInvoke.png)
-
-The module deployment 'mirror' removed the Remnant.ps1 file, and all the files we expect have been deployed!
-
-### Cleanup
+## Cleanup
 
 That's about it! Let's clean up those folders.
 

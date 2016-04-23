@@ -1,12 +1,15 @@
+# Legacy YAML
 Current plans for YAML:
 
-* No plans to remove this functionality. If you're using it and happy with it, it should continue to work without issue.
-* New features will focus on *.PSDeploy.ps1 style deployments.  These may or may not be ported to YAML based deployments.
+* No plans to remove this functionality. 
+If you're using it and happy with it, it should continue to work without issue.
+* New features will focus on *.PSDeploy.ps1 style deployments.
+These may or may not be ported to YAML based deployments.
 * Contributions to support these new features in YAML are more than welcome.
 
-### Deployment Configurations: Deployment yaml
+## Deployment Configurations: Deployment YAML
 
-These are simple, static yaml files that tell PSDeploy what to deploy.
+These are simple, static YAML files that tell PSDeploy what to deploy.
 
 We use the following attributes:
 
@@ -20,7 +23,7 @@ Source:            One or more source items to deploy
 Targets:           One or more targets to deploy to
 ```
 
-A Deployment yaml file will have one or more deployment blocks like this:
+A Deployment YAML file will have one or more deployment blocks like this:
 
 ```yaml
 UniqueDeploymentName:                   # Deployment name

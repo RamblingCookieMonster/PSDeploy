@@ -1,7 +1,7 @@
+# PSDeploy Configuration Files
 PSDeploy has several configuration files to work with:
 
 * Deployment configurations: *.PSDeploy.ps1 script files
-
 * DeploymentType configurations: What script runs what deployment type
 
 ## Deployment Configurations: *.PSDeploy.ps1
@@ -51,11 +51,13 @@ Get-Help WithOptions -Full
 Get-Help DependingOn -Full
 ```
 
-Keep in mind that this is a PowerShell script. You can use the language to make your deployments more flexible.
+Keep in mind that this is a PowerShell script.
+You can use the language to make your deployments more flexible.
 
 ## DeploymentType map: PSDeploy.yml
 
-This is a file that tells PSDeploy what script to use for each DeploymentType. By default, it sits in your PSDeploy module folder.
+This is a file that tells PSDeploy what script to use for each DeploymentType.
+By default, it sits in your PSDeploy module folder.
 
 There are two scenarios you would generally work with this:
 
