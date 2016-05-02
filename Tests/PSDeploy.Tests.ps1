@@ -20,6 +20,7 @@ Import-Module $PSScriptRoot\..\PSDeploy -Force
     $FolderPS1 = "$PSScriptRoot\artifacts\IntegrationFolder.PSDeploy.ps1"
     $CopyVMYML = "$PSScriptRoot\artifacts\DeploymentsCopyVMFile.yml"
     $CopyVMFolderYML= "$PSScriptRoot\artifacts\DeploymentsCopyVMFolder.yml"
+    $PSGalleryModulePS1 = "$PSScriptRoot\artifacts\DeploymentsPSGalleryModule.psdeploy.ps1" 
 
     $WaitForFilesystem = .5
     $MyVariable = 42
@@ -86,7 +87,7 @@ Describe "Get-PSDeploymentType PS$PSVersion" {
         It 'Should get definitions' {
             $Definitions = @( Get-PSDeploymentType @Verbose )
 
-            $Definitions.Count | Should Be 8
+            $Definitions.Count | Should Be 9
             $Definitions.DeploymentType -contains 'FileSystem' | Should Be $True
             $Definitions.DeploymentType -contains 'FileSystemRemote' | Should Be $True
             $Definitions.DeploymentType -contains 'CopyVMfile' | Should Be $True
@@ -114,12 +115,13 @@ Describe "Get-PSDeploymentScript PS$PSVersion" {
         It 'Should get definitions' {
             $Definitions = Get-PSDeploymentScript @Verbose
 
-            $Definitions.Keys.Count | Should Be 8
+            $Definitions.Keys.Count | Should Be 9
             $Definitions.GetType().Name | Should Be 'Hashtable'
             $Definitions.ContainsKey('FileSystem') | Should Be $True
             $Definitions.ContainsKey('FileSystemRemote') | Should Be $True
             $Definitions.ContainsKey('FileSystemRemote') | Should Be $True
             $Definitions.ContainsKey('CopyVMFile') | Should Be $True
+            $Definitions.ContainsKey('PSGalleryModule') | Should Be $True
         }
 
         It 'Should return valid paths' {
@@ -291,6 +293,14 @@ Describe "Invoke-PSDeployment PS$PSVersion" {
             $count++ # increase the expected mock count by 1 (last It block ran a mock)
             Assert-MockCalled -CommandName Copy-VMfile -Times $count -Exactly -ModuleName PSDeploy
 
+        }
+
+        it 'Should publish a module to PSGallery' {
+            Mock -CommandName Publish-Module -MockWith {} -ModuleName PSDeploy
+            $Deployment = Get-PSDeployment @Verbose -Path $PSGalleryModulePS1
+            $deployParams = @{ PSGalleryModule = @{ ApiKey = ('0c3e374b-49a3-4b05-a597-fd45773a4fb6')}}
+            Invoke-PSDeployment -Deployment $Deployment @Verbose -Force -DeploymentParameters $deployParams
+            Assert-MockCalled -CommandName Publish-Module -Times 1 -Exactly -ModuleName PSDeploy
         }
     }
 }
