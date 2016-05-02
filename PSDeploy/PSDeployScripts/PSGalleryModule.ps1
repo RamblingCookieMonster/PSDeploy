@@ -22,28 +22,28 @@ param(
 )
 
 foreach($Deploy in $Deployment) {
-    
     foreach($target in $Deploy.Targets) {
         Write-Verbose -Message "Starting deployment [$($Deploy.DeploymentName)] to PowerShell reposotory [$Target]"
-                       
+        
         # Validate that $target has been setup as a valid PowerShell repository
-        $validRepo = Get-PSRepository -Name $target -ErrorAction SilentlyContinue        
+        $validRepo = Get-PSRepository -Name $target -ErrorAction SilentlyContinue
         if (-not $validRepo) {
             throw "$target has not been setup as a valid PowerShell repository."
-        } 
+        }
 
-        # Publish-Module params       
+        # Publish-Module params
         $params = @{
             Repository = $target
-            NuGetApiKey = $ApiKey
+            NuGetApiKey = $Deploy.DeploymentOptions.ApiKey
             Verbose = $VerbosePreference
-        }        
+            WhatIf = $true
+        }
         
         # The source could be a path to a module or just the name of a module.
         # In the case of a name, Publish-Module will search for the module in $env:PSModulePath
         # and will use the first one it finds. This may not me what you want. You may be better
         # off specifying an explicit path or combine the module name with a version number.
-        if (Test-Path -Path $Deploy.Source) {        
+        if (Test-Path -Path $Deploy.Source) {
             $params.Path = $Deploy.Source
         } else {
             $params.Name = $Deploy.Source
