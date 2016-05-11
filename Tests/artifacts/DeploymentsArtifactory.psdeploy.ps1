@@ -12,9 +12,9 @@ Deploy ExampleDeployment {
             Properties = @{
                 generatedOn='2016-04-20'
                 generatedBy='Joe User'
-            }            
+            }
         }
-	    WithPreScript {
+        WithPreScript {
             $script:artifactoryCred = Get-Credential -Message 'Artifactory credential'
         }
     }

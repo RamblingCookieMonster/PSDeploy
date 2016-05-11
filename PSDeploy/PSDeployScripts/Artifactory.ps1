@@ -25,7 +25,7 @@
     .PARAMETER Module
         Identifies the artifact's module
         
-        Example: 'my_module'     
+        Example: 'my_module'
     
     .PARAMETER BaseRev
         Identifies the base revision part of the artifact version, excluding any integration information.
@@ -131,7 +131,7 @@ foreach($Deploy in $Deployment) {
                 Write-Verbose -Message 'Deploying artifacts from archive: true'
                 $headers."X-Explode-Archive" = $true
             }
-           
+            
             Write-Verbose -Message "Deploying [$($Deploy.Source)] to [$url]"
             $params = @{
                 Uri = $url
