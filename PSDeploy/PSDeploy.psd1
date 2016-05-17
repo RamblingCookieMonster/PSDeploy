@@ -4,7 +4,7 @@
 RootModule = 'PSDeploy.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.3'
+ModuleVersion = '0.1.4'
 
 # ID used to uniquely identify this module
 GUID = '268bd8de-5f4d-4f84-85d2-fb885ffb0837'
@@ -90,8 +90,29 @@ FunctionsToExport = @('Get-PSDeployment',
 # List of all files packaged with this module
 # FileList = @()
 
-# Private data to pass to the module specified in RootModule/ModuleToProcess
-# PrivateData = ''
+# Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
+PrivateData = @{
+
+    PSData = @{
+
+        # Tags applied to this module. These help with module discovery in online galleries.
+         Tags = @('Continuous', 'Integration', 'Delivery', 'Deployment', 'DevOps', 'Deploy', 'PSDeploy')
+
+        # A URL to the license for this module.
+         LicenseUri = 'https://github.com/RamblingCookieMonster/PSDeploy/blob/master/LICENSE'
+
+        # A URL to the main website for this project.
+         ProjectUri = 'https://github.com/RamblingCookieMonster/PSDeploy/'
+
+        # A URL to an icon representing this module.
+        # IconUri = ''
+
+        # ReleaseNotes of this module
+        # ReleaseNotes = ''
+
+    } # End of PSData hashtable
+
+} # End of PrivateData hashtable
 
 # HelpInfo URI of this module
 # HelpInfoURI = ''
