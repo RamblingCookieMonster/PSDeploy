@@ -57,14 +57,13 @@ param(
 
     [Parameter(Mandatory)]
     [string]$Repository,
+    
+    [string]$Path,
 
-    [Parameter(Mandatory)]
     [string]$OrgPath,
 
-    [Parameter(Mandatory)]
     [string]$Module,
 
-    [Parameter(Mandatory)]
     [string]$BaseRev,
 
     [string]$FileItegRev,
@@ -94,15 +93,20 @@ foreach($Deploy in $Deployment) {
                 $file = Get-Item -Path $Deploy.Source
                 $Extension = $file.Extension.Substring(1)
             }
-
-            # Build URL to deploy to
-            $url = "$Target/$Repository/$OrgPath/$Module/$module`-$BaseRev"
-            if ($PSBoundParameters.ContainsKey('FileItegRev')) {
-                $url += "-$FileItegRev`.$Extension"
-            } else {
-                $url += "`.$Extension"
-            }
             
+            if ($PSBoundParameters.ContainsKey('Path')) {
+                # Build URL based on hard-coded path
+                $url = "$Target/$Repository/$Path"
+            } else {
+                # Build URL to deploy to
+                $url = "$Target/$Repository/$OrgPath/$Module/$module`-$BaseRev"
+                if ($PSBoundParameters.ContainsKey('FileItegRev')) {
+                    $url += "-$FileItegRev`.$Extension"
+                } else {
+                    $url += "`.$Extension"
+                }    
+            }
+                       
             # If extra properties are specified, append them to the URL as query parameters
             # These will be presented as additional properties on the artifact in Artifactory
             if ($PSBoundParameters.ContainsKey('Properties')) {
