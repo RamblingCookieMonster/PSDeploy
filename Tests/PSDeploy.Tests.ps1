@@ -1,16 +1,20 @@
-$Verbose = @{}
-if($env:APPVEYOR_REPO_BRANCH -and $env:APPVEYOR_REPO_BRANCH -notlike "master")
-{
-    $Verbose.add("Verbose",$True)
-}
-
 $PSVersion = $PSVersionTable.PSVersion.Major
+$ModuleName = $ENV:BHProjectName
+
+# Verbose output for non-master builds on appveyor
+# Handy for troubleshooting.
+# Splat @Verbose against commands as needed (here or in pester tests)
+    $Verbose = @{}
+    if($ENV:BHBranchName -notlike "master" -or $env:BHCommitMessage -match "!verbose")
+    {
+        $Verbose.add("Verbose",$True)
+    }
 
 # Create a Dummy Hyper-V Module, to mock the Copy-VMfile cmdlet later
 $DummyModule = New-Module -Name Hyper-V  -Function "Copy-VMFile" -ScriptBlock {  Function Copy-VMFile { Write-Host "Invoking Copy-VMFile -> $Args"}; }
 $DummyModule | Import-Module
 
-Import-Module $PSScriptRoot\..\PSDeploy -Force
+Import-Module $PSScriptRoot\..\$ModuleName -Force
 
 #Set up some data we will use in testing
     $IntegrationTarget = "$PSScriptRoot\Destination\"
