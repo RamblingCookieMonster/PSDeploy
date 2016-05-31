@@ -74,6 +74,7 @@ Task Deploy -Depends Build {
         $Params = @{
             Path = $ProjectRoot
             Force = $true
+            Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
         }
 
         Invoke-PSDeploy @Verbose @Params
