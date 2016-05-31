@@ -107,7 +107,7 @@
 
         # Add later. Pass on to Invoke-PSDeployment.
         [validatescript({Test-Path -Path $_ -PathType Leaf -ErrorAction Stop})]
-        [string]$PSDeployTypePath = $(Join-Path $PSScriptRoot PSDeploy.yml),
+        [string]$PSDeployTypePath = $(Join-Path $ModulePath PSDeploy.yml),
 
         [string[]]$Tags,
 

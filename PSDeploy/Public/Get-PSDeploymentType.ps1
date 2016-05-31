@@ -66,13 +66,13 @@
     [cmdletbinding()]
     param(
         [validatescript({Test-Path $_ -PathType Leaf -ErrorAction Stop})]
-        [string]$Path = $(Join-Path $PSScriptRoot PSDeploy.yml),
+        [string]$Path = $(Join-Path $ModulePath PSDeploy.yml),
         [string]$DeploymentType = '*',
         [switch]$ShowHelp
     )
 
     # Abstract out reading the yaml and verifying scripts exist
-    $DeploymentDefinitions = ConvertFrom-Yaml -Path $(Join-Path $PSScriptRoot PSDeploy.yml)
+    $DeploymentDefinitions = ConvertFrom-Yaml -Path $Path
 
     foreach($Type in ($DeploymentDefinitions.Keys | Where {$_ -like $DeploymentType}))
     {
@@ -87,7 +87,7 @@
             else
             {
                 # account for missing ps1
-                $ScriptPath = Join-Path $PSScriptRoot "PSDeployScripts\$($Script -replace ".ps1$").ps1"
+                $ScriptPath = Join-Path $ModulePath "PSDeployScripts\$($Script -replace ".ps1$").ps1"
             }
 
             Try
