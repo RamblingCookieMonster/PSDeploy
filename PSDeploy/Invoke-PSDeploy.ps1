@@ -15,6 +15,11 @@
 
         Defaults to the current path
 
+    .PARAMETER Recurse
+        If path is a folder, whether to recursively search for *.psdeploy.ps1 files under that folder
+
+        Defaults to $True
+
     .PARAMETER Tags
         Only invoke deployments that are tagged with all of the specified Tags (-and, not -or)
 
@@ -106,6 +111,8 @@
 
         [string[]]$Tags,
 
+        [bool]$Recurse = $True,
+
         [switch]$Force
     )
     Begin
@@ -163,7 +170,7 @@
                 # Stop all deployments because one is misconfigured?
                 # I'm going with Copy-Item precedent.
                 # Not terminating, so try catch is superfluous. Feel free to make this strict...
-                [void]$DeploymentFiles.AddRange( @( Resolve-DeployScripts -Path $PathItem ) )
+                [void]$DeploymentFiles.AddRange( @( Resolve-DeployScripts -Path $PathItem -Recurse $Recurse ) )
                 if ($DeploymentFiles.count -gt 0)
                 {
                     Write-Verbose "Working with $($DeploymentFiles.Count) deployment files:`n$($DeploymentFiles | Out-String)"
