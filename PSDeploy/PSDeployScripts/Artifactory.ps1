@@ -17,6 +17,11 @@
         
         Example: 'powershell-scripts'
     
+     .PARAMETER Path
+        Specifies the Path within artifactory to deploy to
+        
+        Example: 'Test/Scripts'
+    
     .PARAMETER OrgPath
         Identifies the artifact's organization
     
@@ -39,6 +44,9 @@
         
     .PARAMETER Extension
         Specify an alternate file extension for the artifact
+        
+    .PARAMETER Checksum
+        Allows to deploy with or without checksums (Default = $true)       
             
     .PARAMETER DeployArchive
         Extract archive file (zip, tar, tar.gz, or tgz) once deployed.
@@ -69,6 +77,8 @@ param(
     [string]$FileItegRev,
 
     [string]$Extension,
+    
+    [bool]$Checksum = $true,
 
     [bool]$DeployArchive = $false,
 
@@ -115,19 +125,21 @@ foreach($Deploy in $Deployment) {
                 }
             }
 
-            # Calculate hash of source file and set in headers
-            Write-Verbose -Message "Calculating checksums"
-            $md5 = (Get-FileHash -Path $Deploy.Source -Algorithm MD5).Hash.ToLower()
-            $sha1 = (Get-FileHash -Path $Deploy.Source -Algorithm SHA1).Hash.ToLower()
-            $sha256 = (Get-FileHash -Path $Deploy.Source -Algorithm SHA256).Hash.ToLower()
-            Write-Verbose -Message "MD5: $md5"
-            Write-Verbose -Message "SHA1: $sha1"
-            Write-Verbose -Message "SHA256: $sha256"
-            $headers = @{
-                "X-Checksum-Deploy" = $true
-                "X-Checksum-Md5" = $md5
-                "X-Checksum-Sha1" = $sha1
-                "X-Checksum-Sha256" = $sha256
+            if ($Checksum) {
+                # Calculate hash of source file and set in headers
+                Write-Verbose -Message "Calculating checksums"
+                $md5 = (Get-FileHash -Path $Deploy.Source -Algorithm MD5).Hash.ToLower()
+                $sha1 = (Get-FileHash -Path $Deploy.Source -Algorithm SHA1).Hash.ToLower()
+                $sha256 = (Get-FileHash -Path $Deploy.Source -Algorithm SHA256).Hash.ToLower()
+                Write-Verbose -Message "MD5: $md5"
+                Write-Verbose -Message "SHA1: $sha1"
+                Write-Verbose -Message "SHA256: $sha256"
+                $headers = @{
+                    "X-Checksum-Deploy" = $true
+                    "X-Checksum-Md5" = $md5
+                    "X-Checksum-Sha1" = $sha1
+                    "X-Checksum-Sha256" = $sha256
+                }
             }
 
             # If we are deploying an archive (zip, tar, tar.gz, or tgz) and want to extract the contents in Artifactory
