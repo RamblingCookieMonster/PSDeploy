@@ -22,6 +22,11 @@ param(
 )
 
 foreach($deploy in $Deployment) {
+    if(-not $deploy.targets)
+    {
+        $deploy.targets = @('PSGallery')
+    }
+    
     foreach($target in $deploy.Targets) {
         Write-Verbose -Message "Starting deployment [$($deploy.DeploymentName)] to PowerShell repository [$Target]"
         
