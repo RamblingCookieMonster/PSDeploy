@@ -170,6 +170,6 @@ foreach($Deploy in $Deployment) {
         }
     }
     else {
-        throw "Unable to find [$(Deploy.Source)]"
+        throw "Unable to find [$($Deploy.Source)]"
     }
 }
