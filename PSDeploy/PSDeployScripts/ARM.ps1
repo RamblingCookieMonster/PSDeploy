@@ -1,5 +1,4 @@
-﻿#Requires -module AzureRM.Resources
-<#
+﻿<#
     .SYNOPSIS
         Deploy using Azure Resource Manager cmdlets.
 
@@ -11,6 +10,7 @@
     .PARAMETER Deployment
         Deployment to run
 #>
+#Requires -modules AzureRM.Resources
 [cmdletbinding()]
 param (
     [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
