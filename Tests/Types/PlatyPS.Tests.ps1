@@ -14,6 +14,8 @@ InModuleScope 'PSDeploy' {
     }
 
     Describe "PlatyPS PS$PSVersion" {
+        function New-ExternalHelp {}
+
         $PlatyPSPS1 = "$ProjectRoot\Tests\artifacts\DeploymentsPlatyPS.psdeploy.ps1"
 
         Context 'Creates External Help' {
