@@ -12,7 +12,7 @@
         foreach ($ModuleName in $Name)
         {
             $Module = Get-Module -Name $ModuleName -ListAvailable
-            Write-Verbose -Message "Resolving Module $($Module.Name[0])"
+            Write-Verbose -Message "Resolving Module $($ModuleName)"
             
             if ($Module) 
             {                
@@ -24,20 +24,20 @@
                     
                     if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne 'Trusted') { Set-PSRepository -Name PSGallery -InstallationPolicy Trusted }
                     
-                    Write-Verbose -Message "$($Module.Name[0]) Installed Version [$($Version.tostring())] is outdated. Installing Gallery Version [$($GalleryVersion.tostring())]"
+                    Write-Verbose -Message "$($ModuleName) Installed Version [$($Version.tostring())] is outdated. Installing Gallery Version [$($GalleryVersion.tostring())]"
                     
                     Install-Module -Name $ModuleName -Force
                     Import-Module -Name $ModuleName -Force -RequiredVersion $GalleryVersion
                 }
                 else
                 {
-                    Write-Verbose -Message "Module Installed, Importing $($Module.Name[0])"
+                    Write-Verbose -Message "Module Installed, Importing $($ModuleName)"
                     Import-Module -Name $ModuleName -Force -RequiredVersion $Version
                 }
             }
             else
             {
-                Write-Verbose -Message "$($Module.Name[0]) Missing, installing Module"
+                Write-Verbose -Message "$($ModuleName) Missing, installing Module"
                 Install-Module -Name $ModuleName -Force
                 Import-Module -Name $ModuleName -Force -RequiredVersion $Version
             }
