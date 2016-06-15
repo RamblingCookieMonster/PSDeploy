@@ -10,6 +10,11 @@
         verifies deployment scripts exist,
         gets help content for deployment scripts,
         returns various info on each deployment type
+    
+    .PARAMETER Path
+        Path to PSDeploy.yml defining deployment types
+
+        Defaults to PSDeploy.yml in the module root
 
     .PARAMETER DeploymentType
         Optionally limite to this DeploymentType
