@@ -13,6 +13,9 @@
         If a deployment is not found, we continue processing other deployments.
 
         See Get-Help about_PSDeploy for more information.
+    
+    .PARAMETER Path
+        Path to a specific yml Deployment file
 
     .PARAMETER Deployment
         Deployment object from Get-PSDeployment.
@@ -48,6 +51,9 @@
         Specify a PSDeploy.yml file that maps DeploymentTypes to their scripts.
 
         This defaults to the PSDeploy.yml in the PSDeploy module folder
+
+    .PARAMETER Tags
+        Only invoke deployments that are tagged with all of the specified Tags (-and, not -or)
 
     .PARAMETER Force
         Force deployment, skipping prompts and confirmation

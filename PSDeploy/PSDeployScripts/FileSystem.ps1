@@ -39,6 +39,9 @@ foreach($Map in $Deployment)
                 {
                     $Arguments += "/PURGE"
                 }
+                # Resolve PSDrives.
+                $Target = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Target)
+
                 Write-Verbose "Invoking ROBOCOPY.exe $($Map.Source) $Target $Arguments"
                 ROBOCOPY.exe $Map.Source $Target @Arguments
             }
