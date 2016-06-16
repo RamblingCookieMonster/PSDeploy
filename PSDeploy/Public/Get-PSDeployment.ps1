@@ -222,7 +222,7 @@
                     #Determine the path to this source. Try absolute, fall back on relative
                     if(Test-Path $Source -ErrorAction SilentlyContinue)
                     {
-                        $LocalSource = ( Resolve-Path $Source ).Path
+                        $LocalSource = ( Resolve-Path $Source ).ProviderPath
                     }
                     else
                     {
