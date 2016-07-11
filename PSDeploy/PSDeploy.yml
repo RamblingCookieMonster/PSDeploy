@@ -3,6 +3,10 @@
 #   Script is the script to run. These are stored in \PSDeploy\PSDeployDefinitions
 #   Description is a quick description of the deployment script
 
+AppVeyorModule:
+  Script: AppVeyorModule.ps1
+  Description: Deploys a module to AppVeyor, simplifying creation and distribution of development builds for PowerShell Modules.
+
 Artifactory:
   Script: Artifactory.ps1
   Description: Deploys files to an Artifactory endpoint. Can deploy individual files or in the case of a folder deployment, can zip the folder contents and send to Artifactory as a single file. 
