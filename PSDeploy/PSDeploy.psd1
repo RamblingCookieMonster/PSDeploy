@@ -4,7 +4,7 @@
 RootModule = 'PSDeploy.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.13'
+ModuleVersion = '0.1.14'
 
 # ID used to uniquely identify this module
 GUID = '268bd8de-5f4d-4f84-85d2-fb885ffb0837'

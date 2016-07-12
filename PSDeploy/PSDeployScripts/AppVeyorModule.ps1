@@ -24,9 +24,7 @@
         NuGet Package Name.  Defaults to module name.
 
     .PARAMETER Version
-        NuGet Version.  Required.
-        
-        TODO: Default to module version.
+        NuGet Version.  Defaults to APPVEYOR_BUILD_VERSION
 
     .PARAMETER Author
         NuGet Author.  Defaults to Unknown
@@ -35,7 +33,7 @@
         NuGet Owners.  Defaults to the Author
 
     .PARAMETER LicenseUrl
-        NuGet LicenseUrl.  Optional
+        NuGet LicenseUrl.  Defaults to github.com/account/repo/LICENSE
 
     .PARAMETER ProjectUrl
         NuGet ProjectUrl.  Optional
@@ -45,7 +43,6 @@
 
     .PARAMETER Tags
         NuGet Tags.  Optional
-
 #>
 [cmdletbinding()]
 param(
@@ -159,7 +156,7 @@ function New-Nuspec
 $null = Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
 
 foreach($Deploy in $Deployment) {
-    
+
     #Validate expected deployment options
     $RequiredParams = echo Version
     If( -not (Validate-DeploymentParameters -Required $RequiredParams -Parameters $Deploy.DeploymentOptions.Keys))
@@ -243,9 +240,18 @@ foreach($Deploy in $Deployment) {
             $LicenseUrl = $Deploy.DeploymentOptions.LicenseUrl
         }
 
+        if(-not $Deploy.DeploymentOptions.Version)
+        {
+            $Version = "env:APPVEYOR_REPO_NAME"
+        }
+        else
+        {
+            $Version = $Deploy.DeploymentOptions.Version
+        }
+
         $NuSpecParams = @{
             PackageName = $ModuleName
-            Version = $Deployment.DeploymentOptions.Version
+            Version = $Version
             Author = $Author
             Description = $Description
             DestinationPath = $StagingDirectory
@@ -262,13 +268,9 @@ foreach($Deploy in $Deployment) {
             }
         }
 
-        Write-Host "NuSpecParams: $($NuSpecParams | out-string)"
-        Write-Host "DeploymentOptions: $($Deploy.DeploymentOptions | out-string)"
-        Write-Host "Author: $Author"
-
         New-Nuspec @NuSpecParams
 
-        nuget pack "$StagingDirectory\$ModuleName.nuspec" -outputdirectory $StagingDirectory
+        $null = nuget pack "$StagingDirectory\$ModuleName.nuspec" -outputdirectory $StagingDirectory
         $NuGetPackagePath = "$StagingDirectory\$ModuleName.$Version.nupkg"
 
         $ZipFilePath,
