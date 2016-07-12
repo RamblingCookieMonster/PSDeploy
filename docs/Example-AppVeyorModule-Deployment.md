@@ -1,3 +1,5 @@
+# Simple Example
+
 This example illustrates using the AppVeyorModule deployment to publish a module directly to AppVeyor.
 
 Here's the deployment config, My.PSDeploy.ps1:
@@ -17,7 +19,7 @@ This idea was borrowed from the PowerShell team's use of AppVeyor to distribute 
 
 ## Real Example
 
-Here's a quick example from PSDeploy itself:
+Here's a quick example from PSDeploy itself, and a notes on accessing the package.
 
 ```PowerShell
 # Publish to AppVeyor if we're in AppVeyor
