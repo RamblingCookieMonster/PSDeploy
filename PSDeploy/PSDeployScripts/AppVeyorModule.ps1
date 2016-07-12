@@ -1,9 +1,9 @@
 <#
     .SYNOPSIS
-        Deploys a module as an AppVeyor artifact
+        EXPERIMENTAL: Deploys a module as an AppVeyor artifact
 
     .DESCRIPTION
-        Deploys a module as an AppVeyor artifact
+        EXPERIMENTAL: Deploys a module as an AppVeyor artifact
 
         Deployment source should be either:
             The path to the module folder, or;
