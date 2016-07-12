@@ -56,7 +56,7 @@ param(
 
     $Version,
 
-    $Author = 'Unknown',
+    $Author,
 
     $Owners,
 
@@ -208,9 +208,18 @@ foreach($Deploy in $Deployment) {
             $Description = $Deploy.DeploymentOptions.Description
         }
 
+        if(-not $Deploy.DeploymentOptions.Author)
+        {
+            $Author = 'Unknown'
+        }
+        else
+        {
+            $Author = $Deploy.DeploymentOptions.Author
+        }
+
         if(-not $Deploy.DeploymentOptions.Owners)
         {
-            $Owners = $Deploy.DeploymentOptions.Author
+            $Owners = $Author
         }
         else
         {
