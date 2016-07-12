@@ -1,4 +1,4 @@
-AppVeyor allows you to publish NuGet packages which you can access via PowerShellGet and commands like `Install-Module`.  The AppVeyorModuleDeployment simplifies publishing to this NuGet feed.
+AppVeyor allows you to publish NuGet packages which you can access via PowerShellGet and commands like `Install-Module`.  The AppVeyorModule deployment type simplifies publishing to this NuGet feed.
 
 This idea was borrowed from the PowerShell team's use of AppVeyor to distribute [development builds](https://github.com/PowerShell/DscResources#development-builds) for DSC resources.
 
