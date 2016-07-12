@@ -52,20 +52,28 @@ param(
     [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
     [psobject[]]$Deployment,
 
+    [string]
     $PackageName,
 
+    [string]
     $Version,
 
+    [string]
     $Author,
 
+    [string]
     $Owners,
 
+    [string]
     $LicenseUrl,
 
+    [string]
     $ProjectUrl,
 
+    [string]
     $Description,
 
+    [string]
     $Tags
 )
 
@@ -198,7 +206,7 @@ foreach($Deploy in $Deployment) {
         Add-Type -AssemblyName System.IO.Compression.FileSystem
         [System.IO.Compression.ZipFile]::CreateFromDirectory($ModulePath, $ZipFilePath)
 
-        # Set some defaults for for description=modulename, owners=author where not provided
+        # Set some defaults for params if not provided
         if(-not $Deploy.DeploymentOptions.Description)
         {
             $Description = $ModuleName
@@ -225,26 +233,38 @@ foreach($Deploy in $Deployment) {
         {
             $Owners = $Deploy.DeploymentOptions.Owners
         }
-        $Version = $Deployment.DeploymentOptions.Version
+
+        if(-not $Deploy.DeploymentOptions.LicenseUrl)
+        {
+            $LicenseUrl = "https://www.github.com/$env:APPVEYOR_REPO_NAME/LICENSE"
+        }
+        else
+        {
+            $LicenseUrl = $Deploy.DeploymentOptions.LicenseUrl
+        }
 
         $NuSpecParams = @{
             PackageName = $ModuleName
             Version = $Deployment.DeploymentOptions.Version
-            Author = $Deployment.DeploymentOptions.Author
+            Author = $Author
             Description = $Description
             DestinationPath = $StagingDirectory
             Owners = $Owners
-            LicenseUrl = $Deployment.DeploymentOptions.LicenseUrl
+            LicenseUrl = $LicenseUrl
         }
 
         foreach($Key in $Deploy.DeploymentOptions.Keys)
         {
             # These seem optional
-            if('licenseUrl', 'projectUrl', 'tags' -contains $Key)
+            if('projectUrl', 'tags' -contains $Key)
             {
                 $NuSpecParams.Add($Key, $Deploy.DeploymentOptions.$Key)
             }
         }
+
+        Write-Host "NuSpecParams: $($NuSpecParams | out-string)"
+        Write-Host "DeploymentOptions: $($Deploy.DeploymentOptions | out-string)"
+        Write-Host "Author: $Author"
 
         New-Nuspec @NuSpecParams
 
