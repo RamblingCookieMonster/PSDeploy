@@ -58,7 +58,12 @@ Task Test -Depends Init  {
 
 Task Build -Depends Test {
     $lines
-    #Set-ModuleFunctions
+    
+    # Load the module, read the exported functions, update the psd1 FunctionsToExport
+    Set-ModuleFunctions
+
+    # Bump the module version
+    Update-Metadata -Path $env:BHPSModuleManifest
 }
 
 Task Deploy -Depends Build {
@@ -70,5 +75,4 @@ Task Deploy -Depends Build {
         Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
     }
     Invoke-PSDeploy @Verbose @Params
-
 }
