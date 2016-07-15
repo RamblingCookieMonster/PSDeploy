@@ -130,6 +130,7 @@ foreach($Deploy in $Deployment) {
                 }
             }
 
+            $headers = @{}
             if ($Checksum) {
                 # Calculate hash of source file and set in headers
                 Write-Verbose -Message "Calculating checksums"
@@ -154,7 +155,7 @@ foreach($Deploy in $Deployment) {
             }
 
             if ($PSBoundParameters.Contains('ApiKey')) {
-                $headers."X-JFrog-Art-Api"=$ApiKey
+                $headers."X-JFrog-Art-Api" = $ApiKey
             }
             
             Write-Verbose -Message "Deploying [$($Deploy.Source)] to [$url]"
