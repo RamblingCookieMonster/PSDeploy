@@ -10,6 +10,9 @@
 
     .PARAMETER CommitMessage
         Message added to each commit
+
+    .PARAMETER Tag
+        Tag added to the commit
 #>
 [cmdletbinding()]
 param(
@@ -17,7 +20,9 @@ param(
     [psobject[]]$Deployment,
 
     [Parameter(Mandatory)]
-    [string]$CommitMessage
+    [string]$CommitMessage,
+
+    [string]$Tag
 )
 
 foreach($deploy in $Deployment) {
@@ -52,6 +57,17 @@ foreach($deploy in $Deployment) {
             # Push the modifications 
             Write-Verbose "Invoking git push origin $target"
             git push origin $target
+
+            if ($PSBoundParameters.ContainsKey('Tag')) {
+                # Create the tag locally 
+                Write-Verbose "git tag $Tag"
+                git tag $Tag
+
+                # Push the tag on the remote repository
+                Write-Verbose "git push origin $Tag"
+                git push origin $Tag
+
+            }
         } Else {
             throw $status
         }
