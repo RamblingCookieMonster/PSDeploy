@@ -11,7 +11,10 @@
         
     .PARAMETER Credential
         The credential with 'deploy' permissions in Artifactory
-        
+
+    .PARAMETER ApiKey
+        The ApiKey of the user with 'deploy' permissions in Artifactory
+               
     .PARAMETER Repository
         Specified the artifact repository to deploy in to.
         
@@ -62,6 +65,8 @@ param(
     [psobject[]]$Deployment,
 
     [pscredential]$Credential,
+
+    [string]$ApiKey,
 
     [Parameter(Mandatory)]
     [string]$Repository,
@@ -147,6 +152,10 @@ foreach($Deploy in $Deployment) {
                 Write-Verbose -Message 'Deploying artifacts from archive: true'
                 $headers."X-Explode-Archive" = $true
             }
+
+            if ($PSBoundParameters.Contains('ApiKey')) {
+                $headers."X-JFrog-Art-Api"=$ApiKey
+            }
             
             Write-Verbose -Message "Deploying [$($Deploy.Source)] to [$url]"
             $params = @{
@@ -162,7 +171,7 @@ foreach($Deploy in $Deployment) {
                 $params.UseDefaultCredentials = $true
             }
             try {
-                $result = Invoke-RestMethod @params
+                $null = Invoke-RestMethod @params
                 Write-Verbose -Message 'Deploy successful'
             } catch {
                 throw $_
