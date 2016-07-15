@@ -11,10 +11,7 @@
         
     .PARAMETER Credential
         The credential with 'deploy' permissions in Artifactory
-
-    .PARAMETER ApiKey
-        The ApiKey of the user with 'deploy' permissions in Artifactory
-               
+        
     .PARAMETER Repository
         Specified the artifact repository to deploy in to.
         
@@ -48,9 +45,13 @@
     .PARAMETER Extension
         Specify an alternate file extension for the artifact
         
-    .PARAMETER Checksum
-        Allows to deploy with or without checksums (Default = $true)       
-            
+    .PARAMETER ChecksumPublish
+        Alows to deploy with or without published checksums (Default = $true)       
+
+    .PARAMETER ChecksumDeploy 
+        Tries a deployment based on checksum so see if the file already exists. 
+        If not it gets a 404 (the file does not exist) and does a content upload.
+
     .PARAMETER DeployArchive
         Extract archive file (zip, tar, tar.gz, or tgz) once deployed.
     
@@ -66,7 +67,7 @@ param(
 
     [pscredential]$Credential,
 
-    [string]$ApiKey,
+    [string]$ApikEy,    
 
     [Parameter(Mandatory)]
     [string]$Repository,
@@ -83,7 +84,9 @@ param(
 
     [string]$Extension,
     
-    [bool]$Checksum = $true,
+    [bool]$ChecksumPublish = $true,
+
+    [bool]$ChecksumDeploy = $false,
 
     [bool]$DeployArchive = $false,
 
@@ -131,20 +134,29 @@ foreach($Deploy in $Deployment) {
             }
 
             $headers = @{}
-            if ($Checksum) {
+
+            if ($ChecksumPublish) {
                 # Calculate hash of source file and set in headers
+                # Sha256 seems ignored by artifactory.
                 Write-Verbose -Message "Calculating checksums"
                 $md5 = (Get-FileHash -Path $Deploy.Source -Algorithm MD5).Hash.ToLower()
                 $sha1 = (Get-FileHash -Path $Deploy.Source -Algorithm SHA1).Hash.ToLower()
-                $sha256 = (Get-FileHash -Path $Deploy.Source -Algorithm SHA256).Hash.ToLower()
+                #$sha256 = (Get-FileHash -Path $Deploy.Source -Algorithm SHA256).Hash.ToLower()
                 Write-Verbose -Message "MD5: $md5"
                 Write-Verbose -Message "SHA1: $sha1"
-                Write-Verbose -Message "SHA256: $sha256"
+                #Write-Verbose -Message "SHA256: $sha256"
                 $headers = @{
-                    "X-Checksum-Deploy" = $true
                     "X-Checksum-Md5" = $md5
                     "X-Checksum-Sha1" = $sha1
-                    "X-Checksum-Sha256" = $sha256
+                    #"X-Checksum-Sha256" = $sha256
+                }
+            }
+
+            if ($ChecksumDeploy) {
+                # Calculate hash of source file and set in headers
+                Write-Verbose -Message "Enabling checksum deploy"
+                $headers = @{
+                    "X-Checksum-Deploy" = $true
                 }
             }
 
@@ -154,9 +166,9 @@ foreach($Deploy in $Deployment) {
                 $headers."X-Explode-Archive" = $true
             }
 
-            if ($PSBoundParameters.Contains('ApiKey')) {
+            if ($PSBoundParameters.ContainsKey('ApiKey')) {
                 $headers."X-JFrog-Art-Api" = $ApiKey
-            }
+            }             
             
             Write-Verbose -Message "Deploying [$($Deploy.Source)] to [$url]"
             $params = @{
@@ -166,15 +178,29 @@ foreach($Deploy in $Deployment) {
                 InFile = $Deploy.Source
                 Verbose = $false
             }
+
             if ($PSBoundParameters.ContainsKey('Credential')) {
                 $params.Credential =  $Credential
             } else {
                 $params.UseDefaultCredentials = $true
             }
+            
             try {
                 $null = Invoke-RestMethod @params
                 Write-Verbose -Message 'Deploy successful'
-            } catch {
+            } catch { 
+                # "X-Checksum-Deploy" = $true, tries a deployment based on checksum so see if the file already exists. If not it sends a 404 and expects a content upload.
+                # https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API#ArtifactoryRESTAPI-DeployArtifactbyChecksum
+                if ($checksumDeploy -and [int]$_.Exception.Response.StatusCod -eq 404) {
+                    $params.Headers.'X-Checksum-Deploy'=$false
+                    try {
+                        $null = Invoke-RestMethod @params
+                        Write-Verbose -Message 'Deploy successful'
+                    }
+                    catch {
+                        throw $_ 
+                    }         
+                }      
                 throw $_
             }
         }
