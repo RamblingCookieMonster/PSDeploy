@@ -49,8 +49,13 @@
         Specify an alternate file extension for the artifact
         
     .PARAMETER Checksum
-        Allows to deploy with or without checksums (Default = $true)       
-            
+        Allows to do a checksum deploy (Default = $true)
+
+        Deploy an artifact to the specified destination by checking if the artifact content already exists in Artifactory.
+        If Artifactory already contains a user readable artifact with the same checksum the artifact content is copied over to the new location 
+        and return a response without requiring content transfer.
+        Otherwise, a 404 error is returned to indicate that content upload is expected in order to deploy the artifact.
+     
     .PARAMETER DeployArchive
         Extract archive file (zip, tar, tar.gz, or tgz) once deployed.
     
@@ -130,20 +135,25 @@ foreach($Deploy in $Deployment) {
                 }
             }
 
+            # Calculate hash of source file and set in headers
+            Write-Verbose -Message "Calculating checksums"
+            $md5 = (Get-FileHash -Path $Deploy.Source -Algorithm MD5).Hash.ToLower()
+            $sha1 = (Get-FileHash -Path $Deploy.Source -Algorithm SHA1).Hash.ToLower()
+            $sha256 = (Get-FileHash -Path $Deploy.Source -Algorithm SHA256).Hash.ToLower()
+            Write-Verbose -Message "MD5: $md5"
+            Write-Verbose -Message "SHA1: $sha1"
+            Write-Verbose -Message "SHA256: $sha256"
+            $headers = @{
+                "X-Checksum-Md5" = $md5
+                "X-Checksum-Sha1" = $sha1
+                "X-Checksum-Sha256" = $sha256
+            }            
+
             if ($Checksum) {
-                # Calculate hash of source file and set in headers
+                # Enable checksum deployment
                 Write-Verbose -Message "Calculating checksums"
-                $md5 = (Get-FileHash -Path $Deploy.Source -Algorithm MD5).Hash.ToLower()
-                $sha1 = (Get-FileHash -Path $Deploy.Source -Algorithm SHA1).Hash.ToLower()
-                $sha256 = (Get-FileHash -Path $Deploy.Source -Algorithm SHA256).Hash.ToLower()
-                Write-Verbose -Message "MD5: $md5"
-                Write-Verbose -Message "SHA1: $sha1"
-                Write-Verbose -Message "SHA256: $sha256"
                 $headers = @{
                     "X-Checksum-Deploy" = $true
-                    "X-Checksum-Md5" = $md5
-                    "X-Checksum-Sha1" = $sha1
-                    "X-Checksum-Sha256" = $sha256
                 }
             }
 
@@ -153,7 +163,7 @@ foreach($Deploy in $Deployment) {
                 $headers."X-Explode-Archive" = $true
             }
 
-            if ($PSBoundParameters.Contains('ApiKey')) {
+            if ($PSBoundParameters.ContainsKey('ApiKey')) {
                 $headers."X-JFrog-Art-Api"=$ApiKey
             }
             
@@ -173,7 +183,17 @@ foreach($Deploy in $Deployment) {
             try {
                 $null = Invoke-RestMethod @params
                 Write-Verbose -Message 'Deploy successful'
-            } catch {
+            } catch { 
+                if ($checksum -and [int]$_.Exception.Response.StatusCod -eq 404) {
+                    $params.Headers.'X-Checksum-Deploy'=$false
+                    try {
+                        $null = Invoke-RestMethod @params
+                        Write-Verbose -Message 'Deploy successful'
+                    }
+                    catch {
+                        throw $_ 
+                    }         
+                }      
                 throw $_
             }
         }
