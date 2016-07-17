@@ -46,3 +46,7 @@ PSGalleryModule:
 Task:
   Script: Task.ps1
   Description: Support deployments by handling simple tasks.
+
+Git:
+  Script: Git.ps1
+  Description: Uses git with a simple workflow to commit and push any modification in a repository.
