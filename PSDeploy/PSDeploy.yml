@@ -27,6 +27,10 @@ FilesystemRemote:
   Script: FilesystemRemote.ps1
   Description: Uses a PowerShell remoting endpoint and Robocopy or Copy-Item for folder and file deployments, respectively.
 
+Git:
+  Script: Git.ps1
+  Description: Uses git with a simple workflow to commit and push any modification in a repository.
+
 MkDocs:
   Script: MkDocs.ps1
   Description: Uses the current session and builds a MkDocs static site from source files and saves site to a reachable filesystem, or as JSON on the local filesystem, or deploys to github pages (depending on the options selected).
@@ -46,7 +50,3 @@ PSGalleryModule:
 Task:
   Script: Task.ps1
   Description: Support deployments by handling simple tasks.
-
-Git:
-  Script: Git.ps1
-  Description: Uses git with a simple workflow to commit and push any modification in a repository.
