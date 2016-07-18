@@ -184,7 +184,7 @@ foreach($Deploy in $Deployment) {
                 $null = Invoke-RestMethod @params
                 Write-Verbose -Message 'Deploy successful'
             } catch { 
-                if ($checksum -and [int]$_.Exception.Response.StatusCod -eq 404) {
+                if ($checksum -and [int]$_.Exception.Response.StatusCode -eq 404) {
                     $params.Headers.'X-Checksum-Deploy'=$false
                     try {
                         $null = Invoke-RestMethod @params
