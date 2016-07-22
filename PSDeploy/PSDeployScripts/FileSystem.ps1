@@ -47,8 +47,8 @@ foreach($Map in $Deployment)
             }
             else
             {
-                $SourceHash = Get-Hash $Map.Source
-                $TargetHash = Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+                $SourceHash = ( Get-Hash $Map.Source ).SHA256
+                $TargetHash = ( Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue ).SHA256
                 if($SourceHash -ne $TargetHash)
                 {
                     Write-Verbose "Deploying file '$($Map.Source)' to '$Target'"
