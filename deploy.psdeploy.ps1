@@ -1,17 +1,21 @@
 ﻿# Generic module deployment.
-# This stuff should be moved to psake for a cleaner deployment view
-
+#
 # ASSUMPTIONS:
-
- # folder structure of:
- # - RepoFolder
- #   - This PSDeploy file
- #   - ModuleName
- #     - ModuleName.psd1
-
- # Nuget key in $ENV:NugetApiKey
-
- # Set-BuildEnvironment from BuildHelpers module has populated ENV:BHProjectName
+#
+# * folder structure either like:
+#
+#   - RepoFolder
+#     - This PSDeploy file
+#     - ModuleName
+#       - ModuleName.psd1
+#
+#   OR the less preferable:
+#   - RepoFolder
+#     - RepoFolder.psd1
+#
+# * Nuget key in $ENV:NugetApiKey
+#
+# * Set-BuildEnvironment from BuildHelpers module has populated ENV:BHPSModulePath and related variables
 
 # Publish to gallery with a few restrictions
 if(

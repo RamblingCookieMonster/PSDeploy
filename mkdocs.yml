@@ -15,7 +15,7 @@ pages:
     - PlatyPS Deployment: Example-PlatyPS-Deployment.md
     - PSGalleryModule Deployment: Example-PSGalleryModule-Deployment.md
     - Task Deployment: Example-Task-Deployment.md
-    - VMware OVF/OVA Deployment: Example-vSphereOVF-Deployment.md
+    - vSphereOVF Deployment: Example-vSphereOVF-Deployment.md
   - How Do I...:
     - Use Tags: Feature.-Tags.md
     - Create dependencies: Feature.-Dependencies.md

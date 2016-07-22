@@ -6,26 +6,23 @@
         [Parameter(Mandatory)]
         [string[]]$Name
     )
-
     Process
     {
         foreach ($ModuleName in $Name)
         {
             $Module = Get-Module -Name $ModuleName -ListAvailable
             Write-Verbose -Message "Resolving Module $($ModuleName)"
-            
-            if ($Module) 
-            {                
+
+            if ($Module)
+            {
                 $Version = $Module | Measure-Object -Property Version -Maximum | Select-Object -ExpandProperty Maximum
                 $GalleryVersion = Find-Module -Name $ModuleName -Repository PSGallery | Measure-Object -Property Version -Maximum | Select-Object -ExpandProperty Maximum
 
                 if ($Version -lt $GalleryVersion)
                 {
-                    
                     if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne 'Trusted') { Set-PSRepository -Name PSGallery -InstallationPolicy Trusted }
-                    
+
                     Write-Verbose -Message "$($ModuleName) Installed Version [$($Version.tostring())] is outdated. Installing Gallery Version [$($GalleryVersion.tostring())]"
-                    
                     Install-Module -Name $ModuleName -Force
                     Import-Module -Name $ModuleName -Force -RequiredVersion $GalleryVersion
                 }

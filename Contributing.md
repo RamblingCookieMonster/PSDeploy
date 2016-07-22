@@ -29,7 +29,7 @@ All of these require that you [have a GitHub account](https://github.com/signup/
   * If the issue is for a bug fix, provide reproducible code.  If you can't, and you think an issue is still warranted, provide your code, and related details on your environment
 * Contribute to [the docs](https://psdeploy.readthedocs.org)
   * Fork the repo
-  * Checkout and work in the dev branch
+  * Checkout and work in the dev branch (edit: use the master branch for now)
     * Organization is described in the [mkdocs.yml](https://github.com/RamblingCookieMonster/PSDeploy/blob/dev/mkdocs.yml) file. If you add a file or section, mkdocs.yml needs to know
     * mkdocs.yml points to markdown files in [the docs folder](https://github.com/RamblingCookieMonster/PSDeploy/tree/dev/docs)
     * Images are stored and accessible from docs/images
