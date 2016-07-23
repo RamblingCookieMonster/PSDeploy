@@ -5,7 +5,7 @@
 
 AppVeyorModule:
   Script: AppVeyorModule.ps1
-  Description: EXPERIMENTAL... Deploys a module to AppVeyor, simplifying creation and distribution of development builds for PowerShell Modules.
+  Description: Deploys a module to AppVeyor, simplifying creation and distribution of development builds for PowerShell Modules.
 
 Artifactory:
   Script: Artifactory.ps1
@@ -46,6 +46,10 @@ PlatyPS:
 PSGalleryModule:
   Script: PSGalleryModule.ps1
   Description: Deploys a PowerShell module to a repository like the PowerShell Gallery.
+
+PSGalleryScript:
+  Script: PSGalleryScript.ps1
+  Description: EXPERIMENTAL... Deploys a PowerShell script to a repository like the PowerShell Gallery.  WARNING- this modifies the scripts you want to deploy
 
 Task:
   Script: Task.ps1
