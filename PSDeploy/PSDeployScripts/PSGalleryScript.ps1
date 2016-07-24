@@ -135,9 +135,12 @@ foreach($deploy in $Deployment) {
             Write-Error "We found more than one script matching $Name.  Did you include a wildcard?"
             continue
         }
+        elseif($Existing.Count -eq 1)
+        {
+            # guid is in the additionalmetadata hash
+            $Existing[0] | Add-Member -MemberType NoteProperty -Name GUID -Value $Existing.AdditionalMetadata['GUID']
+        }
 
-        # guid is in the additionalmetadata hash
-        $Existing[0] | Add-Member -MemberType NoteProperty -Name GUID -Value $Existing.AdditionalMetadata['GUID']
         # Extract deployment options / header values. Not all of these are props.
         $AllNodes = echo VERSION GUID AUTHOR COMPANYNAME COPYRIGHT,
                          TAGS LICENSEURI PROJECTURI ICONURI,

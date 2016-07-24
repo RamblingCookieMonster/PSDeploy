@@ -1,6 +1,6 @@
 Deploy TestScript {
     By PSGalleryScript {
-        FromSource '\Scripts\Test-Script.ps1'
+        FromSource '\Scripts\Open-IseFunction.ps1'
         To 'PSGallery'
         Tagged Testing
         WithOptions @{
