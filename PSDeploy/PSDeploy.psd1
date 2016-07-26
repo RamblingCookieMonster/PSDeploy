@@ -4,6 +4,7 @@
 RootModule = 'PSDeploy.psm1'
 
 # Version number of this module.
+# Viewing the source in GitHub? This version is updated in the build process and does not reflect the actual version
 ModuleVersion = '0.1.20'
 
 # ID used to uniquely identify this module
