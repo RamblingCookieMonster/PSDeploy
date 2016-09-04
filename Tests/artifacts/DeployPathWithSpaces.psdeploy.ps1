@@ -1,7 +1,7 @@
 Deploy Folder {
     By Filesystem {
         FromSource 'Modules\This Path\'
-        To TestDrive:\
+        To 'TestDrive:\So Does This One\'
         WithOptions @{
             Mirror = $False
         }
