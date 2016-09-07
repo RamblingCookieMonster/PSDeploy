@@ -152,10 +152,6 @@ InModuleScope 'PSDeploy' {
                 $Results = Test-Path (Join-Path -Path $IntegrationTarget -ChildPath 'So Does This One\Has Spaces.txt')
                 $Results | Should Be $True
             }
-
-            It 'Should exit gracefully' {
-                $LastExitCode | Should Be 0
-            }
         }
     }
 }
