@@ -14,6 +14,16 @@ function Invoke-Robocopy () {
         [Parameter(Mandatory=$false)]
         [array]
         $ArgumentList,
+
+        # How many times should it retry
+        [Parameter(Mandatory=$false)]
+        [array]
+        $Retry = 2,
+
+        # Output file for robocopy log
+        [Parameter(Mandatory=$false)]
+        [string]
+        $OutputFile = '.\Robocopy.log',
         
         # Exit function if robocode throws "terminating" error code
         [Parameter(Mandatory=$false)]
@@ -23,25 +33,28 @@ function Invoke-Robocopy () {
 
     # Remove trailing backslash
     $Path = $Path -replace '\\$'
+    $Path = '"' + $Path + '"'
     $Destination = $Destination -replace '\\$'
+    $Destination = '"' + $Destination + '"'
 
-    ROBOCOPY.exe $Path $Destination @ArgumentList
+    # Add Retries to ArgumentList
+    $ArgumentList += "/R:$Retry"
 
-    switch ($LastExitCode) {
-        0   { Write-Output 'No files copied. Source and destination are in sync' }
-        1   { Write-Output 'Files were copied successfully'}
-        2   { Write-Warning 'Extra files/directories detected. Housekeeping may be required.'}
-        4   { Write-Warning 'Mismatched files/directories detected. Housekeeping may be required.'}
-        8   { $RCError = 'Some files/directories could not be copied'}
-        10  { $RCError = 'Usage error or an error due to insufficient access privileges'}
-        16  { $RCError = 'No destination directory specified'}
-    }
-
-    if ($LastExitCode -gt 4) {
+    # ROBOCOPY.exe $Path $Destination @ArgumentList
+    Start-Process -FilePath ROBOCOPY.exe -ArgumentList "$Path $Destination $ArgumentList" -RedirectStandardOutput $OutputFile -NoNewWindow -Wait
+    
+    # Check Log File
+    $RobocopyLog = Get-Content $OutputFile
+    $RobocopyErrors = $RobocopyLog | Select-String -Pattern 'ERROR'
+    if ($RobocopyErrors) {
         if ($EnableExit) {
-            $host.SetShouldExit($LastExitCode)
+            $host.SetShouldExit(1)
         } else {
-            Write-Error $RCError
+            foreach ($RobocopyError in $RobocopyErrors) {
+                Write-Error $RobocopyError
+            }
         }
+    } else {
+        Write-Output $RobocopyLog
     }
 }
