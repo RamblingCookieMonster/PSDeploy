@@ -108,7 +108,7 @@ Invoke-Command @PSBoundParameters -ScriptBlock {
                     $Target = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Target)
 
                     Write-Verbose "Invoking ROBOCOPY.exe $RemoteSource $Target $Arguments"
-                    ROBOCOPY.exe $RemoteSource $Target @Arguments
+                    Invoke-Robocopy -Path $RemoteSource -Destination $Target -ArgumentList $Arguments
                 }
                 else
                 {
