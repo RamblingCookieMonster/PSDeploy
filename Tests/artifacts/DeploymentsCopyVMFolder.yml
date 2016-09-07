@@ -4,7 +4,7 @@ Files:
     - 'Modules'
     #- 'Modules\File2.ps1'
   Destination:
-    - 'C:\Users\Administrator\Documents\'
+    - 'TestDrive:\'
   DeploymentType: CopyVMFile
   Options:
     FileSource: Host

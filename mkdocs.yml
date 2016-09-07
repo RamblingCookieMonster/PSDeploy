@@ -7,11 +7,15 @@ pages:
     - Quick Start: Quick-Start.-Installation-and-Example.md
     - PSDeploy Configuration Files: PSDeploy-Configuration-Files.md
   - DeploymentType Examples:
+    - AppVeyorModule Deployment: Example-AppVeyorModule-Deployment.md
     - Artifactory Deployment: Example-Artifactory-Deployment.md
     - FileSystem Deployment: Example-Filesystem-Deployment.md
     - Filesystem Deployment Follow Along: Example-Filesystem-Deployment-Follow-Along.md
     - FilesystemRemote Deployment: Example-FilesystemRemote-Deployment.md
+    - PlatyPS Deployment: Example-PlatyPS-Deployment.md
+    - PSGalleryModule Deployment: Example-PSGalleryModule-Deployment.md
     - Task Deployment: Example-Task-Deployment.md
+    - vSphereOVF Deployment: Example-vSphereOVF-Deployment.md
   - How Do I...:
     - Use Tags: Feature.-Tags.md
     - Create dependencies: Feature.-Dependencies.md

@@ -8,7 +8,7 @@
 
     .PARAMETER Deployment
         Deployment to run
-        
+
     .PARAMETER ApiKey
         API Key used to authenticate to PowerShell repository.
 #>
@@ -22,9 +22,14 @@ param(
 )
 
 foreach($deploy in $Deployment) {
+    if(-not $deploy.targets)
+    {
+        $deploy.targets = @('PSGallery')
+    }
+
     foreach($target in $deploy.Targets) {
         Write-Verbose -Message "Starting deployment [$($deploy.DeploymentName)] to PowerShell repository [$Target]"
-        
+
         # Validate that $target has been setup as a valid PowerShell repository
         $validRepo = Get-PSRepository -Name $target -Verbose:$false -ErrorAction SilentlyContinue
         if (-not $validRepo) {
@@ -42,7 +47,7 @@ foreach($deploy in $Deployment) {
             NuGetApiKey =  $deploy.DeploymentOptions.ApiKey
             Verbose = $VerbosePreference
         }
-                
+
         Publish-Module @params
     }
 }

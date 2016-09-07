@@ -39,13 +39,16 @@ foreach($Map in $Deployment)
                 {
                     $Arguments += "/PURGE"
                 }
+                # Resolve PSDrives.
+                $Target = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Target)
+
                 Write-Verbose "Invoking ROBOCOPY.exe $($Map.Source) $Target $Arguments"
-                ROBOCOPY.exe $Map.Source $Target @Arguments
+                Invoke-Robocopy -Path $Map.Source -Destination $Target -ArgumentList $Arguments
             }
             else
             {
-                $SourceHash = Get-Hash $Map.Source
-                $TargetHash = Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+                $SourceHash = ( Get-Hash $Map.Source ).SHA256
+                $TargetHash = ( Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue ).SHA256
                 if($SourceHash -ne $TargetHash)
                 {
                     Write-Verbose "Deploying file '$($Map.Source)' to '$Target'"

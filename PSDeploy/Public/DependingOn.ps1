@@ -10,6 +10,9 @@ Function DependingOn {
 
         This is not intended to be used anywhere but in a *.PSDeploy.ps1 file. It is included here for intellisense support
 
+    .PARAMETER ScriptBlock
+        ScriptBlock Dependency for By Block
+
     .PARAMETER DeploymentName
         One or more Deployment names that we will depend upon.
 

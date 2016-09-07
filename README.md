@@ -72,7 +72,7 @@ The [PSDeploy docs](http://psdeploy.readthedocs.org/) will include more informat
 * How to write new PSDeploy DeploymentTypes
 * Details on the PSDeploy Configuration Files
 
-The blog posts ([one](http://ramblingcookiemonster.github.io/PSDeploy/), [two](http://ramblingcookiemonster.github.io/PSDeploy-Take-Two/)) will become out of date over time, but may include helpful details.
+The blog posts ([one](http://ramblingcookiemonster.github.io/PSDeploy/), [two](http://ramblingcookiemonster.github.io/PSDeploy-Take-Two/)), and [three](http://ramblingcookiemonster.github.io/PSDeploy-Inception/) will become out of date over time, but may include helpful details.
 
 ## Notes
 

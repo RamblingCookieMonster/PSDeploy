@@ -38,11 +38,11 @@ param (
     [switch]$Mirror,
 
     [string]$ComputerName,
-    
+
     [pscredential]$Credential,
-    
+
     [System.Management.Automation.Runspaces.AuthenticationMechanism]$Authentication,
-    
+
     [string]$ConfigurationName,
 
     [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
@@ -103,13 +103,17 @@ Invoke-Command @PSBoundParameters -ScriptBlock {
                     {
                         $Arguments += "/PURGE"
                     }
+
+                    # Resolve PSDrives.
+                    $Target = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Target)
+
                     Write-Verbose "Invoking ROBOCOPY.exe $RemoteSource $Target $Arguments"
-                    ROBOCOPY.exe $RemoteSource $Target @Arguments
-                }       
+                    Invoke-Robocopy -Path $RemoteSource -Destination $Target -ArgumentList $Arguments
+                }
                 else
                 {
-                    $SourceHash = Get-Hash $RemoteSource
-                    $TargetHash = Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+                    $SourceHash = ( Get-Hash $RemoteSource ).SHA256
+                    $TargetHash = ( Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue ).SHA256
                     if($SourceHash -ne $TargetHash)
                     {
                         Write-Verbose "Deploying file '$RemoteSource' to '$Target'"

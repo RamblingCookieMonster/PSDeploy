@@ -11,11 +11,19 @@
         
     .PARAMETER Credential
         The credential with 'deploy' permissions in Artifactory
-        
+
+    .PARAMETER ApiKey
+        The ApiKey of the user with 'deploy' permissions in Artifactory
+               
     .PARAMETER Repository
         Specified the artifact repository to deploy in to.
         
         Example: 'powershell-scripts'
+    
+     .PARAMETER Path
+        Specifies the Path within artifactory to deploy to
+        
+        Example: 'Test/Scripts'
     
     .PARAMETER OrgPath
         Identifies the artifact's organization
@@ -39,7 +47,15 @@
         
     .PARAMETER Extension
         Specify an alternate file extension for the artifact
-            
+        
+    .PARAMETER Checksum
+        Allows to do a checksum deploy (Default = $true)
+
+        Deploy an artifact to the specified destination by checking if the artifact content already exists in Artifactory.
+        If Artifactory already contains a user readable artifact with the same checksum the artifact content is copied over to the new location 
+        and return a response without requiring content transfer.
+        Otherwise, a 404 error is returned to indicate that content upload is expected in order to deploy the artifact.
+     
     .PARAMETER DeployArchive
         Extract archive file (zip, tar, tar.gz, or tgz) once deployed.
     
@@ -55,6 +71,8 @@ param(
 
     [pscredential]$Credential,
 
+    [string]$ApiKey,
+
     [Parameter(Mandatory)]
     [string]$Repository,
     
@@ -69,6 +87,8 @@ param(
     [string]$FileItegRev,
 
     [string]$Extension,
+    
+    [bool]$Checksum = $true,
 
     [bool]$DeployArchive = $false,
 
@@ -124,16 +144,27 @@ foreach($Deploy in $Deployment) {
             Write-Verbose -Message "SHA1: $sha1"
             Write-Verbose -Message "SHA256: $sha256"
             $headers = @{
-                "X-Checksum-Deploy" = $true
                 "X-Checksum-Md5" = $md5
                 "X-Checksum-Sha1" = $sha1
                 "X-Checksum-Sha256" = $sha256
+            }            
+
+            if ($Checksum) {
+                # Enable checksum deployment
+                Write-Verbose -Message "Calculating checksums"
+                $headers = @{
+                    "X-Checksum-Deploy" = $true
+                }
             }
 
             # If we are deploying an archive (zip, tar, tar.gz, or tgz) and want to extract the contents in Artifactory
             if ($DeployArchive) {
                 Write-Verbose -Message 'Deploying artifacts from archive: true'
                 $headers."X-Explode-Archive" = $true
+            }
+
+            if ($PSBoundParameters.ContainsKey('ApiKey')) {
+                $headers."X-JFrog-Art-Api"=$ApiKey
             }
             
             Write-Verbose -Message "Deploying [$($Deploy.Source)] to [$url]"
@@ -150,14 +181,24 @@ foreach($Deploy in $Deployment) {
                 $params.UseDefaultCredentials = $true
             }
             try {
-                $result = Invoke-RestMethod @params
+                $null = Invoke-RestMethod @params
                 Write-Verbose -Message 'Deploy successful'
-            } catch {
+            } catch { 
+                if ($checksum -and [int]$_.Exception.Response.StatusCode -eq 404) {
+                    $params.Headers.'X-Checksum-Deploy'=$false
+                    try {
+                        $null = Invoke-RestMethod @params
+                        Write-Verbose -Message 'Deploy successful'
+                    }
+                    catch {
+                        throw $_ 
+                    }         
+                }      
                 throw $_
             }
         }
     }
     else {
-        throw "Unable to find [$(Deploy.Source)]"
+        throw "Unable to find [$($Deploy.Source)]"
     }
 }
