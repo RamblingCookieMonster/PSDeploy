@@ -144,5 +144,14 @@ InModuleScope 'PSDeploy' {
                 $Results | Should Be $True                
             }
         }
+
+        Context 'Handling paths with spaces' {
+            Invoke-PSDeploy @Verbose -Path "$ProjectRoot\Tests\artifacts\DeployPathWithSpaces.psdeploy.ps1" -Force
+
+            It 'Should deploy path with spaces' {
+                $Results = Test-Path (Join-Path -Path $IntegrationTarget -ChildPath 'So Does This One\Has Spaces.txt')
+                $Results | Should Be $True
+            }
+        }
     }
 }

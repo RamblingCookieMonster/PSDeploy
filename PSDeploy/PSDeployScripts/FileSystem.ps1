@@ -43,7 +43,7 @@ foreach($Map in $Deployment)
                 $Target = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Target)
 
                 Write-Verbose "Invoking ROBOCOPY.exe $($Map.Source) $Target $Arguments"
-                ROBOCOPY.exe $Map.Source $Target @Arguments
+                Invoke-Robocopy -Path $Map.Source -Destination $Target -ArgumentList $Arguments
             }
             else
             {
