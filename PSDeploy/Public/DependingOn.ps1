@@ -24,7 +24,7 @@ Function DependingOn {
 
         # This is a complete PSDeploy.ps1 example including a By function
 
-        Deploy DeployMyModule
+        Deploy DeployMyModule {
             By FileSystem {
                 FromSource 'MyModule'
                 To 'C:\sc\MyModule'

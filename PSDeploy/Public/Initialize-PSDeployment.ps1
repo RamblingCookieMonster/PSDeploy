@@ -47,7 +47,7 @@
         Get-PSDeploymentScript
 
     #>
-     [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact="Medium")]
+     [CmdletBinding()]
      [OutputType([int])]
      Param
      (
