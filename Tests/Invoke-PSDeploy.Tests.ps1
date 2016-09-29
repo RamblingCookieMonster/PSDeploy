@@ -131,6 +131,20 @@ InModuleScope 'PSDeploy' {
             }
         }
 
+        Context 'Deploying File with ps1 to folder that does not exist' {
+            Invoke-PSDeploy @Verbose -Path "$ProjectRoot\Tests\artifacts\IntegrationFileToNonExistingFolder.PSDeploy.ps1" -Force
+
+            It 'Should deploy file1.ps1' {
+                $Results = Test-Path (Join-Path -Path "$($IntegrationTarget)Non\Existing\Folder\" -Childpath File1.ps1)
+                $Results | Should Be $True
+            }
+
+            It 'Should deploy file2.ps1' {
+                $Results = Test-Path (Join-Path -Path "$($IntegrationTarget)Non\Existing\Folder\" -Childpath File2.ps1)
+                $Results | Should Be $True
+            }
+        }
+
         Context 'Deploying Folder with ps1' {
             Invoke-PSDeploy @Verbose -Path "$ProjectRoot\Tests\artifacts\IntegrationFolder.PSDeploy.ps1" -Force
 
