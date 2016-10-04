@@ -17,7 +17,7 @@ function Invoke-Robocopy () {
 
         # How many times should it retry
         [Parameter(Mandatory=$false)]
-        [array]
+        [int]
         $Retry = 2,
 
         # Output file for robocopy log
