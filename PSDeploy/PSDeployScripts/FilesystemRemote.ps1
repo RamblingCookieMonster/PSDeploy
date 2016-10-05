@@ -117,7 +117,18 @@ Invoke-Command @PSBoundParameters -ScriptBlock {
                     if($SourceHash -ne $TargetHash)
                     {
                         Write-Verbose "Deploying file '$RemoteSource' to '$Target'"
-                        Copy-Item -Path $RemoteSource -Destination $Target -Force
+                        Try {
+                            Copy-Item -Path $Map.Source -Destination $Target -Force
+                        }
+                        Catch [System.IO.IOException],[System.IO.DirectoryNotFoundException] {
+                            $NewDir = $Target
+                            if ($NewDir[-1] -ne '\')
+                            {
+                                $NewDir = Split-Path -Path $NewDir
+                            }
+                            $null = New-Item -ItemType Directory -Path $NewDir
+                            Copy-Item -Path $Map.Source -Destination $Target -Force
+                        }
                     }
                     else
                     {
