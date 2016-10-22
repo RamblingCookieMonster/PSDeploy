@@ -30,7 +30,7 @@ Two important notes here:
 
 ### A Tangent On In-line PowerShell
 
-You might ask... why can't I just run PowerShell in-line?  The answer is that you absolutely can, but it will run when PSDeploy is parsing the PS1 file.  This means read opertions will run at Get-PSDeployment time, not at deploy time. Here's an example illustrating the outcome:
+You might ask... why can't I just run PowerShell in-line?  The answer is that you absolutely can, but it will run when PSDeploy is parsing the PS1 file.  This means read operations will run at Get-PSDeployment time, not at deploy time. Here's an example illustrating the outcome:
 
 ```powershell
 Deploy Example {
