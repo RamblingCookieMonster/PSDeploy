@@ -15,6 +15,10 @@ ARM:
   Script: ARM.ps1
   Description: Uses Azure Resource Manager PowerShell cmdlets to deploy a template to Microsoft Azure or Azure Stack 
 
+Chocolatey:
+  Script: Chocolatey.ps1
+  Description: Uses Chocolatey on the local computer to push packages to a Chocolatey repository.
+
 CopyVMfile:
   Script: CopyVMFile.ps1
   Description: Uses Copy-VMFile cmdlet available with Hyper-V on Server 2012 R2 for folder and file deployments.
