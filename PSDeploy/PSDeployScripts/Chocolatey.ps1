@@ -73,7 +73,7 @@ foreach($Deploy in $Deployment)
         {
             $ChocolateyPackage += " --source='$target' "
             $ChocolateyPackage += " --api-key='$ApiKey' "
-            
+
             if( $PSBoundParameters.ContainsKey('Force') )
             {
                 $ChocolateyPackage += " --force "
@@ -88,7 +88,7 @@ foreach($Deploy in $Deployment)
             Write-Verbose "Chocolatey Path: $ChocolateyPath"
             Write-Verbose "Chocolatey Params are: $ChocolateyPackage "
             Write-Verbose "String executed: $ChocolateyPath push $ChocolateyPackage"
-            & $ChocolateyPath push $ChocolateyPackage
+            Invoke-expression "$ChocolateyPath push $ChocolateyPackage"
         }
 
     }
