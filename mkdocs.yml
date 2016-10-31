@@ -9,6 +9,7 @@ pages:
   - DeploymentType Examples:
     - AppVeyorModule Deployment: Example-AppVeyorModule-Deployment.md
     - Artifactory Deployment: Example-Artifactory-Deployment.md
+    - Chocolatey Deployment: Example-Chocolatey-Deployment.md
     - CopyVMFile Deployment: Example-CopyVMFile-Deployment.md
     - FileSystem Deployment: Example-Filesystem-Deployment.md
     - Filesystem Deployment Follow Along: Example-Filesystem-Deployment-Follow-Along.md
