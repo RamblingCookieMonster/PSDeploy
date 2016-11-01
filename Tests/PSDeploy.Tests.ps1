@@ -24,7 +24,7 @@ Import-Module $PSScriptRoot\..\$ModuleName -Force
     $FolderPS1 = "$PSScriptRoot\artifacts\IntegrationFolder.PSDeploy.ps1"
     $CopyVMYML = "$PSScriptRoot\artifacts\DeploymentsCopyVMFile.yml"
     $CopyVMFolderYML= "$PSScriptRoot\artifacts\DeploymentsCopyVMFolder.yml"
-    $PSGalleryModulePS1 = "$PSScriptRoot\artifacts\DeploymentsPSGalleryModule.psdeploy.ps1" 
+    $PSGalleryModulePS1 = "$PSScriptRoot\artifacts\DeploymentsPSGalleryModule.psdeploy.ps1"
 
     $WaitForFilesystem = .5
     $MyVariable = 42
@@ -91,7 +91,7 @@ Describe "Get-PSDeploymentType PS$PSVersion" {
         It 'Should get definitions' {
             $Definitions = @( Get-PSDeploymentType @Verbose )
 
-            $Definitions.Count | Should Be 9
+            $Definitions.Count | Should Be 10
             $Definitions.DeploymentType -contains 'FileSystem' | Should Be $True
             $Definitions.DeploymentType -contains 'FileSystemRemote' | Should Be $True
             $Definitions.DeploymentType -contains 'CopyVMfile' | Should Be $True
@@ -119,7 +119,7 @@ Describe "Get-PSDeploymentScript PS$PSVersion" {
         It 'Should get definitions' {
             $Definitions = Get-PSDeploymentScript @Verbose
 
-            $Definitions.Keys.Count | Should Be 9
+            $Definitions.Keys.Count | Should Be 10
             $Definitions.GetType().Name | Should Be 'Hashtable'
             $Definitions.ContainsKey('FileSystem') | Should Be $True
             $Definitions.ContainsKey('FileSystemRemote') | Should Be $True
@@ -283,14 +283,14 @@ Describe "Invoke-PSDeployment PS$PSVersion" {
 
         It 'Should copy file to VM' {
             Mock -CommandName Copy-VMFile -MockWith {}   -ModuleName PSdeploy
-            $deployment = Get-PSDeployment @Verbose -Path $CopyVMYML 
+            $deployment = Get-PSDeployment @Verbose -Path $CopyVMYML
             Invoke-PSDeployment -Deployment $deployment  @Verbose -Force
             Assert-MockCalled -CommandName Copy-VMfile -Times 1 -Exactly -ModuleName PSDeploy
         }
 
         It 'Should copy folder to VM' {
             Mock -CommandName Copy-VMFile -MockWith {}  -ModuleName PSDeploy
-            $Deployment = Get-PSDeployment @Verbose -Path $CopyVMFolderYML 
+            $Deployment = Get-PSDeployment @Verbose -Path $CopyVMFolderYML
             Invoke-PSDeployment -Deployment $Deployment @Verbose -Force
             $TotalFiles = Get-Childitem -Path $Deployment.Source -File -Recurse
             $count = $TotalFiles.Count  # had to factor that Pester stores the mock history of the last Mock command too
@@ -392,4 +392,3 @@ Remove-Item -Path $FilePS1 -force
 Remove-Item -Path $FolderPS1 -force
 Remove-Item -Path $IntegrationTarget -Recurse -Force
 Remove-Module -Name Hyper-V -Force
-
