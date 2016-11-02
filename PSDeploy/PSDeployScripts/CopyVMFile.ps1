@@ -23,56 +23,79 @@
         Authentication passed to Invoke-Command for remote deployment    
 
 #>
-[cmdletbinding(DefaultParameterSetName='LocalCopyVMFile')]
+[cmdletbinding()]
+# Invoke-PSDeploy fails if there is a parameter set here
 param (
-    [string]$VMname,
-
-    # Specify the Hyper-V host name where the VM resides. Default - Localhost.
-    [Parameter()]
-    [Alias("HyperVServerName")]
-    [String]$ComputerName=$env:COMPUTERNAME,
-
-    [pscredential]$Credential,
-
+    
     [Parameter(ValueFromPipeLine=$True)]
     [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
-    [psobject[]]$Deployment
+    [psobject[]]$Deployment,
+
+    # Specify the name of the VM, this is where the artifcats will be deployed
+    [string]$name,
+
+    # Specify the Hyper-V host name where the VM resides. Default - Localhost.
+    [String]$ComputerName=$env:COMPUTERNAME,
+
+    [String]$FileSource,
+
+    [Switch]$createFullPath
 )
-
-Write-Verbose "Starting CopyVM deployment on VMnamed $ComputerName with $($Deployment.count) sources"
-[void]$PSBoundParameters.Remove('Deployment')
-
-$LocalCopyVMFileHash = @{}
-Try
-{
-    $SourceHyperVHost = [System.Net.Dns]::GetHostEntry([string]$computername).HostName
-    $LocalCopyVMFileHash.Add('ComputerName',$SourceHyperVHost)
+BEGIN {
+    Write-Verbose "Starting CopyVM deployment on VMnamed $VMName running on Host $ComputerName with $($Deployment.count) sources"
+    [void]$PSBoundParameters.Remove('Deployment')
 }
-Catch
-{
-    Write-Warning -Message "Could not resolve the $ComputerName. Skipping it."
-    #Throw "Could not determine Hyper-V host for $($Map.Source), skipping"
-}
-# Fail safe if the CreateFullPath is not specified in the  Options under YML file
-if($Deployment.DeploymentOptions.CreateFullPath) {
-    $LocalCopyVMFileHash.Add('CreateFullPath',[System.Management.Automation.SwitchParameter]::Present)
-}
+PROCESS {
+   # Runs the local Copy-VMFile cmdlet (comes with Hyper-V module on Server 2012R2 + )
+    foreach($deploy in $Deployment){
+        $LocalCopyVMFileHash = @{}
+        # add fail safe for FileSource & CreateFullPath
+        if (-not $deploy.DeploymentOptions.FileSource) {
+            # At the moment the cmdlet only supports specifying host as the file source.
+            # This will add this if the deployment options does not have it mentioned
+            $LocalCopyVMFileHash.Add('FileSource','Host')
+        }
+        else {
+            $LocalCopyVMFileHash.Add('FileSource',$deploy.DeploymentOptions.FileSource)
+        }
 
-# Add the Deployment Options to the PSBound Parameters
-$Deployment.DeploymentOptions |  Get-Member -MemberType NoteProperty | 
-        Where -Property Name -ne 'CreateFullpath'  | select -ExpandProperty Name | 
-        foreach {$null = $LocalCopyVMFileHash.add("$PSitem",$Deployment.DeploymentOptions.$PSitem)}
+        
+        if(-not $deploy.DeploymentOptions.CreateFullPath) {
+            $LocalCopyVMFileHash.Add('CreateFullPath',$true)
+        }
+        else {
+            $LocalCopyVMFileHash.Add('CreateFullPath',$deploy.DeploymentOptions.CreateFullPath)
+        }
 
-# Runs the local Copy-VMFile cmdlet (comes with Hyper-V module on Server 2012R2 + )
-foreach($deploy in $Deployment)
-    {
-        if($deploy.SourceExists)
-        {
-            $Targets = $deploy.Targets
-            foreach($Target in $Targets)
+        if (-not $deploy.DeploymentOptions.Name) {
+            Write-Warning -Message "No Name (VMName) specified for the deployment. Skipping the deployment $($Deploy | Out-String)."
+            return
+        }
+        else {
+            $LocalCopyVMFileHash.Add('Name',$($deploy.DeploymentOptions.Name)) 
+        }
+
+        if ($deploy.DeploymentOptions.ComputerName) {
+            # if the ComputerName specified, do a name resolution.
+            Try {
+                $SourceHyperVHost = [System.Net.Dns]::GetHostEntry($deploy.DeploymentOptions.ComputerName).HostName
+                $LocalCopyVMFileHash.Add('ComputerName',$SourceHyperVHost)
+            }
+            Catch
             {
-                if($Deploy.SourceType -eq 'Directory')
-                {
+                Write-Warning -Message "Could not resolve the $ComputerName. Skipping the Deployment $($Deploy | Out-String)."
+                return # return the control back, we are skipping the computer
+                #Throw "Could not determine Hyper-V host for $($Map.Source), skipping"
+            }
+        }
+        else {
+            # use the local machine name as the Hyper-V host where the VM is running
+            $LocalCopyVMFileHash.Add('ComputerName',$env:COMPUTERNAME)
+        }
+
+        if ($deploy.SourceExists) {
+            foreach($target in ($deploy.Targets)) {
+                if($Deploy.SourceType -eq 'Directory') {
                     # logic to copy the folder into the VM using Copy-VMFile cmdlet.
                     # Credits to Ravi's tip -> http://www.powershellmagazine.com/2013/12/17/pstip-copying-folders-using-copy-vmfile-cmdlet-in-windows-server-2012-r2-hyper-v/
                     Get-Childitem -Path $($deploy.Source) -Recurse -File |
@@ -80,6 +103,7 @@ foreach($deploy in $Deployment)
                             $FileName = Split-Path -Path $PSitem.FullName -Leaf
                             $Target = $Target.trimend('\')
                             Write-Verbose "Invoking Copy-VMFile. Source -> $($PSitem.Fullname) Destination -> $("$Target\$Filename")"
+                            #Write-Host "$($LocalCopyVMFileHash | out-String)"
                             Copy-VMFile @LocalCopyVMFileHash -SourcePath $PSitem.FullName -DestinationPath "$Target\$Filename"
                         }
 
@@ -90,6 +114,7 @@ foreach($deploy in $Deployment)
                     $FileName = Split-Path -Path $Deploy.Source -Leaf
                     $Target = $Target.trimend('\')
                     Write-Verbose "Invoking Copy-VMFile. Source -> $($Deploy.Source) Destination -> $("$Target\$Filename")"
+                    #Write-Host "$($LocalCopyVMFileHash | out-String)"
                     Copy-VMFile @LocalCopyVMFileHash -SourcePath $Deploy.Source -DestinationPath "$Target\$Filename"
                 }
                 else {
@@ -98,6 +123,12 @@ foreach($deploy in $Deployment)
             }
         }
         else {
-            Write-Warning -Message "Source does not exist -> $($Deploy.Source)"
+            Write-Warning -Message "Source does not exist -> $($deploy.Source)"
         }
     }
+}
+END {
+
+}
+
+

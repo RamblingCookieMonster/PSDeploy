@@ -7,5 +7,5 @@ Files:
     - 'TestDrive:\'
   DeploymentType: CopyVMFile
   Options:
-    FileSource: Host
-    CreateFullPath: True
+    Name: 'WDS'
+    FileSource: 'Host'
