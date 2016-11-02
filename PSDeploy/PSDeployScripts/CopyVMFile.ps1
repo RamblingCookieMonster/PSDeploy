@@ -12,16 +12,7 @@
             CreateFullPath - Set this to True/False if you want the destination path to be created.
     .PARAMETER Deployment
         Deployment to run
-
-    .PARAMETER VMName
-        VMname passed to Copy-VMfile for VM deployment
-
-    .PARAMETER Deployment
-        Deployment passed to Copy-VMfile for VM deployment
-
-    .PARAMETER Authentication
-        Authentication passed to Invoke-Command for remote deployment    
-
+        
 #>
 [cmdletbinding()]
 # Invoke-PSDeploy fails if there is a parameter set here
@@ -37,8 +28,10 @@ param (
     # Specify the Hyper-V host name where the VM resides. Default - Localhost.
     [String]$ComputerName=$env:COMPUTERNAME,
 
+    #Specify the FileSource, at present only possible value is 'Host'
     [String]$FileSource,
 
+    # Create full path if required on the VM.
     [Switch]$createFullPath
 )
 BEGIN {
