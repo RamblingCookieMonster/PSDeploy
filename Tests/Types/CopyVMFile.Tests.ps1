@@ -10,18 +10,18 @@ InModuleScope 'PSDeploy' {
     $Verbose = @{}
     if($ENV:BHBranchName -notlike "master" -or $env:BHCommitMessage -match "!verbose")
     {
-        $Verbose.add("Verbose",$True)
+        $Verbose.add("Verbose",$False)
     }
 
     # Create a Dummy Hyper-V Module, to mock the Copy-VMfile cmdlet later
-    $DummyModule = New-Module -Name Hyper-V  -Function "Copy-VMFile" -ScriptBlock {  Function Copy-VMFile { Write-Host "Invoking Copy-VMFile -> $Args"}; }
-    $DummyModule | Import-Module
+    Function Copy-VMFile { param($Name,$sourcePath,$DestinationPath,$FileSource) }
 
     Describe "CopyVMFile PS$PSVersion" {                     
         
-        Context 'Deploy File to VM' {
-            Mock Copy-VMFile { Return $True }
-
+        Context 'Deploy File to VM (using the YML)' {
+            # Copy-VMFile has the 4 mandatory params, added now to the parameter filter
+            Mock Copy-VMFile -MockWith { Return $True } -ParameterFilter { ($null -ne $name) -and ($null -ne $sourcePath) -and ($null -ne $DestinationPath) -and ($null -ne $fileSource)}
+ 
             $Deployment = Get-PSDeployment @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsCopyVMFile.yml"
             $Results = Invoke-PSDeployment -Deployment $Deployment @Verbose -Force
 
@@ -30,12 +30,12 @@ InModuleScope 'PSDeploy' {
             }
 
             It 'Should copy file to VM' {                                
-                Assert-MockCalled Copy-VMfile -Times 1 -Exactly
+                Assert-MockCalled Copy-VMfile -Times 1 -Exactly -Scope Context
             }
         }
 
-        Context 'Deploy Folder to VM' {
-            Mock Copy-VMFile { Return $True }
+        Context 'Deploy Folder to VM (using the YML)' {
+            Mock Copy-VMFile -MockWith { Return $True } -Verifiable  -ParameterFilter { ($null -ne $name) -and ($null -ne $sourcePath) -and ($null -ne $DestinationPath) -and ($null -ne $fileSource) }
 
             $Deployment = Get-PSDeployment @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsCopyVMFolder.yml"
             $Results = Invoke-PSDeployment -Deployment $Deployment @Verbose -Force
@@ -48,8 +48,41 @@ InModuleScope 'PSDeploy' {
                 $TotalFiles = Get-Childitem -Path $Deployment.Source -File -Recurse
                 
                 # Moved Each test to their own Context blocks so their Mock counts are reset.
-                Assert-MockCalled Copy-VMfile -Times $TotalFiles.Count -Exactly
+                Assert-MockCalled Copy-VMfile -Times $TotalFiles.Count -Exactly -Scope Context
             }
         }
+
+        Context 'Deploy Folder to VM (using the DSL)' {
+            Mock Copy-VMFile -MockWith { Return $True } -Verifiable  -ParameterFilter { ($null -ne $name) -and ($null -ne $sourcePath) -and ($null -ne $DestinationPath) -and ($null -ne $fileSource) }
+            $Deployment = Get-PSDeployment @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsCopyVMFolder.psdeploy.ps1"
+            $Results = Invoke-PSDeploy -Path "$ProjectRoot\Tests\artifacts\DeploymentsCopyVMFolder.psdeploy.ps1" -Force @verbose
+
+            It 'Should Return Mocked output' {
+                $Results | Should be $True
+            }
+
+            It 'Should copy folder to VM' {                
+                $TotalFiles = Get-Childitem -Path $Deployment.Source -File -Recurse
+                
+                # Moved Each test to their own Context blocks so their Mock counts are reset.
+                Assert-MockCalled Copy-VMfile -Times $TotalFiles.Count -Exactly -Scope Context
+            }
+        }
+
+        Context 'Deploy File to VM (usng the DSL)'  {
+            # Copy-VMFile has the 4 mandatory params, added now to the parameter filter
+            Mock Copy-VMFile -MockWith { Return $True } -Verifiable  -ParameterFilter { ($null -ne $name) -and ($null -ne $sourcePath) -and ($null -ne $DestinationPath) -and ($null -ne $fileSource) }
+            $Deployment = Get-PSDeployment @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsCopyVMFile.psdeploy.ps1"
+            $Results = Invoke-PSDeploy -Path "$ProjectRoot\Tests\artifacts\DeploymentsCopyVMFile.psdeploy.ps1" -Force @Verbose
+
+            It 'Should Return Mocked output' {
+                $Results | Should be $True
+            }
+
+            It 'Should copy file to VM' {                                
+                Assert-MockCalled Copy-VMfile -Times 1 -Exactly -Scope Context
+            }
+        }
+
     }
 }
