@@ -10,7 +10,7 @@ InModuleScope 'PSDeploy' {
     $Verbose = @{}
     if($ENV:BHBranchName -notlike "master" -or $env:BHCommitMessage -match "!verbose")
     {
-        $Verbose.add("Verbose",$False)
+        $Verbose.add("Verbose",$true)
     }
     
     # Dummy function, since the New-PSSession on the Server 2016 box has VMName param
@@ -123,9 +123,10 @@ InModuleScope 'PSDeploy' {
                 $Results | Should be $True
             }
 
-            It 'Should copy folder to VM, recursive copy count' {                
-                $TotalFiles = Get-Childitem -Path $Deployment.Source -File -Recurse
-                Assert-MockCalled Copy-Item -Times $TotalFiles.Count -Exactly -Scope Context
+            It 'Should copy folder to VM, recursive copy' {                
+                Assert-MockCalled Copy-Item -Times 1 -Exactly -Scope Context -ParameterFilter {
+                    $Recurse.IsPresent 
+                }
             }
         }
 
