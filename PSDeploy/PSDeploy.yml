@@ -39,6 +39,10 @@ Noop:
   Script: noop.ps1
   Description: Display parameters that a deployment script would receive. Use for testing and validation.
 
+PSDirect:
+  Script: PSDirect.ps1
+  Description: Uses PowerShell direct for deployment to a VM & Hyper-V host (running Server 2016 and above).
+
 PlatyPS:
   Script: PlatyPS.ps1
   Description: Builds External Help files using PlatyPS markdown and Deploys them to Module Help directory.
