@@ -35,12 +35,14 @@ InModuleScope 'PSDeploy' {
         )
     }
 
+    
+
     Describe "PSDirect PS$PSVersion" {
 
         Context 'Service vmicvmsession is not present on the Host' {
 
             # Arrange
-            Mock -Command Start-Service -MockWith {throw "Cannot find any service with service name 'vmicvmsession'"}
+            Mock -Command Get-Service 
 
             It 'Should throw customized error' {
                 {Invoke-PSDeploy -Path "$ProjectRoot\Tests\artifacts\DeploymentsPSDirectFile.psdeploy.ps1" @Verbose -Force} | 
@@ -48,27 +50,12 @@ InModuleScope 'PSDeploy' {
             }
 
         }
-
-        Context 'Service vmicvmsession present but cannot be started' {
-
-            Mock -CommandName Start-Service 
-            Mock -Command Get-Service -MockWith {[pscustomobject]@{'Status'='Stopped'}}
-
-            It  'Should throw customized error message' {
-                {Invoke-PSDeploy -Path "$ProjectRoot\Tests\artifacts\DeploymentsPSDirectFile.psdeploy.ps1" @Verbose -Force} | 
-                    Should Throw "Hyper-V PowerShell Direct Service not running. Terminating."
-            }
-                        
-            It 'Should try to start the service' {
-                Assert-MockCalled Start-Service -Times 1 -Exactly
-            }
-
-        }
         
-        Context 'Deploy File to VM' {
-            Mock -CommandName Start-Service 
-            Mock -Command Get-Service -parameterFilter {$Name -eq 'vmicvmsession'} -MockWith {[pscustomobject]@{'Status'='Running'}}
+        Context 'Deploy File to VM, Target does not exist' {
+            Mock -Command Get-Service -parameterFilter {$Name -eq 'vmicvmsession'} -MockWith {[pscustomobject]@{'Status'='Stopped'}}
             Mock -Command New-PSSession -ParameterFilter { ($VMName -eq 'WDS') -and ($null -ne $Credential)} -MockWith {'DummyPSSession'}
+            Mock -Command Test-Target -MockWith {$False}
+            Mock -Command New-Target  
             Mock Copy-Item -MockWith { Return $True } -ParameterFilter {
                 ($ToSession -eq 'DummyPSSession') -and
                 ($null -ne $Path) -and 
@@ -77,23 +64,50 @@ InModuleScope 'PSDeploy' {
  
             $Results = Invoke-PSDeploy -Path "$ProjectRoot\Tests\artifacts\DeploymentsPSDirectFile.psdeploy.ps1" @Verbose -Force
 
-            It 'Should ensure Hyper-V PS Direct service is started' {
-                Assert-MockCalled Start-Service -Times 1 -Exactly -Scope Context
+            It 'Should ensure Hyper-V PS Direct service is present' {
                 Assert-MockCalled Get-Service -Times 1 -Exactly -Scope Context
             }
 
             It 'Should open a PSSession to the VM' {
-                Assert-MockCalled New-PSSession -Times 1 -Exactly -Scope Context
+                Assert-MockCalled New-PSSession -Times 1 -Exactly -Scope Context -ParameterFilter {
+                    ($VMName -eq 'WDS') -and
+                    ($null -ne $Credential)
+                }
+            }
+
+            It 'Should create the target on the VM' {
+                Assert-MockCalled Test-Target -Times 1 -Exactly -Scope Context
+                Assert-MockCalled New-Target -Times 1 -Exactly -Scope Context
             }
 
             It 'Should copy file to VM' {                                
-                Assert-MockCalled Copy-Item -Times 1 -Exactly -Scope Context
+                Assert-MockCalled Copy-Item -Times 1 -Exactly -Scope Context 
             }
 
             It 'Should Return Mocked output' {
                 $Results | Should be $True
             }
             
+        }
+
+        Context 'Deploy File to VM, Target exists' {
+            Mock -Command Get-Service -parameterFilter {$Name -eq 'vmicvmsession'} -MockWith {[pscustomobject]@{'Status'='Stopped'}}
+            Mock -Command New-PSSession -ParameterFilter { ($VMName -eq 'WDS') -and ($null -ne $Credential)} -MockWith {'DummyPSSession'}
+            Mock -Command Test-Target -MockWith {$True}
+            Mock -Command New-Target  
+            Mock Copy-Item -MockWith { Return $True } -ParameterFilter {
+                ($ToSession -eq 'DummyPSSession') -and
+                ($null -ne $Path) -and 
+                ($null -ne $Destination) 
+            }
+ 
+            $Results = Invoke-PSDeploy -Path "$ProjectRoot\Tests\artifacts\DeploymentsPSDirectFile.psdeploy.ps1" @Verbose -Force
+
+            It 'Should NOT create the target on the VM (already exists)' {
+                Assert-MockCalled Test-Target -Times 1 -Exactly -Scope Context
+                Assert-MockCalled New-Target -Times 0 -Exactly -Scope Context
+            }
+                        
         }
 
         Context 'Deploy Folder to VM' {
@@ -118,7 +132,7 @@ InModuleScope 'PSDeploy' {
             It 'Should set the -Container, -Force & -Recurse switches' {
                 Assert-MockCalled Copy-Item -ParameterFilter {$Container.IsPresent -and $Force.IsPresent -and $Recurse.IsPresent} -times 1 -Scope Context
             }
-
+            
             It 'Should Return Mocked output' {
                 $Results | Should be $True
             }
