@@ -14,6 +14,7 @@ pages:
     - Filesystem Deployment Follow Along: Example-Filesystem-Deployment-Follow-Along.md
     - FilesystemRemote Deployment: Example-FilesystemRemote-Deployment.md
     - PlatyPS Deployment: Example-PlatyPS-Deployment.md
+    - PSDirect Deployment: Example-PSDirect-Deployment.md
     - PSGalleryModule Deployment: Example-PSGalleryModule-Deployment.md
     - Task Deployment: Example-Task-Deployment.md
     - vSphereOVF Deployment: Example-vSphereOVF-Deployment.md
