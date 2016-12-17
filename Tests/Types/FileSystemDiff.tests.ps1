@@ -1,6 +1,6 @@
 Remove-Module PSDeploy -ErrorAction SilentlyContinue
 Import-Module $PSScriptRoot\..\..\PSDeploy\PSDeploy.psd1
-Set-BuildEnvironment -Path $PSScriptRoot   #\..\..
+Set-BuildEnvironment -Path $PSScriptRoot\..\..
 
 InModuleScope 'PSDeploy' {
     $ProjectRoot = $ENV:BHProjectPath
@@ -8,9 +8,9 @@ InModuleScope 'PSDeploy' {
     Remove-Item $ENV:BHProjectPath\dest -Recurse -Force -ErrorAction SilentlyContinue
 
 
-    Describe "Single File Deployment tests" {
+    Describe "FileSystemDiff: Single File Deployment tests" {
         Context "Single Copy" {
-            Invoke-PSDeploy -Path $ENV:BHProjectPath\..\Artifacts\FileSystemSingleDeploy.PSDeploy.ps1 -Force
+            Invoke-PSDeploy -Path $ENV:BHProjectPath\Tests\Artifacts\FileSystemSingleDeploy.PSDeploy.ps1 -Force
 
             It "Test1 Present" {
                 Test-Path $ENV:BHProjectPath\Dest\test1.txt | Should Be $true
@@ -21,7 +21,7 @@ InModuleScope 'PSDeploy' {
         }
         Context "Single Copy, destination present, no hash" {
             Remove-Item -Path $ENV:BHProjectPath\Dest\test1.txt.hash
-            Invoke-PSDeploy -Path $ENV:BHProjectPath\..\Artifacts\FileSystemSingleDeploy.PSDeploy.ps1 -Force
+            Invoke-PSDeploy -Path $ENV:BHProjectPath\Tests\Artifacts\FileSystemSingleDeploy.PSDeploy.ps1 -Force
 
             It "Test1 Present" {
                 Test-Path $ENV:BHProjectPath\Dest\test1.txt | Should Be $true
@@ -31,7 +31,7 @@ InModuleScope 'PSDeploy' {
             }
         }
         Context "Single Copy, destination present, matching hash" {
-            Invoke-PSDeploy -Path $ENV:BHProjectPath\..\Artifacts\FileSystemSingleDeploy.PSDeploy.ps1 -Force
+            Invoke-PSDeploy -Path $ENV:BHProjectPath\Tests\Artifacts\FileSystemSingleDeploy.PSDeploy.ps1 -Force
 
             It "Test1 Present" {
                 Test-Path $ENV:BHProjectPath\Dest\test1.txt | Should Be $true
@@ -42,7 +42,7 @@ InModuleScope 'PSDeploy' {
         }
         Context "Single Copy, destination present, non-matching hash with SaveDiff" {
             "This is a test" | Add-Content -Path $ENV:BHProjectPath\Dest\test1.txt
-            Invoke-PSDeploy -Path $ENV:BHProjectPath\..\Artifacts\FileSystemSingleDeploy.PSDeploy.ps1 -Force
+            Invoke-PSDeploy -Path $ENV:BHProjectPath\Tests\Artifacts\FileSystemSingleDeploy.PSDeploy.ps1 -Force
 
             It "Test1 Present" {
                 Test-Path $ENV:BHProjectPath\Dest\test1.txt | Should Be $true
@@ -56,10 +56,10 @@ InModuleScope 'PSDeploy' {
         }
     }
 
-    Describe "Directory File Deployments" {
+    Describe "FileSystemDiff: Directory File Deployments" {
         Context "Folder Copy, destination not present" {
             Remove-Item $ENV:BHProjectPath\dest -Recurse -Force -ErrorAction SilentlyContinue
-            Invoke-PSDeploy -Path $ENV:BHProjectPath\..\Artifacts\FileSystemFolderDeploy.PSDeploy.ps1 -Force
+            Invoke-PSDeploy -Path $ENV:BHProjectPath\Tests\Artifacts\FileSystemFolderDeploy.PSDeploy.ps1 -Force
 
             It "Test1 Present" {
                 Test-Path $ENV:BHProjectPath\Dest\test1.txt | Should Be $true
@@ -76,7 +76,7 @@ InModuleScope 'PSDeploy' {
         }
         Context "Folder Copy, destination present, no hash" {
             Remove-Item $ENV:BHProjectPath\dest\*.hash -Force -ErrorAction SilentlyContinue
-            Invoke-PSDeploy -Path $ENV:BHProjectPath\..\Artifacts\FileSystemFolderDeploy.PSDeploy.ps1 -Force
+            Invoke-PSDeploy -Path $ENV:BHProjectPath\Tests\Artifacts\FileSystemFolderDeploy.PSDeploy.ps1 -Force
 
             It "Test1 Present" {
                 Test-Path $ENV:BHProjectPath\Dest\test1.txt | Should Be $true
@@ -92,7 +92,7 @@ InModuleScope 'PSDeploy' {
             }
         }
         Context "Folder Copy, destination present, matching hash" {
-            Invoke-PSDeploy -Path $ENV:BHProjectPath\..\Artifacts\FileSystemFolderDeploy.PSDeploy.ps1 -Force
+            Invoke-PSDeploy -Path $ENV:BHProjectPath\Tests\Artifacts\FileSystemFolderDeploy.PSDeploy.ps1 -Force
 
             It "Test1 Present" {
                 Test-Path $ENV:BHProjectPath\Dest\test1.txt | Should Be $true
@@ -110,7 +110,7 @@ InModuleScope 'PSDeploy' {
         Context "Folder Copy, destination present, non-matching hash" {
             "This is a test" | Add-Content -Path $ENV:BHProjectPath\Dest\test1.txt
             "This is a test" | Add-Content -Path $ENV:BHProjectPath\Dest\test2.txt
-            Invoke-PSDeploy -Path $ENV:BHProjectPath\..\Artifacts\FileSystemFolderDeploy.PSDeploy.ps1 -Force
+            Invoke-PSDeploy -Path $ENV:BHProjectPath\Tests\Artifacts\FileSystemFolderDeploy.PSDeploy.ps1 -Force
 
             It "Test1 Present" {
                 Test-Path $ENV:BHProjectPath\Dest\test1.txt | Should Be $true
