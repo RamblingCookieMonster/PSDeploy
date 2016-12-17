@@ -40,82 +40,54 @@ ForEach ($Map in $Deployment)
         If ($Map.SourceType -eq "Directory")
         {
             $Files = Get-ChildItem $Map.Source -Recurse -File
+            $Source = $Map.Source
         }
         Else 
         {
             $Files = @(Get-ItemProperty $Map.Source)
+            $Source = Split-Path -Path $Map.Source
         }
         ForEach ($File in $Files)
         {
             ForEach ($Target in $Map.Targets)
             {
+                #Checking for file differences from last deploy and file currently at target
+                $OldFilePath = Join-Path -Path ($File.DirectoryName.ToLower().Replace($Source.ToLower(),$Target.ToLower())) -ChildPath $File.Name
+                $OldHashPath = Join-Path -Path ($File.DirectoryName.ToLower().Replace($Source.ToLower(),$Target.ToLower())) -ChildPath "$($File.Name).hash"
+                $OldFileParent = Split-Path -Path $OldFilePath
 
+                If (-not (Test-Path $OldFileParent))
+                {
+                    $null = New-Item -Path $OldFileParent -ItemType Directory
+                }
+                ElseIf (Test-Path $OldHashPath)
+                {
+                    $OldHash = Import-Clixml -Path $OldHashPath
+                    $NewHash = Get-FileHash -Path $OldFilePath
+                    If ($OldHash.Hash -ne $NewHash.Hash)
+                    {
+                        Write-Warning "Difference was detected on target file $OldFilePath"
+                        If ($SaveDiff)
+                        {
+                            $SaveDiffPath = Join-Path -Path (Split-Path -Path $OldFilePath) -ChildPath "$($File.BaseName)-$(Get-Date -Format 'MM-dd-yyyy-HH-mm-ss')$($File.Extension)"
+                            Write-Verbose "Saving changed file as $SaveDiffPath"
+                            Rename-Item -Path $OldFilePath -NewName $SaveDiffPath
+                        }
+                    }
+                }
 
+                #Deploying the file
+                Write-Verbose "Deploying file '$($File.Name)' to '$Target'"
+                $HashFilePath = Join-Path -Path (Split-Path -Path $OldFilePath) -ChildPath "$($File.Name).hash"
+                Copy-Item -Path $File.FullName -Destination $OldFilePath -Force -Confirm:$false
                 
-                Write-Verbose "Deploying file '$($Map.Source)' to '$Target'"
-                Copy-Item -Path $File.FullName -Destination $Target -Force
-            }
-
-            $HashFilePath = Join-Path -Path ($File.Directory) -ChildPath "$($File.BaseName).hash"
-            If (Test-Path $HashFilePath)
-            {
-                $OldHash = Import-Clixml -Path $HashFilePath
-
-            }
-            Else
-            {
                 $Hash = [PSCustomObject]@{
                     Hash = Get-FileHash -Path $File.FullName | Select -ExpandProperty Hash
-                    File = $null #Get-Content $File.FullName  #future proofing in case you want to see the difference
+                    File = $null #Get-Content $File.FullName  #future proofing, not part of MVP
                 }
                 $Hash | Export-Clixml -Path $HashFilePath
-            }
-
-        }
-
-
-
-
-
-        $Targets = $Map.Targets
-        ForEach ($Target in $Targets)
-        {
-            If ($Map.SourceType -eq 'Directory')
-            {
-                $Files = Get-ChildItem $Target -File -Recurse
-            }
-            Else 
-
-            {
-                $Files = 
-            }
-            Else
-
-            {
-                $SourceHash = ( Get-Hash $Map.Source ).SHA256
-                $TargetHash = ( Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue ).SHA256
-                if($SourceHash -ne $TargetHash)
-                {
-                    Write-Verbose "Deploying file '$($Map.Source)' to '$Target'"
-                    Try {
-                        Copy-Item -Path $Map.Source -Destination $Target -Force
-                    }
-                    Catch [System.IO.IOException],[System.IO.DirectoryNotFoundException] {
-                        $NewDir = $Target
-                        if ($NewDir[-1] -ne '\')
-                        {
-                            $NewDir = Split-Path -Path $NewDir
-                        }
-                        $null = New-Item -ItemType Directory -Path $NewDir
-                        Copy-Item -Path $Map.Source -Destination $Target -Force
-                    }
-                }
-                Else
-
-                {
-                    Write-Verbose "Skipping deployment with matching hash: '$($Map.Source)' = '$Target')"
-                }
             }
         }
     }
 }
+
