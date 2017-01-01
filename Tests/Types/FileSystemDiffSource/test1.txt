@@ -1,0 +1,16 @@
+SQL Server Name   ........................ E9-TRACEIT
+SQL Database Name ........................ TRACEIT
+Backup Method     ........................ Lgcy
+Backup Location   ........................ Srv
+Backup Object Type ....................... Full
+Backup on Secondary Replica .............. No
+Backup Object State ...................... Active
+Backup Creation Date / Time .............. 02/15/2014 02:00:37
+Backup Size .............................. 90.31 MB
+SQL Compressed ........................... Yes
+Backup Compressed ........................ No
+Backup Encryption Type ................... None
+Backup Client-deduplicated ............... No
+Database Object Name ..................... 20140215020037\00002C26
+Number of stripes in backup object ....... 5
+Assigned Management Class  ............... DEFAULT

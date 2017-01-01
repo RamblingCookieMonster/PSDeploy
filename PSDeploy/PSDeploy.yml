@@ -30,6 +30,10 @@ Filesystem:
 FilesystemRemote:
   Script: FilesystemRemote.ps1
   Description: Uses a PowerShell remoting endpoint and Robocopy or Copy-Item for folder and file deployments, respectively.
+  
+FileSystemDiff:
+  Script: FileSystemDiff.ps1
+  Description: Uses the current session to Copy-Item for folder or file deployments, but will check if the target file is different from last deployment.
 
 Git:
   Script: Git.ps1
