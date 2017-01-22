@@ -20,7 +20,7 @@ Properties {
     }
 }
 
-Task Default -Depends Deploy
+Task Default -Depends Test
 
 Task Init {
     $lines
@@ -78,7 +78,7 @@ Task Deploy -Depends Build {
     $lines
 
     $Params = @{
-        Path = $ProjectRoot
+        Path = "$ProjectRoot\Build"
         Force = $true
         Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
     }
