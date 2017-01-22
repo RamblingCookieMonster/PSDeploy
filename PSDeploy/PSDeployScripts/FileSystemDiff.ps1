@@ -71,7 +71,7 @@ ForEach ($Map in $Deployment)
                         {
                             $SaveDiffPath = Join-Path -Path (Split-Path -Path $OldFilePath) -ChildPath "$($File.BaseName)-$(Get-Date -Format 'MM-dd-yyyy-HH-mm-ss')$($File.Extension)"
                             Write-Verbose "Saving changed file as $SaveDiffPath"
-                            Rename-Item -Path $OldFilePath -NewName $SaveDiffPath
+                            Rename-Item -Path $OldFilePath -NewName "$($File.BaseName)-$(Get-Date -Format 'MM-dd-yyyy-HH-mm-ss')$($File.Extension)"
                         }
                     }
                 }
