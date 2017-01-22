@@ -64,7 +64,9 @@ Catch
 
 # Set up module functions that need to be injected into the remote session.
 $FunctionsToInject = @(
-    'Get-Hash'
+    'Get-Hash',
+    'Invoke-Robocopy',
+    'Start-ConsoleProcess'
 )
 $InjectedFunctions = @()
 
