@@ -5,10 +5,10 @@ Properties {
         $ProjectRoot = $ENV:BHProjectPath
         if(-not $ProjectRoot)
         {
-            $ProjectRoot = $PSScriptRoot
+            $ProjectRoot = Resolve-Path "$PSScriptRoot\.."
         }
 
-    $Timestamp = Get-date -uformat "%Y%m%d-%H%M%S"
+    $Timestamp = Get-Date -UFormat "%Y%m%d-%H%M%S"
     $PSVersion = $PSVersionTable.PSVersion.Major
     $TestFile = "TestResults_PS$PSVersion`_$TimeStamp.xml"
     $lines = '----------------------------------------------------------------------'
