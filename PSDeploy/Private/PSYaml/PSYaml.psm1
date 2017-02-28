@@ -1,5 +1,5 @@
 #handle PS2
-    $ModernPS = $PSVersionTable.PSVersion -ge '3.0'
+    $ModernPS = $PSVersionTable.PSVersion -ge '3.0.0'
     if(-not $ModernPS)
     {
         $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent
