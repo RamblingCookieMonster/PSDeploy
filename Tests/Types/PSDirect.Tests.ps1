@@ -1,7 +1,9 @@
 Remove-Module PSDeploy -ErrorAction SilentlyContinue
 Import-Module $PSScriptRoot\..\..\PSDeploy\PSDeploy.psd1
-Set-BuildEnvironment -Path $PSScriptRoot\..\..
-
+if(-not $ENV:BHProjectPath)
+{
+    Set-BuildEnvironment -Path $PSScriptRoot\..\.. -Force
+}
 
 InModuleScope 'PSDeploy' {
     $PSVersion = $PSVersionTable.PSVersion.Major

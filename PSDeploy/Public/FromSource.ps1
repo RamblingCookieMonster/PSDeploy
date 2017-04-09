@@ -12,7 +12,10 @@ Function FromSource {
         We can't use 'From,' given that Microsoft reserves this for future use as a keyword
 
     .PARAMETER Source
-        One or more source items to deploy
+        One or more source items to deploy.
+
+        If we can test-path, we assume it's absolute.  If we can't we assume it's relative, and join with DeploymentRoot.
+        You can override this by using WithOptions @{ SourceIsAbsolute = $true }
 
     .EXAMPLE
 

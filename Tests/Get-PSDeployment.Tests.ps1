@@ -1,6 +1,6 @@
 if(-not $ENV:BHProjectPath)
 {
-    Set-BuildEnvironment -Path $PSScriptRoot\..
+    Set-BuildEnvironment -Path $PSScriptRoot\.. -Force
 }
 Remove-Module $ENV:BHProjectName -ErrorAction SilentlyContinue
 Import-Module (Join-Path $ENV:BHProjectPath $ENV:BHProjectName) -Force
@@ -114,6 +114,10 @@ InModuleScope 'PSDeploy' {
             It 'Third Source Type Should be Directory' {         
                 $Deployments[2].SourceType | Should Be 'Directory'
             }
+
+            It 'Should concatenate' {
+                $Deployments[2].Source | Should Be (Resolve-Path "$ProjectRoot\Tests\artifacts\Modules\CrazyModule").Path
+            }
         }
 
 
@@ -174,6 +178,18 @@ InModuleScope 'PSDeploy' {
 
             It 'Should have expected Source' {
                 $Deployments[0].Source -Match '"Running a task!"' | Should be $True
+            }
+        }
+
+        Context "Should handle absolute source paths that don't exist" {
+            $Deployments = @( Get-PSDeployment @verbose -Path $ProjectRoot\Tests\artifacts\DeploymentsSourceAbsolute.psdeploy.ps1 )
+
+            It 'Should have expected Count' {
+                $Deployments.count | Should be 1
+            }
+
+            It 'Should have expected Source' {
+                $Deployments[0].Source | Should be 'C:\Nope\Modules\File1.ps1'
             }
         }
     }

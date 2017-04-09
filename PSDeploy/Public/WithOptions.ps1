@@ -20,6 +20,10 @@ Function WithOptions {
     .PARAMETER Options
         Accepts a hashtable of options
 
+        All deployment types accept these:
+
+            SourceIsAbsolute:  If true, and source does not exist, do not join source with DeploymentRoot
+
     .EXAMPLE
 
         # This is a complete PSDeploy.ps1 example including a By function
