@@ -203,6 +203,7 @@
 
         # Handle Dependencies
         $ToDeploy = Get-PSDeployment @GetPSDeployParams
+        $ReservedOptions = [string[]]'SourceIsAbsolute'
         foreach($Deployment in $ToDeploy)
         {
             $Type = $Deployment.DeploymentType
@@ -220,7 +221,11 @@
                 $FilteredOptions = @{}
                 foreach($key in $Deployment.DeploymentOptions.Keys)
                 {
-                    if($ValidParameters -contains $key)
+                    if($ReservedOptions -contains $key)
+                    {
+                        continue
+                    }
+                    elseif($ValidParameters -contains $key)
                     {
                         $FilteredOptions.Add($key, $Deployment.DeploymentOptions.$key)
                     }

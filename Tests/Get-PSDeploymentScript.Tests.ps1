@@ -1,6 +1,6 @@
 if(-not $ENV:BHProjectPath)
 {
-    Set-BuildEnvironment -Path $PSScriptRoot\..
+    Set-BuildEnvironment -Path $PSScriptRoot\.. -Force
 }
 Remove-Module $ENV:BHProjectName -ErrorAction SilentlyContinue
 Import-Module (Join-Path $ENV:BHProjectPath $ENV:BHProjectName) -Force

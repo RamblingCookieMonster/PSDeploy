@@ -160,9 +160,9 @@
                 {
                     #Determine the path to this source. Try absolute, fall back on relative
                     #Fail silently if not file/folder...
-                    if(Test-Path $Source -ErrorAction SilentlyContinue)
+                    if((Test-Path $Source -ErrorAction SilentlyContinue) -or $DeploymentHash.DeploymentOptions.SourceIsAbsolute)
                     {
-                        $LocalSource = ( Resolve-Path $Source ).ProviderPath
+                        $LocalSource = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Source)
                     }
                     else
                     {
@@ -220,9 +220,9 @@
                 if(-not ($DeploymentItem.DeploymentType -eq 'Task' -and $Source -is [scriptblock]))
                 {
                     #Determine the path to this source. Try absolute, fall back on relative
-                    if(Test-Path $Source -ErrorAction SilentlyContinue)
+                    if((Test-Path $Source -ErrorAction SilentlyContinue) -or $DeploymentItem.DeploymentOptions.SourceIsAbsolute)
                     {
-                        $LocalSource = ( Resolve-Path $Source ).ProviderPath
+                        $LocalSource = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Source)
                     }
                     else
                     {
@@ -269,7 +269,7 @@
     }
     if( @($DeploymentMap.SourceExists) -contains $false)
     {
-        Write-Error "Nonexistent paths found:`n`n$($DeploymentMap | Where {-not $_.SourceExists} | Format-List | Out-String)`n"
+        Write-Verbose "Nonexistent paths found:`n`n$($DeploymentMap | Where {-not $_.SourceExists} | Format-List | Out-String)`n"
     }
 
     If($PSBoundParameters.ContainsKey('Tags'))
