@@ -52,7 +52,7 @@ if(
 {
     Deploy DeveloperBuild {
         By AppVeyorModule {
-            FromSource $ENV:BHPSModulePath
+            FromSource $ENV:BHModulePath
             To AppVeyor
             WithOptions @{
                 Version = $env:APPVEYOR_BUILD_VERSION
