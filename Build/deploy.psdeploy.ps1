@@ -19,7 +19,7 @@
 
 # Publish to gallery with a few restrictions
 if(
-    $env:BHPSModulePath -and
+    $env:BHModulePath -and
     $env:BHBuildSystem -ne 'Unknown' -and
     $env:BHBranchName -eq "master" -and
     $env:BHCommitMessage -match '!deploy'
@@ -46,7 +46,7 @@ else
 
 # Publish to AppVeyor if we're in AppVeyor
 if(
-    $env:BHPSModulePath -and
+    $env:BHModulePath -and
     $env:BHBuildSystem -eq 'AppVeyor'
    )
 {
