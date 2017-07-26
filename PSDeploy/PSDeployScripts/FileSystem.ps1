@@ -11,7 +11,7 @@
         Deployment to run
 
     .PARAMETER Mirror
-        If specified and the source is a folder, we effectively call robocopy /MIR (Can remove folders/files...)
+        If specified and the source is a folder, we effectively call robocopy /PURGE (Can remove folders/files...)
 #>
 [cmdletbinding()]
 param (
