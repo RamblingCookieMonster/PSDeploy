@@ -15,7 +15,7 @@
 #
 # * Nuget key in $ENV:NugetApiKey
 #
-# * Set-BuildEnvironment from BuildHelpers module has populated ENV:BHPSModulePath and related variables
+# * Set-BuildEnvironment from BuildHelpers module has populated ENV:BHModulePath and related variables
 
 # Publish to gallery with a few restrictions
 if(
@@ -27,7 +27,7 @@ if(
 {
     Deploy Module {
         By PSGalleryModule {
-            FromSource $ENV:BHPSModulePath
+            FromSource $ENV:BHModulePath
             To PSGallery
             WithOptions @{
                 ApiKey = $ENV:NugetApiKey
