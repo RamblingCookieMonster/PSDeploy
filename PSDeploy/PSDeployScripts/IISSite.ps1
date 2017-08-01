@@ -108,14 +108,6 @@ function Remove-IISWebsite
             
             Remove-Website $name
         }
-        
-        # Remove Website files
-        if(Test-Path $root)
-        {
-            Write-Verbose "Removing IIS Website root directory: $root"
-            
-            Remove-Item $root -Recurse -Force
-        }
     }
     
     End {}
@@ -124,19 +116,15 @@ function Remove-IISWebsite
 
 foreach($site in $Deployment)
 {
-    if($site.SourceExists)
+    if (!(Get-Module WebAdministration))
     {
-        if (!(Get-Module WebAdministration))
-        {
-            ## Load it nested, and we'll automatically remove it during clean up.
-            Import-Module WebAdministration -ErrorAction Stop
-            Sleep 2 #see http://stackoverflow.com/questions/14862854/powershell-command-get-childitem-iis-sites-causes-an-error
-        }
-
-        $root = $site.Targets[0]
-        Remove-IISWebsite -name $name -root $root
-        $ScriptPath = Split-Path -Path $MyInvocation.MyCommand.Path
-        & "$ScriptPath\FileSystem.ps1" -Deployment $Deployment
-        Create-IISWebsite -name $name -root $root -bindings $bindings        
+        ## Load it nested, and we'll automatically remove it during clean up.
+        Import-Module WebAdministration -ErrorAction Stop
+        Sleep 2 #see http://stackoverflow.com/questions/14862854/powershell-command-get-childitem-iis-sites-causes-an-error
     }
+    # TODO: Multiple Targets
+    # TODO: Remote Machines
+    $root = $site.Targets[0]
+    Remove-IISWebsite -name $name -root $root
+    Create-IISWebsite -name $name -root $root -bindings $bindings
 }
