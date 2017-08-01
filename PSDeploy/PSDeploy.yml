@@ -73,4 +73,8 @@ vSphereOVF:
 
 IISSite:
   Script: IISSite.ps1
-  Description: Removes the IIS Site, deploys the files to the Target and adds the IIS Site
+  Description: Deploys a IIS Site, by removing the Site copying the files to the Target and adding the IIS Site
+
+Node:
+  Script: Node.ps1
+  Description: Deploys a Node App by using the Non-Sucking Service Manager to run Node as a Service in Windows
