@@ -209,7 +209,7 @@
         {
             # TODO: This should be abstracted out, and use the same code that file parameterset uses...
             $Sources = @($DeploymentItem.Source)
-
+            
             #TODO: Move this, not applicable to all deployment types
             foreach($Source in $Sources)
             {
@@ -217,7 +217,7 @@
                 $Exists = $null
                 $Type = $null
 
-                if(-not ($DeploymentItem.DeploymentType -eq 'Task' -and $Source -is [scriptblock]))
+                if(-not ($DeploymentItem.DeploymentType -eq 'Task' -and $Source -is [scriptblock]) -and ($Source))
                 {
                     #Determine the path to this source. Try absolute, fall back on relative
                     if((Test-Path $Source -ErrorAction SilentlyContinue) -or $DeploymentItem.DeploymentOptions.SourceIsAbsolute)
