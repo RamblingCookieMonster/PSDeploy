@@ -188,11 +188,11 @@ function Stop-NSSMService
 
 foreach($site in $Deployment)
 {
-    Stop-NSSMService -ServiceName $ServiceName -NSSMBinaryPath $NSSMBinaryPath
+    # Stop-NSSMService -ServiceName $ServiceName -NSSMBinaryPath $NSSMBinaryPath
     Remove-NSSMService -ServiceName $ServiceName -NSSMBinaryPath $NSSMBinaryPath
     Create-NSSMService -ServiceName $ServiceName -ServiceBinaryPath $ServiceBinaryPath -ServiceArgs $ServiceArgs -NSSMBinaryPath $NSSMBinaryPath
     if($AppDirectory) {
         Set-NSSM-AppDirectory -ServiceName $ServiceName -AppDirectory $AppDirectory -NSSMBinaryPath $NSSMBinaryPath    
     }    
-    Start-NSSMService -ServiceName $ServiceName -NSSMBinaryPath $NSSMBinaryPath
+    # Start-NSSMService -ServiceName $ServiceName -NSSMBinaryPath $NSSMBinaryPath
 }
