@@ -111,7 +111,7 @@ function Invoke-Robocopy
         foreach ($item in $Destination) {
             # Resolve destination paths, remove trailing backslash, add Retries and combine all arguments into one array
             $AllArguments = @(
-                (Resolve-Path -Path $Path) -replace '\\+$'
+                (Resolve-Path -Path $Path).ProviderPath -replace '\\+$'
             ) + (
                 $item | ForEach-Object {
                     $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($_) -replace '\\+$'
