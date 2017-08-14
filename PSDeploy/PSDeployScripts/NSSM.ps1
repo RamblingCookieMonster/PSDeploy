@@ -1,26 +1,43 @@
 <#
     .SYNOPSIS
-        Support deployments by handling simple tasks.
+        Deploys a binary by using the Non-Sucking Service Manager to run the ninary as a service in Windows
 
     .DESCRIPTION
-        Support deployments by handling simple tasks.
+        Deploys a binary by using the Non-Sucking Service Manager to run the ninary as a service in Windows
 
-        You can use a Task in two ways:
+        By NSSM Node {
+            WithOptions @{
+                ServiceName = "ServiceName"
+                ServiceBinaryPath = ".\bin\runtime\node.exe"
+                ServiceArgs = ".\wwwroot\dist\server.js"
+                AppDirectory = ".\wwwroot"
+                NSSMBinaryPath = ".\bin\runtime\nssm.exe"            
+            }        
+        }
 
-        As a scriptblock:
-
-            By Task {
-                "Run some deployment code in this scriptblock!"
-            }
-
-        As a script:
-
-            By Task {
-                FromSource "Path\To\SomeDeploymentScript.ps1"
-            }
+        Deploying a service will always remove and install it again
 
     .PARAMETER Deployment
         Deployment to process
+
+    .PARAMETER ServiceName
+        The service name under which it will be installed
+
+    .PARAMETER ServiceBinaryPath
+        Path to the binary which should be started as a service
+
+    .PARAMETER AppDirectory
+        The applications directory which the service should use as working directory
+
+    .PARAMETER ServiceArgs
+        Arguments which should be passed to the binary when it is started
+
+    .PARAMETER NSSMBinaryPath
+        Path to the nssm.exe    
+
+    .PARAMETER StartService
+        Defines wether or not the service should be started after the deployment. 
+        You might want to disable that as you need to copy files before you can start the service.
 #>
 [cmdletbinding()]
 param (
@@ -36,11 +53,14 @@ param (
     [Parameter(Mandatory=$false, Position=3)]
     [string]  $AppDirectory     = $null,
 
-    [Parameter(Mandatory=$true, Position=4)]
+    [Parameter(Mandatory=$false, Position=4)]
     [string]  $ServiceArgs     = $null,
 
     [Parameter(Mandatory=$true, Position=5)]
     [string]  $NSSMBinaryPath     = $null
+
+    [Parameter(Mandatory=$false, Position=6)]
+    [bool]  $StartService     = $true
 )
 
 <#
@@ -186,13 +206,15 @@ function Stop-NSSMService
     End {}
 }
 
-foreach($site in $Deployment)
+foreach($service in $Deployment)
 {
-    # Stop-NSSMService -ServiceName $ServiceName -NSSMBinaryPath $NSSMBinaryPath
+    Stop-NSSMService -ServiceName $ServiceName -NSSMBinaryPath $NSSMBinaryPath
     Remove-NSSMService -ServiceName $ServiceName -NSSMBinaryPath $NSSMBinaryPath
     Create-NSSMService -ServiceName $ServiceName -ServiceBinaryPath $ServiceBinaryPath -ServiceArgs $ServiceArgs -NSSMBinaryPath $NSSMBinaryPath
     if($AppDirectory) {
         Set-NSSM-AppDirectory -ServiceName $ServiceName -AppDirectory $AppDirectory -NSSMBinaryPath $NSSMBinaryPath    
     }    
-    # Start-NSSMService -ServiceName $ServiceName -NSSMBinaryPath $NSSMBinaryPath
+    if($StartService) {
+        Start-NSSMService -ServiceName $ServiceName -NSSMBinaryPath $NSSMBinaryPath    
+    }    
 }
