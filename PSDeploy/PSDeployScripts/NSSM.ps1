@@ -57,7 +57,7 @@ param (
     [string]  $ServiceArgs     = $null,
 
     [Parameter(Mandatory=$true, Position=5)]
-    [string]  $NSSMBinaryPath     = $null
+    [string]  $NSSMBinaryPath     = $null,
 
     [Parameter(Mandatory=$false, Position=6)]
     [bool]  $StartService     = $true
