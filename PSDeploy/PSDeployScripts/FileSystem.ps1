@@ -33,8 +33,7 @@ foreach($Map in $Deployment)
         {
             if($Map.SourceType -eq 'Directory')
             {
-                [string[]]$Arguments = "/XO"
-                $Arguments += "/E"
+                [string[]]$Arguments = "/E"
                 if($Map.DeploymentOptions.mirror -eq 'True' -or $Mirror)
                 {
                     $Arguments += "/PURGE"
