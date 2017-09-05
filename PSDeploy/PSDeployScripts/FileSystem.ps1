@@ -12,6 +12,9 @@
 
     .PARAMETER Mirror
         If specified and the source is a folder, we effectively call robocopy /MIR (Can remove folders/files...)
+    
+    .PARAMETER IncludeOlder
+        If specified and the source is a folder, we effectively call robocopy without /XO (Exclude Older Files)
 #>
 [cmdletbinding()]
 param (
@@ -33,10 +36,16 @@ foreach($Map in $Deployment)
         {
             if($Map.SourceType -eq 'Directory')
             {
-                [string[]]$Arguments = "/XO"
-                $Arguments += "/E"
+                if($Map.DeploymentOptions.includeolder -eq 'True' -or $IncludeOlder)
+                {
+                    [string[]]$Arguments = "/E"
+                } else {
+                    [string[]]$Arguments = "/XO"
+                    $Arguments += "/E"
+                }
                 if($Map.DeploymentOptions.mirror -eq 'True' -or $Mirror)
                 {
+                    [string[]]$Arguments = "/E"
                     $Arguments += "/PURGE"
                 }
                 # Resolve PSDrives.
