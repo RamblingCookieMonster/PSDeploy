@@ -17,7 +17,7 @@ param(
     [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
     [psobject[]]$Deployment,
 
-    [Parameter(Mandatory)]
+    [Parameter(Mandatory=$false)]
     [string]$ApiKey
 )
 
@@ -36,16 +36,18 @@ foreach($deploy in $Deployment) {
             throw "[$target] has not been setup as a valid PowerShell repository."
         }
 
-        # Publish-Module supports specifying either the name of a module or the path to a module.        
+        # Publish-Module supports specifying either the name of a module or the path to a module.
         # Since PSDeploy validates that the value specified in 'FromSource' is a valid path before
         # invoking the deployment script, we don't support specifying just the module name as that
-        # would cause PSDeploy to throw an error when validating the value in FromSouce. For this 
+        # would cause PSDeploy to throw an error when validating the value in FromSouce. For this
         # deployment script, only the path to the module root is supported.
         $params = @{
-            Path = $deploy.Source
+            Path       = $deploy.Source
             Repository = $target
-            NuGetApiKey =  $deploy.DeploymentOptions.ApiKey
-            Verbose = $VerbosePreference
+            Verbose    = $VerbosePreference
+        }
+        if ($ApiKey) {
+            $params['NuGetApiKey']  =  $deploy.DeploymentOptions.ApiKey
         }
 
         Publish-Module @params
