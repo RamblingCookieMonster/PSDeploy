@@ -99,8 +99,7 @@ Invoke-Command @PSBoundParameters -ScriptBlock {
             {
                 if($Map.SourceType -eq 'Directory')
                 {
-                    [string[]]$Arguments = "/XO"
-                    $Arguments += "/E"
+                    [string[]]$Arguments = "/E"
                     if($Map.DeploymentOptions.mirror -eq 'True' -or $Using:Mirror)
                     {
                         $Arguments += "/PURGE"
