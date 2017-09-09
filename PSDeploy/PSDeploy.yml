@@ -70,3 +70,15 @@ Task:
 vSphereOVF:
   Script: vSphereOVF.ps1
   Description: Support deployments of OVF/OVA onto a VMware vSphere infrastructure.
+
+IISSite:
+  Script: IISSite.ps1
+  Description: Deploys a IIS Site, by removing the Site copying the files to the Target and adding the IIS Site
+
+IISAppPool:
+  Script: IISAppPool.ps1
+  Description: Deploys a IIS AppPool, by removing the AppPool and recreating it
+
+NSSM:
+  Script: NSSM.ps1
+  Description: Deploys a binary by using the Non-Sucking Service Manager to run the ninary as a service in Windows
