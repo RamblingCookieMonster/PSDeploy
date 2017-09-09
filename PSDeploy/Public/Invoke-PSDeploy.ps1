@@ -11,7 +11,7 @@
         See Get-Help about_PSDeploy for more information.
 
     .PARAMETER Path
-        Path to a specific PSDeploy.ps1 file, or to a folder that we recursively search for *.PSDeploy.ps1 files
+        Path to a specific PSDeploy.ps1 file, or to a folder that we recursively search for *.*Deploy.ps1 or *PSDeploy.ps1 files
 
         Defaults to the current path
 

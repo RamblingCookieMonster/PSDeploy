@@ -35,8 +35,8 @@ function Resolve-DeployScripts
                 Resolve-Path -Path $unresolvedPath |
                     Where-Object { $_.Provider.Name -eq 'FileSystem' } |
                     Select-Object -ExpandProperty ProviderPath |
-                    Get-ChildItem -Filter *.*deploy.ps1 @RecurseParam |
-                    Where-Object { -not $_.PSIsContainer } |
+                    Get-ChildItem -Filter *deploy.ps1 @RecurseParam |
+                    Where-Object { -not $_.PSIsContainer -and $_.Name -match 'psdeploy.ps1$|.*\..*deploy.ps1'} |
                     Select-Object -ExpandProperty FullName -Unique
             }
         }

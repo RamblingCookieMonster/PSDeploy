@@ -33,7 +33,7 @@ Let's pretend Some.PSDeploy.ps1 lives in C:\Git\Misc\Deployments. Here's what ha
 Invoke-PSDeploy -Path C:\Git\Misc
 ```
 
- * We search for all *.psdeploy.ps1 files under C:\Git\Misc, and find Some.PSDeploy.ps1. In this case, we have two resulting deployments, Some-ADScript.ps1, and AllOfThisDirectory
+ * We search for all *.*Deploy.ps1 or *PSDeploy.ps1 files under C:\Git\Misc, and find Some.PSDeploy.ps1. In this case, we have two resulting deployments, Some-ADScript.ps1, and AllOfThisDirectory
  * We check the deployment type. Filesystem.
  * We invoke the script associated with Filesystem Deployments, passing in the two deployments
  * Relative paths are resolved by joining paths with C:\Git\Misc

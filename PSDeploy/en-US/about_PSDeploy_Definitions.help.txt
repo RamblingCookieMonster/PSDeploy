@@ -7,7 +7,7 @@ SHORT DESCRIPTION
 LONG DESCRIPTION
     PSDeploy has several configuration definitions to work with:
 
-        Deployment configurations:      *.PSDeploy.ps1 script files
+        Deployment configurations:      *.PSDeploy.ps1 script files (*.*Deploy.ps1 or *PSDeploy.ps1)
         DeploymentType configurations:  Map DeploymentTypes to scripts that run their deployments
 
     Please see about_PSDeploy for clarification on terminology or other general PSDeploy help
