@@ -21,7 +21,9 @@ param (
     [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
     [psobject[]]$Deployment,
 
-    [switch]$Mirror
+    [switch]$Mirror,
+    
+    [switch]$IncludeOlder
 )
 
 Write-Verbose "Starting local deployment with $($Deployment.count) sources"
