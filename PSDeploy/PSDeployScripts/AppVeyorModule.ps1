@@ -190,7 +190,7 @@ foreach($Deploy in $Deployment) {
             $Parent = Split-Path $Source -Parent
             $StagingDirectory = (Get-Item $Parent).Parent.FullName
             $Manifest = $target
-            $ModuleName = $Parent.BaseName
+            $ModuleName = (Get-Item $Parent).BaseName
             $ModulePath = $Parent
         }
         else
@@ -201,6 +201,9 @@ foreach($Deploy in $Deployment) {
 
         $ZipFilePath = Join-Path $StagingDirectory "$ModuleName.zip"
         Add-Type -AssemblyName System.IO.Compression.FileSystem
+        if(Test-Path $ZipFilePath) {
+            Remove-Item $ZipFilePath -ErrorAction SilentlyContinue
+        }
         [System.IO.Compression.ZipFile]::CreateFromDirectory($ModulePath, $ZipFilePath)
 
         # Set some defaults for params if not provided
@@ -242,7 +245,7 @@ foreach($Deploy in $Deployment) {
 
         if(-not $Deploy.DeploymentOptions.Version)
         {
-            $Version = "env:APPVEYOR_REPO_NAME"
+            $Version = "0.0.0$env:APPVEYOR_BUILD_VERSION"
         }
         else
         {
