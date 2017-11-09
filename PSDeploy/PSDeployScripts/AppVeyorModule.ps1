@@ -172,10 +172,11 @@ foreach($Deploy in $Deployment) {
         Write-Verbose -Message "Starting deployment [$($deploy.DeploymentName)] to AppVeyor"
 
         $ThisSource = Get-Item $Source
+        Write-Debug $ThisSource
 
         if($ThisSource.PSIsContainer)
         {
-            $StagingDirectory = $ThisSource.Parent.FullName
+            $StagingDirectory = $ThisSource.FullName
             $Manifest = "$( Join-Path $Source $ThisSource.Name ).psd1"
             $ModuleName = $ThisSource.BaseName
             $ModulePath = $Source
@@ -188,9 +189,9 @@ foreach($Deploy in $Deployment) {
         elseif($ThisSource.Extension -eq '.psd1')
         {
             $Parent = Split-Path $Source -Parent
-            $StagingDirectory = (Get-Item $Parent).Parent.FullName
+            $StagingDirectory = (Get-Item $Parent).FullName
             $Manifest = $target
-            $ModuleName = $Parent.BaseName
+            $ModuleName = (Get-item $Parent).BaseName
             $ModulePath = $Parent
         }
         else
@@ -199,8 +200,11 @@ foreach($Deploy in $Deployment) {
             continue
         }
 
-        $ZipFilePath = Join-Path $StagingDirectory "$ModuleName.zip"
+        $ZipFilePath = Join-Path (Split-Path -parent $StagingDirectory) "$ModuleName.zip"
         Add-Type -AssemblyName System.IO.Compression.FileSystem
+        if(Test-Path $ZipFilePath) {
+            Remove-Item $ZipFilePath -ErrorAction SilentlyContinue
+        }
         [System.IO.Compression.ZipFile]::CreateFromDirectory($ModulePath, $ZipFilePath)
 
         # Set some defaults for params if not provided
@@ -242,7 +246,7 @@ foreach($Deploy in $Deployment) {
 
         if(-not $Deploy.DeploymentOptions.Version)
         {
-            $Version = "env:APPVEYOR_REPO_NAME"
+            $Version = "0.0.0$env:APPVEYOR_BUILD_VERSION"
         }
         else
         {
@@ -267,11 +271,11 @@ foreach($Deploy in $Deployment) {
                 $NuSpecParams.Add($Key, $Deploy.DeploymentOptions.$Key)
             }
         }
-
+    
         New-Nuspec @NuSpecParams
-
-        $null = nuget pack "$StagingDirectory\$ModuleName.nuspec" -outputdirectory $StagingDirectory
-        $NuGetPackagePath = "$StagingDirectory\$ModuleName.$Version.nupkg"
+        $StagingParentPath = (Split-Path -parent $StagingDirectory)
+        $null = nuget pack "$StagingDirectory\$ModuleName.nuspec" -outputdirectory $StagingParentPath
+        $NuGetPackagePath = "$StagingParentPath\$ModuleName.$Version.nupkg"
 
         $ZipFilePath,
         $nuGetPackagePath | % {
