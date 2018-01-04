@@ -1,5 +1,5 @@
 #handle PS2
-    $ModernPS = $PSVersionTable.PSVersion -ge '3.0.0'
+    $ModernPS = $PSVersionTable.PSVersion -ge '3.0.0' -or $PSVersionTable.PSVersion -ge '3.0'
     if(-not $ModernPS)
     {
         $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent
@@ -28,4 +28,4 @@
 
 Load-YamlDotNetLibraries (Join-Path $PSScriptRoot -ChildPath "Lib")
 
-Export-ModuleMember -Function ConvertFrom-Yaml 
+Export-ModuleMember -Function ConvertFrom-Yaml
