@@ -34,8 +34,13 @@ Task Test -Depends Init  {
     $lines
     "`n`tSTATUS: Testing with PowerShell $PSVersion"
 
+    # Testing links on github requires >= tls 1.2
+    $SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
     # Gather test results. Store them in a variable and file
     $TestResults = Invoke-Pester -Path $ProjectRoot\Tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\$TestFile"
+    [Net.ServicePointManager]::SecurityProtocol = $SecurityProtocol
 
     # In Appveyor?  Upload our tests! #Abstract this into a function?
     If($ENV:BHBuildSystem -eq 'AppVeyor')
@@ -46,7 +51,6 @@ Task Test -Depends Init  {
     }
 
     Remove-Item "$ProjectRoot\$TestFile" -Force -ErrorAction SilentlyContinue
-
     # Failed tests?
     # Need to tell psake or it will proceed to the deployment. Danger!
     if($TestResults.FailedCount -gt 0)
