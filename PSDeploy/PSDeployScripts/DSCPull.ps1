@@ -13,18 +13,18 @@
     .PARAMETER Certificate
         If specified, use the certificate, friendly name provided, sign the module
 
-	.EXAMPLE
-		Deploy PullServerDeployment {
+    .EXAMPLE
+        Deploy PullServerDeployment {
 
-			By DSCPull {
-				FromSource .\ModuleSource
-				To "\\pull.domain.com\c$\Program Files\WindowsPowerShell"
-				WithOptions @{
-					CertificateFriendlyName = 'DSCSign'
-				}
-				Tagged PullServer
-			}
-		}
+            By DSCPull {
+                FromSource .\ModuleSource
+                To "\\pull.domain.com\c$\Program Files\WindowsPowerShell"
+                WithOptions @{
+                    CertificateFriendlyName = 'DSCSign'
+                }
+                Tagged PullServer
+            }
+        }
 #>
 [cmdletbinding()]
 param (
@@ -71,7 +71,7 @@ foreach($Map in $Deployment)
             }
             else
             {
-				Write-Verbose "Source should be a module directory"
+                Write-Verbose "Source should be a module directory"
             }
         }
     }
