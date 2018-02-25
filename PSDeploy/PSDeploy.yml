@@ -82,3 +82,8 @@ IISAppPool:
 NSSM:
   Script: NSSM.ps1
   Description: Deploys a binary by using the Non-Sucking Service Manager to run the ninary as a service in Windows
+
+DSCPull:
+  Script: DSCPull.ps1
+  Description: Deploys a DSC Resource module to a Pull server
+  
