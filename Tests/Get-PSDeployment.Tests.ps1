@@ -138,7 +138,7 @@ InModuleScope 'PSDeploy' {
         }
 
         Context 'Should allow user-specified options from ps1' {
-            $Deployments = @( Get-PSDeployment @Verbose -Path $ProjectRoot\Tests\artifacts\DeploymentsRaw.PSDeploy.ps1 )
+            $Deployments = @( Get-PSDeployment @Verbose -Path  ([System.IO.Path]::Combine([string[]]@($ProjectRoot,'Tests','artifacts','DeploymentsRaw.psdeploy.ps1'))) )
 
             It 'Should have expected Count' {
                 $Deployments.Count | Should Be 1
