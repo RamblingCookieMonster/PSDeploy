@@ -138,7 +138,7 @@ InModuleScope 'PSDeploy' {
         }
 
         Context 'Should allow user-specified options from ps1' {
-            $Deployments = @( Get-PSDeployment @Verbose -Path $ProjectRoot\Tests\artifacts\DeploymentsRaw.PSDeploy.ps1 )
+            $Deployments = @( Get-PSDeployment @Verbose -Path (Join-Path -Path $ProjectRoot -ChildPath 'Tests\artifacts\DeploymentsRaw.psdeploy.ps1') )
 
             It 'Should have expected Count' {
                 $Deployments.Count | Should Be 1
@@ -189,7 +189,12 @@ InModuleScope 'PSDeploy' {
             }
 
             It 'Should have expected Source' {
-                $Deployments[0].Source | Should be 'C:\Nope\Modules\File1.ps1'
+                if($PSVersionTable.ContainsKey('Platform') -and ($PSVersionTable['Platform'] -ne 'Win32NT')){
+                    $FromSource = '/mnt/c/Nope/Modules/File1.ps1'
+                } else {
+                    $FromSource = 'C:\Nope\Modules\File1.ps1'
+                }
+                $Deployments[0].Source | Should be $FromSource
             }
         }
     }
