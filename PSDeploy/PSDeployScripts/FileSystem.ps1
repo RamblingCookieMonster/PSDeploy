@@ -58,8 +58,16 @@ foreach($Map in $Deployment)
             }
             else
             {
-                $SourceHash = ( Get-Hash $Map.Source ).SHA256
-                $TargetHash = ( Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue ).SHA256
+                $SourceHash = if($null -eq (Get-Command Microsoft.PowerShell.Utility\Get-FileHash -ErrorAction SilentlyContinue -WarningAction SilentlyContinue)){
+                    ( Get-FileHash $Map.Source -Algorithm SHA256 ).Hash
+                }else{
+                    ( Get-Hash $Map.Source ).SHA256
+                }
+                $TargetHash = if($null -eq (Get-Command Microsoft.PowerShell.Utility\Get-FileHash -ErrorAction SilentlyContinue -WarningAction SilentlyContinue)){
+                    ( Get-FileHash $Target -Algorithm SHA256 -ErrorAction SilentlyContinue -WarningAction SilentlyContinue).Hash
+                }else{
+                    ( Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue ).SHA256
+                }
                 if($SourceHash -ne $TargetHash)
                 {
                     Write-Verbose "Deploying file '$($Map.Source)' to '$Target'"
