@@ -65,5 +65,34 @@ InModuleScope 'PSDeploy' {
                 $Results | Should Be $True                
             }
         }
+
+        Context 'Mirror Folder' {
+            $FolderToDelete = Join-Path -Path $IntegrationTarget -ChildPath 'DeleteThisFolder'
+            $FileToDelete = Join-Path -Path $IntegrationTarget -ChildPath 'DeleteThisFile'
+            New-Item -ItemType Directory -Path $FolderToDelete
+            New-Item -ItemType File -Path $FileToDelete
+            
+            Invoke-PSDeploy @Verbose -Path "$ProjectRoot\Tests\artifacts\IntegrationFolder.PSDeploy.ps1" -Force
+
+            It 'Should deploy File2.ps1' {                                        
+                $Results = Test-Path (Join-Path -Path $IntegrationTarget -ChildPath File2.ps1) 
+                $Results | Should Be $True
+            }
+
+            It 'Should deploy "CrazyModule\A file.txt"' {
+                $Results = Test-Path (Join-Path -Path $IntegrationTarget -ChildPath 'CrazyModule\A file.txt') 
+                $Results | Should Be $True
+            }
+
+            It 'Should Delete Folder' {
+                $Results = Test-Path $FolderToDelete 
+                $Results | Should Be $False
+            }
+
+            It 'Should Delete File' {
+                $Results = Test-Path $FolderToDelete 
+                $Results | Should Be $False
+            }            
+        }
     }
 }
