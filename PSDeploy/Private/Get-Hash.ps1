@@ -101,15 +101,27 @@
             $Items = $String
         }
 
+        $AlgorithmType = switch ($Algorithm) {
+            "MD5" {[System.Security.Cryptography.MD5]::Create()}
+            "SHA1" {[System.Security.Cryptography.SHA1]::Create()}
+            "SHA256" {[System.Security.Cryptography.SHA256]::Create()}
+            "SHA384" {[System.Security.Cryptography.SHA384]::Create()}
+            "SHA512" {[System.Security.Cryptography.SHA512]::Create()}
+            "RIPEMD160" {[System.Security.Cryptography.RIPEMD160]::Create()}
+        }
+        
+
+
         ForEach ($item in $Items) {
             
             if($PSCmdlet.ParameterSetName -eq 'File')
             {
 
                 $item = (Resolve-Path $item).ProviderPath
-                If (-Not ([uri]$item).IsAbsoluteUri) {
+                # If (-Not ([uri]$item).IsAbsoluteUri) {
+                If (-Not [System.IO.Path]::IsPathRooted($item)) {
                     Write-Verbose ("{0} is not a full path, using current directory: {1}" -f $item,$pwd)
-                    $item = (Join-Path $pwd ($item -replace "\.\\",""))
+                    $item = (Join-Path $pwd $item)
                 }
                 If(Test-Path $item -Type Container) {
                    Write-Warning ("Cannot calculate hash for directory: {0}" -f $item)
@@ -122,15 +134,15 @@
                 $stream = ([IO.StreamReader]$item).BaseStream
             
 
-                foreach($Type in $Algorithm) {                
+                foreach($Type in $AlgorithmType) {                
                 
-                    [string]$hash = -join ([Security.Cryptography.HashAlgorithm]::Create( $Type ).ComputeHash( $stream ) | 
+                    [string]$hash = -join ($Type.ComputeHash( $stream ) | 
                         ForEach { "{0:x2}" -f $_ })
                 
                     $null = $stream.Seek(0,0)
                 
                     #If multiple algorithms are used, then they will be added to existing object                
-                    $object = Add-Member -InputObject $Object -MemberType NoteProperty -Name $Type -Value $Hash -PassThru
+                    $object = Add-Member -InputObject $Object -MemberType NoteProperty -Name $Type.GetType().BaseType.Name -Value $Hash -PassThru
                 }
             }
             elseif($PSCmdlet.ParameterSetName -eq 'String')
@@ -140,8 +152,8 @@
                     String = $item
                 }
 
-                foreach($Type in $Algorithm) {                
-                    [string]$hash = -join ([Security.Cryptography.HashAlgorithm]::Create( $Type ).ComputeHash( [System.Text.Encoding]::UTF8.GetBytes($item) ) | 
+                foreach($Type in $AlgorithmType) {                
+                    [string]$hash = -join ($Type.ComputeHash( [System.Text.Encoding]::UTF8.GetBytes($item) ) | 
                         ForEach { "{0:x2}" -f $_ })
                     
                     #If multiple algorithms are used, then they will be added to existing object                
