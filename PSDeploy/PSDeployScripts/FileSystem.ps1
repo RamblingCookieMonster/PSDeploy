@@ -79,8 +79,8 @@ foreach($Map in $Deployment)
             }
             else
             {
-                $SourceHash = ( Get-Hash $Map.Source ).SHA256;Write-Verbose "SourceHash: $SourceHash"
-                $TargetHash = ( Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue ).SHA256;Write-Verbose "TargetHash: $TargetHash"
+                $SourceHash = ( Get-Hash $Map.Source ).SHA256
+                $TargetHash = ( Get-Hash $Target -ErrorAction SilentlyContinue -WarningAction SilentlyContinue ).SHA256
                 if($SourceHash -ne $TargetHash)
                 {
                     Write-Verbose "Deploying file '$($Map.Source)' to '$Target'"
