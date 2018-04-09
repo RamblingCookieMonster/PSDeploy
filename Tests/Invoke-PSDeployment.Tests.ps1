@@ -20,7 +20,7 @@ InModuleScope 'PSDeploy' {
         $FileYML = "$ProjectRoot\Tests\artifacts\IntegrationFile.yml"
         $FolderYML = "$ProjectRoot\Tests\artifacts\IntegrationFolder.yml"
 
-        Context 'Accept yml config' { # Accept yml config 
+        Context 'Accept yml config' {
             $NoopOutput = Invoke-PSDeployment @Verbose -Path $FileYML -Force
 
             It 'Should resolve source' {            
@@ -35,50 +35,7 @@ InModuleScope 'PSDeploy' {
             }
         }
 
-        # Context 'Deploying Folder with yml' { # FS TEST
-        #     Invoke-PSDeployment @Verbose -Path $FolderYML -Force
-
-        #     It 'Should deploy File2.ps1' {                 
-        #         $Results = Test-Path (Join-Path -Path $IntegrationTarget -Childpath File2.ps1) 
-        #         $Results | Should Be $True
-        #     }
-
-        #     It 'Should deploy "CrazyModule\A file.txt"' {
-        #         $Results = Test-Path (Join-Path -Path $IntegrationTarget -ChildPath 'CrazyModule\A file.txt') 
-        #         $Results | Should Be $True                
-        #     }
-        # }
-
-        # Context 'Mirror Folder' {  # FS TEST
-        #     $FolderToDelete = Join-Path -Path $IntegrationTarget -ChildPath 'DeleteThisFolder'
-        #     $FileToDelete = Join-Path -Path $IntegrationTarget -ChildPath 'DeleteThisFile'
-        #     New-Item -ItemType Directory -Path $FolderToDelete
-        #     New-Item -ItemType File -Path $FileToDelete
-            
-        #     Invoke-PSDeployment @Verbose -Path $FolderYML -Force
-
-        #     It 'Should deploy File2.ps1' {                                        
-        #         $Results = Test-Path (Join-Path -Path $IntegrationTarget -ChildPath File2.ps1) 
-        #         $Results | Should Be $True
-        #     }
-
-        #     It 'Should deploy "CrazyModule\A file.txt"' {
-        #         $Results = Test-Path (Join-Path -Path $IntegrationTarget -ChildPath 'CrazyModule\A file.txt') 
-        #         $Results | Should Be $True
-        #     }
-
-        #     It 'Should Delete Folder' {
-        #         $Results = Test-Path $FolderToDelete 
-        #         $Results | Should Be $False
-        #     }
-
-        #     It 'Should Delete File' {
-        #         $Results = Test-Path $FolderToDelete 
-        #         $Results | Should Be $False
-        #     }            
-        # }
-
-        Context 'Pipeline Input' { # Accept Pipeline Input
+        Context 'Pipeline Input' {
             # Look into Mocking Get-PSDeployment Output
             $NoopOutput = Get-PSDeployment @Verbose -Path $FileYML | Invoke-PSDeployment @Verbose -force
 
