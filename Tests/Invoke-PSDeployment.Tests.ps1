@@ -20,66 +20,35 @@ InModuleScope 'PSDeploy' {
         $FileYML = "$ProjectRoot\Tests\artifacts\IntegrationFile.yml"
         $FolderYML = "$ProjectRoot\Tests\artifacts\IntegrationFolder.yml"
 
-        Context 'Deploying File with yml' {
-            Invoke-PSDeployment @Verbose -Path $FileYML -Force
+        Context 'Accept yml config' {
+            $NoopOutput = Invoke-PSDeployment @Verbose -Path $FileYML -Force
 
-            It 'Should deploy file1.ps1' {            
-                $Results = Test-Path (Join-Path -Path $IntegrationTarget -Childpath File1.ps1) 
-                $Results | Should Be $True                
+            It 'Should resolve source' {            
+                $NoopOutput.Deployment[0].Source | Should Be (Join-Path -Path $ProjectRoot -ChildPath 'Tests\artifacts\Modules\File1.ps1')
+            }
+            It 'Should resolve Targets' {            
+                $NoopOutput.Deployment[0].Targets | Should Be "TestDrive:\"
+            }
+            It 'Should resolve DeploymentOptions' {            
+                $NoopOutput.Deployment[0].DeploymentOptions | Should Not BeNullOrEmpty
+                $NoopOutput.Deployment[0].DeploymentOptions.Mirror | Should Be 'False'
             }
         }
 
-        Context 'Deploying Folder with yml' {
-            Invoke-PSDeployment @Verbose -Path $FolderYML -Force
-
-            It 'Should deploy File2.ps1' {                 
-                $Results = Test-Path (Join-Path -Path $IntegrationTarget -Childpath File2.ps1) 
-                $Results | Should Be $True
-            }
-
-            It 'Should deploy "CrazyModule\A file.txt"' {
-                $Results = Test-Path (Join-Path -Path $IntegrationTarget -ChildPath 'CrazyModule\A file.txt') 
-                $Results | Should Be $True                
-            }
-        }
-
-        Context 'Mirror Folder' {
-            $FolderToDelete = Join-Path -Path $IntegrationTarget -ChildPath 'DeleteThisFolder'
-            $FileToDelete = Join-Path -Path $IntegrationTarget -ChildPath 'DeleteThisFile'
-            New-Item -ItemType Directory -Path $FolderToDelete
-            New-Item -ItemType File -Path $FileToDelete
-            
-            Invoke-PSDeployment @Verbose -Path $FolderYML -Force
-
-            It 'Should deploy File2.ps1' {                                        
-                $Results = Test-Path (Join-Path -Path $IntegrationTarget -ChildPath File2.ps1) 
-                $Results | Should Be $True
-            }
-
-            It 'Should deploy "CrazyModule\A file.txt"' {
-                $Results = Test-Path (Join-Path -Path $IntegrationTarget -ChildPath 'CrazyModule\A file.txt') 
-                $Results | Should Be $True
-            }
-
-            It 'Should Delete Folder' {
-                $Results = Test-Path $FolderToDelete 
-                $Results | Should Be $False
-            }
-
-            It 'Should Delete File' {
-                $Results = Test-Path $FolderToDelete 
-                $Results | Should Be $False
-            }            
-        }
-
-        Context 'Pipeline Input' {            
+        Context 'Pipeline Input' {
             # Look into Mocking Get-PSDeployment Output
-            Get-PSDeployment @Verbose -Path $FileYML | Invoke-PSDeployment @Verbose -force
+            $NoopOutput = Get-PSDeployment @Verbose -Path $FileYML | Invoke-PSDeployment @Verbose -force
 
-            It 'Should accept pipeline input' {                
-                $Results = Test-Path (Join-Path -Path $IntegrationTarget -ChildPath File1.ps1) 
-                $Results | Should Be $True
-            }            
+            It 'Should resolve source' {            
+                $NoopOutput.Deployment[0].Source | Should Be (Join-Path -Path $ProjectRoot -ChildPath 'Tests\artifacts\Modules\File1.ps1')
+            }
+            It 'Should resolve Targets' {            
+                $NoopOutput.Deployment[0].Targets | Should Be "TestDrive:\"
+            }
+            It 'Should resolve DeploymentOptions' {            
+                $NoopOutput.Deployment[0].DeploymentOptions | Should Not BeNullOrEmpty
+                $NoopOutput.Deployment[0].DeploymentOptions.Mirror | Should Be 'False'
+            }           
         }
     }
 }

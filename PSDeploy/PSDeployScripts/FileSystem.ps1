@@ -38,23 +38,44 @@ foreach($Map in $Deployment)
         {
             if($Map.SourceType -eq 'Directory')
             {
-                if($Map.DeploymentOptions.includeolder -eq 'True' -or $IncludeOlder)
-                {
-                    [string[]]$Arguments = "/E"
-                } else {
-                    [string[]]$Arguments = "/XO"
-                    $Arguments += "/E"
-                }
-                if($Map.DeploymentOptions.mirror -eq 'True' -or $Mirror)
-                {
-                    [string[]]$Arguments = "/E"
-                    $Arguments += "/PURGE"
-                }
-                # Resolve PSDrives.
-                $Target = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Target)
+                if($null -ne (Get-Command -Name Robocopy -ErrorAction SilentlyContinue)){
+                    if($Map.DeploymentOptions.includeolder -eq 'True' -or $IncludeOlder)
+                    {
+                        [string[]]$Arguments = "/E"
+                    } else {
+                        [string[]]$Arguments = "/XO"
+                        $Arguments += "/E"
+                    }
+                    if($Map.DeploymentOptions.mirror -eq 'True' -or $Mirror)
+                    {
+                        [string[]]$Arguments = "/E"
+                        $Arguments += "/PURGE"
+                    }
+                    # Resolve PSDrives.
+                    $Target = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Target)
 
-                Write-Verbose "Invoking ROBOCOPY.exe $($Map.Source) $Target $Arguments"
-                Invoke-Robocopy -Path $Map.Source -Destination $Target -ArgumentList $Arguments
+                    Write-Verbose "Invoking ROBOCOPY.exe $($Map.Source) $Target $Arguments"
+                    Invoke-Robocopy -Path $Map.Source -Destination $Target -ArgumentList $Arguments
+                }
+                #TODO: If the platform is Unix, try to use rsync to perform this action
+                # elseif(($PSVersionTable.Platform -eq 'Unix') -and ($null -ne (Get-Command -Name 'rsync' -ErrorAction SilentlyContinue))){}
+                else{
+                    #PowerShell Fall Back
+                    # Write-Warning -Message 'Robocopy or rsync could not be found. Falling back to basic PowerShell based file copy'
+                    Write-Warning -Message 'Robocopy could not be found. Falling back to basic PowerShell based file copy'
+                    Try {
+                        if(($Map.DeploymentOptions.mirror -eq 'True' -or $Mirror) -and (Test-Path -PathType Container -Path $Target)){
+                            Get-ChildItem -Path $Target -Force | Remove-Item -Force -Recurse
+                        }
+                        if(!(Test-Path -PathType Container -Path $Target)){
+                            New-Item -ItemType Directory -Path $Target -Force
+                        }
+                        Get-ChildItem -Path $Map.Source | Copy-Item -Destination $Target -Recurse
+                    }
+                    catch{
+                        $PSCmdlet.ThrowTerminatingError($_)
+                    }
+                }
             }
             else
             {

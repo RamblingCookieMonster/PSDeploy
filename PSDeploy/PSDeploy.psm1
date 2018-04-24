@@ -6,7 +6,7 @@
     $Private = Get-ChildItem $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue
     [string[]]$PrivateModules = Get-ChildItem $PSScriptRoot\Private -ErrorAction SilentlyContinue |
         Where-Object {$_.PSIsContainer} |
-        Select -ExpandProperty FullName
+        Select-Object -ExpandProperty FullName
 
 # Dot source the files
     Foreach($import in @($Public + $Private))
