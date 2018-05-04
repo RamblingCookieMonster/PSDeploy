@@ -153,8 +153,6 @@ function New-Nuspec
     Set-Content -Path $nuspecPath -Value $content
 } # New-Nuspec
 
-$null = Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-
 foreach($Deploy in $Deployment) {
 
     #Validate expected deployment options
