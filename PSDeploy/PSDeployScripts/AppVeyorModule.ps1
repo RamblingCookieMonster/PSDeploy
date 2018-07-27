@@ -113,7 +113,7 @@ function New-Nuspec
   <metadata>
     <id>$packageName</id>
     <version>$version</version>
-    <authors>$author</authors>
+    <authors>$( [System.Security.SecurityElement]::Escape( $author ) )</authors>
     <owners>$owners</owners>"
 
     if (-not [string]::IsNullOrEmpty($licenseUrl))
@@ -136,8 +136,8 @@ function New-Nuspec
 
     $content +="
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>$Description</description>
-    <releaseNotes>$releaseNotes</releaseNotes>
+    <description>$( [System.Security.SecurityElement]::Escape( $Description ) )</description>
+    <releaseNotes>$( [System.Security.SecurityElement]::Escape( $releaseNotes ) )</releaseNotes>
     <copyright>Copyright $year</copyright>
     <tags>$tags</tags>
   </metadata>
