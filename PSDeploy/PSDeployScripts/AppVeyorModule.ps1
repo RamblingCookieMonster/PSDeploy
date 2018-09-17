@@ -272,8 +272,8 @@ foreach($Deploy in $Deployment) {
     
         New-Nuspec @NuSpecParams
         $StagingParentPath = (Split-Path -parent $StagingDirectory)
-        $null = nuget pack "$StagingDirectory\$ModuleName.nuspec" -outputdirectory $StagingParentPath
-        $NuGetPackagePath = "$StagingParentPath\$ModuleName.$Version.nupkg"
+        $null = nuget pack (Join-Path $StagingDirectory "$ModuleName.nuspec") -outputdirectory $StagingParentPath
+        $NuGetPackagePath = (Join-Path $StagingParentPath "$ModuleName.$Version.nupkg")
 
         $ZipFilePath,
         $nuGetPackagePath | % {
