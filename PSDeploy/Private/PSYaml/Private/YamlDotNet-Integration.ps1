@@ -1,4 +1,4 @@
-function Load-YamlDotNetLibraries([string] $dllPath, $shadowPath = "$($env:TEMP)\poweryaml\shadow") {
+function Load-YamlDotNetLibraries([string] $dllPath, $shadowPath = (Join-Path -Path (Get-TempPath) -ChildPath 'poweryaml\shadow')) {
     gci $dllPath | % {
         $shadow = Shadow-Copy -File $_.FullName -ShadowPath $shadowPath
         Add-Type -Path $Shadow
@@ -42,14 +42,14 @@ function Convert-YamlScalarNodeToValue {
 
 function Convert-YamlMappingNodeToHash {
     param($node, $As)
-    
+
     $hash = @{}
 
     if($ModernPS -and $As -eq 'Object')
     {
         $hash = [ordered]@{}
     }
-    
+
     $yamlNodes = $node.Children
 
     foreach($key in $yamlNodes.Keys)

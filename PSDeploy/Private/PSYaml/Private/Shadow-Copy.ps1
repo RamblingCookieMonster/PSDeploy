@@ -1,4 +1,4 @@
-function Shadow-Copy($file, $shadowPath = "$($env:TEMP)\poweryaml\shadow") {
+function Shadow-Copy($file, $shadowPath = (Join-Path -Path (Get-TempPath) -ChildPath 'poweryaml\shadow')) {
 
     if(!(Test-Path -Path Variable:\IsWindows) -or $IsWindows) {
         if (-not (Test-Path $shadowPath ) ) {
