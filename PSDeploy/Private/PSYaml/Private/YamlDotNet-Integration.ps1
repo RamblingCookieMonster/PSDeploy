@@ -1,8 +1,42 @@
 function Load-YamlDotNetLibraries([string] $dllPath, $shadowPath = (Join-Path -Path (Get-TempPath) -ChildPath 'poweryaml\shadow')) {
-    gci $dllPath | % {
-        $shadow = Shadow-Copy -File $_.FullName -ShadowPath $shadowPath
-        Add-Type -Path $Shadow
-    } | Out-Null
+
+    # Borrowed from powershell-yaml
+    # See https://github.com/cloudbase/powershell-yaml/issues/47
+
+    $yaml = [System.AppDomain]::CurrentDomain.GetAssemblies() |
+    Where-Object {
+        $_.Location -Match "YamlDotNet.dll"
+    }
+
+    if ($yaml) {
+        # YamlDotNet already loaded.
+
+        $requiredTypes = @('YamlStream')
+
+        foreach ($i in $requiredTypes) {
+            if ($i -notin $yaml.DefinedTypes.Name) {
+                Throw "YamlDotNet is loaded but missing required type ($i). Older version installed on system or assembly version mismatch?"
+            }
+        }
+
+        return
+    }
+
+    $assemblies = @{
+        "core" = Join-Path $dllPath "netstandard1.3\YamlDotNet.dll";
+        "net45" = Join-Path $dllPath "net45\YamlDotNet.dll";
+        "net35" = Join-Path $dllPath "net35\YamlDotNet.dll";
+    }
+
+    if ($PSVersionTable.PSEdition -eq "Core") {
+        $dllPath = $assemblies["core"]
+    } elseif ($PSVersionTable.PSVersion.Major -ge 4) {
+        $dllPath = $assemblies["net45"]
+    } else {
+        $dllPath = $assemblies["net35"]
+    }
+
+    Add-Type -Path (Shadow-Copy -File $dllPath -ShadowPath $shadowPath)
 }
 
 #Get-YamlStream returned a document. Not sure why. Swapping code directly into function
