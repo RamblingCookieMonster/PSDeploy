@@ -8,7 +8,7 @@ if(-not $ENV:BHProjectPath)
 InModuleScope 'PSDeploy' {
     $PSVersion = $PSVersionTable.PSVersion.Major
     $ProjectRoot = $ENV:BHProjectPath
-    
+
     $Verbose = @{}
     if($ENV:BHBranchName -notlike "master" -or $env:BHCommitMessage -match "!verbose")
     {
@@ -22,11 +22,11 @@ InModuleScope 'PSDeploy' {
 
         Context 'Creates External Help' {
             Mock New-ExternalHelp { Return $True }
-            
+
             $Results = Invoke-PSDeploy -Path $PlatyPSPS1 -Tags Success @Verbose -Force -ErrorAction SilentlyContinue
 
-            It 'Should create external Help with PlatyPS' {            
-                Assert-MockCalled New-ExternalHelp -Times 2 -Exactly                      
+            It 'Should create external Help with PlatyPS' {
+                Assert-MockCalled New-ExternalHelp -Times 2 -Exactly
             }
 
             It 'Should Return Mocked output' {
@@ -38,8 +38,8 @@ InModuleScope 'PSDeploy' {
             Mock New-ExternalHelp {}
 
             It 'Should throw because source does not exist' {
-                $Results = { Invoke-PSDeploy @Verbose -Path $PlatyPSPS1 -Tags Failure -Force -ErrorAction SilentlyContinue } 
-                $Results | Should Throw                           
+                $Results = { Invoke-PSDeploy @Verbose -Path $PlatyPSPS1 -Tags Failure -Force -ErrorAction SilentlyContinue }
+                $Results | Should Throw
             }
         }
     }

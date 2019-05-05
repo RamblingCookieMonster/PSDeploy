@@ -8,7 +8,7 @@ if(-not $ENV:BHProjectPath)
 InModuleScope 'PSDeploy' {
     $PSVersion = $PSVersionTable.PSVersion.Major
     $ProjectRoot = $ENV:BHProjectPath
-    
+
     $Verbose = @{}
     if($ENV:BHBranchName -notlike "master" -or $env:BHCommitMessage -match "!verbose")
     {
@@ -18,12 +18,12 @@ InModuleScope 'PSDeploy' {
     # Create a Dummy Hyper-V Module, to mock the Copy-VMfile cmdlet later
     Function Copy-VMFile { param($Name,$sourcePath,$DestinationPath,$FileSource) }
 
-    Describe "CopyVMFile PS$PSVersion" {                     
-        
+    Describe "CopyVMFile PS$PSVersion" {
+
         Context 'Deploy File to VM (using the YML)' {
             # Copy-VMFile has the 4 mandatory params, added now to the parameter filter
             Mock Copy-VMFile -MockWith { Return $True } -ParameterFilter { ($null -ne $name) -and ($null -ne $sourcePath) -and ($null -ne $DestinationPath) -and ($null -ne $fileSource)}
- 
+
             $Deployment = Get-PSDeployment @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsCopyVMFile.yml"
             $Results = Invoke-PSDeployment -Deployment $Deployment @Verbose -Force
 
@@ -31,7 +31,7 @@ InModuleScope 'PSDeploy' {
                 $Results | Should be $True
             }
 
-            It 'Should copy file to VM' {                                
+            It 'Should copy file to VM' {
                 Assert-MockCalled Copy-VMfile -Times 1 -Exactly -Scope Context
             }
         }
@@ -46,9 +46,9 @@ InModuleScope 'PSDeploy' {
                 $Results | Should be $True
             }
 
-            It 'Should copy folder to VM' {                
+            It 'Should copy folder to VM' {
                 $TotalFiles = Get-Childitem -Path $Deployment.Source -File -Recurse
-                
+
                 # Moved Each test to their own Context blocks so their Mock counts are reset.
                 Assert-MockCalled Copy-VMfile -Times $TotalFiles.Count -Exactly -Scope Context
             }
@@ -63,9 +63,9 @@ InModuleScope 'PSDeploy' {
                 $Results | Should be $True
             }
 
-            It 'Should copy folder to VM' {                
+            It 'Should copy folder to VM' {
                 $TotalFiles = Get-Childitem -Path $Deployment.Source -File -Recurse
-                
+
                 # Moved Each test to their own Context blocks so their Mock counts are reset.
                 Assert-MockCalled Copy-VMfile -Times $TotalFiles.Count -Exactly -Scope Context
             }
@@ -81,7 +81,7 @@ InModuleScope 'PSDeploy' {
                 $Results | Should be $True
             }
 
-            It 'Should copy file to VM' {                                
+            It 'Should copy file to VM' {
                 Assert-MockCalled Copy-VMfile -Times 1 -Exactly -Scope Context
             }
         }
