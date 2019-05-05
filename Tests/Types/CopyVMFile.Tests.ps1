@@ -41,13 +41,15 @@ InModuleScope 'PSDeploy' {
 
             $Deployment = Get-PSDeployment @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsCopyVMFolder.yml"
             $Results = Invoke-PSDeployment -Deployment $Deployment @Verbose -Force
+            $TotalFiles = Get-Childitem -Path $Deployment.Source -File -Recurse
 
             It 'Should Return Mocked output' {
-                $Results | Should be $True
+                $combinedResult = $true
+                $Results | Foreach-Object { $combinedResult = $combinedResult -and $_ }
+                $combinedResult | Should be $True
             }
 
             It 'Should copy folder to VM' {
-                $TotalFiles = Get-Childitem -Path $Deployment.Source -File -Recurse
 
                 # Moved Each test to their own Context blocks so their Mock counts are reset.
                 Assert-MockCalled Copy-VMfile -Times $TotalFiles.Count -Exactly -Scope Context
@@ -58,13 +60,15 @@ InModuleScope 'PSDeploy' {
             Mock Copy-VMFile -MockWith { Return $True } -Verifiable  -ParameterFilter { ($null -ne $name) -and ($null -ne $sourcePath) -and ($null -ne $DestinationPath) -and ($null -ne $fileSource) }
             $Deployment = Get-PSDeployment @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsCopyVMFolder.psdeploy.ps1"
             $Results = Invoke-PSDeploy -Path "$ProjectRoot\Tests\artifacts\DeploymentsCopyVMFolder.psdeploy.ps1" -Force @verbose
+            $TotalFiles = Get-Childitem -Path $Deployment.Source -File -Recurse
 
             It 'Should Return Mocked output' {
-                $Results | Should be $True
+                $combinedResult = $true
+                $Results | Foreach-Object { $combinedResult = $combinedResult -and $_ }
+                $combinedResult | Should be $True
             }
 
             It 'Should copy folder to VM' {
-                $TotalFiles = Get-Childitem -Path $Deployment.Source -File -Recurse
 
                 # Moved Each test to their own Context blocks so their Mock counts are reset.
                 Assert-MockCalled Copy-VMfile -Times $TotalFiles.Count -Exactly -Scope Context

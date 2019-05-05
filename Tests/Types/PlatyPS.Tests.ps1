@@ -24,13 +24,16 @@ InModuleScope 'PSDeploy' {
             Mock New-ExternalHelp { Return $True }
 
             $Results = Invoke-PSDeploy -Path $PlatyPSPS1 -Tags Success @Verbose -Force -ErrorAction SilentlyContinue
+            $ResultsCount = ($Results | Measure-Object).Count
 
             It 'Should create external Help with PlatyPS' {
-                Assert-MockCalled New-ExternalHelp -Times 2 -Exactly
+                Assert-MockCalled New-ExternalHelp -Times $ResultsCount -Exactly
             }
 
             It 'Should Return Mocked output' {
-                $Results | Should be $True
+                $combinedResult = $true
+                $Results | Foreach-Object { $combinedResult = $combinedResult -and $_ }
+                $combinedResult | Should be $True
             }
         }
 
