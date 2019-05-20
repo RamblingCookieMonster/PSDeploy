@@ -85,7 +85,7 @@ param(
     [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
     [psobject[]]$Deployment,
 
-    [Parameter(Mandatory)]
+    [Parameter(Mandatory=$false)]
     [string]$ApiKey
 )
 
