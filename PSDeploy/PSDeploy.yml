@@ -15,6 +15,10 @@ ARM:
   Script: ARM.ps1
   Description: Uses Azure Resource Manager PowerShell cmdlets to deploy a template to Microsoft Azure or Azure Stack 
 
+AzureAutomation:
+  Script: AzureAutomation.ps1
+  Description: Deploy a runbook to Azure Automation
+
 Chocolatey:
   Script: Chocolatey.ps1
   Description: Uses Chocolatey on the local computer to push packages to a Chocolatey repository.
