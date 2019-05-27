@@ -11,6 +11,14 @@
         Automation Account to deploy to
     .PARAMETER AzureServicePrincipalCredential
         Credential of Azure Service Principal
+        User is Application (client) ID
+        Password is Secret string / Application Password
+    .PARAMETER AzureTenantID
+        Tenant ID of Service Principal
+    .PARAMETER RunbookType
+        Type of runbook being deployed, one of "PowerShell", "GraphicalPowerShell", "PowerShellWorkflow", "GraphicalPowerShellWorkflow", "Python2"
+    .PARAMETER CreateRunbook
+        If true, will create runbook if it doesn't already exist, otherwise runbook must already exist
 
 
 #>
@@ -28,10 +36,10 @@ param (
     [Parameter(Mandatory)][string]$AzureTenantID,
 
     [Parameter(Mandatory)]
-    [ValidateSet("PowerShell","GraphicalPowerShell","PowerShellWorkflow","GraphicalPowerShellWorkflow","Python2")]
+    [ValidateSet("PowerShell", "GraphicalPowerShell", "PowerShellWorkflow", "GraphicalPowerShellWorkflow", "Python2")]
     [string]$RunbookType,
 
-    [switch]$CreateRunbook
+    [bool]$CreateRunbook
 )
 
 try 
@@ -47,25 +55,32 @@ catch
     {
         If ($deploy.SourceExists)
         {
-            $rbname = (Split-Path $deploy.source -Leaf).split('.')[0]
-            Write-Verbose "looking for runbook $rbname"
-            $get = Get-AzAutomationRunbook -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName -ErrorAction SilentlyContinue -Name $rbname
-            Write-Verbose "got $($get.count) runbooks"
-            if ((-not $get) -and (-not $CreateRunbook))
+            if($Deploy.SourceType -eq 'File')
             {
-                Write-Warning "Runbook $rbname does not exist, please create before deploying or specify CreateRunbook"
+                $rbname = (Split-Path $deploy.source -Leaf).split('.')[0]
+                Write-Verbose "looking for runbook $rbname"
+                $get = Get-AzAutomationRunbook -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName -ErrorAction SilentlyContinue -Name $rbname
+                Write-Verbose "got $($get.count) runbooks"
+                if ((-not $get) -and (-not $CreateRunbook))
+                {
+                    Write-Warning "Runbook $rbname does not exist, please create before deploying or specify CreateRunbook"
+                }
+                else
+                {
+                    try
+                    {
+                        Write-Verbose "Import-AzAutomationRunbook -Path $($deploy.source) -Type $RunbookType -Published -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName -Force  -ErrorAction Stop"
+                        $null = Import-AzAutomationRunbook -Path $deploy.source -Type $RunbookType -Published -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName -Force -ErrorAction Stop
+                    }
+                    catch
+                    {
+                        Write-Warning "Unable to update Runbook $_"
+                    }
+                }
             }
             else
             {
-                try
-                {
-                    Write-Verbose "Import-AzAutomationRunbook -Path $($deploy.source) -Type $RunbookType -Published -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName -Force  -ErrorAction Stop"
-                    $null = Import-AzAutomationRunbook -Path $deploy.source -Type $RunbookType -Published -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName -Force -ErrorAction Stop
-                }
-                catch
-                {
-                    Write-Warning "Unable to update Runbook $_"
-                }
+                Write-Warning "This can ony be used to deploy individual scripts, not directories"
             }
         }
     }
