@@ -80,13 +80,13 @@ Param (
 
             $DeploymentScripts = Get-PSDeploymentScript -Path $TestPath @Verbose
             It 'Should have returned only 1 script' {
-                $DeploymentScripts.Count | Should -Be 1
+                $DeploymentScripts.Count | Should be 1
             }
 
             foreach ($DeploymentScript in $DeploymentScripts.GetEnumerator())
             {
                 It "[$($DeploymentScript.Name)] should point to custom dir" {
-                    $DeploymentScript.value | Should -Be (Get-Item -Path $ScriptPath).FullName
+                    $DeploymentScript.value | Should be (Get-Item -Path $ScriptPath).FullName
                 }
             }
         }
@@ -120,13 +120,13 @@ Param (
 
             $DeploymentScripts = Get-PSDeploymentScript -Path $TestPath @Verbose
             It 'Should have returned only 1 script' {
-                $DeploymentScripts.Count | Should -Be 1
+                $DeploymentScripts.Count | Should be 1
             }
 
             foreach ($DeploymentScript in $DeploymentScripts.GetEnumerator())
             {
                 It "[$($DeploymentScript.Name)] Should use module path" {
-                    $DeploymentScript.value | Should -Be ([System.IO.Path]::Combine($ProjectRoot, $ModuleName, 'PSDeployScripts', 'Filesystem.ps1'))
+                    $DeploymentScript.value | Should be ([System.IO.Path]::Combine($ProjectRoot, $ModuleName, 'PSDeployScripts', 'Filesystem.ps1'))
                 }
             }
         }

@@ -167,7 +167,7 @@ Deploy Test {
             $Actual = (Get-Content -Path $OutputPath -Raw).Trim()
 
             It 'Should output both sources specified' {
-                $Actual | Should -Be (Get-Item -Path $PSDeployYamlPath).FullName
+                $Actual | Should Be (Get-Item -Path $PSDeployYamlPath).FullName
             }
         }
     }

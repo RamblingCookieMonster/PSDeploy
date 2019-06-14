@@ -117,7 +117,7 @@ Param (
         $DeploymentTypes = Get-PSDeploymentType -Path $TestPath @Verbose
 
         It 'Deployment Types should only have 2 entries' {
-            $DeploymentTypes.Count | Should -Be 2
+            $DeploymentTypes.Count | Should Be 2
         }
 
         Context 'Deployment Types Should return valid paths' {
@@ -131,11 +131,11 @@ Param (
 
                 if ($DeploymentType.DeploymentType -eq 'FileSystem') {
                     It "[$($DeploymentType.DeploymentType)] Should be in module path" {
-                        $DeploymentType.DeploymentScript | Should -Be ([System.IO.Path]::Combine($ProjectRoot, $ModuleName, 'PSDeployScripts', 'FileSystem.ps1'))
+                        $DeploymentType.DeploymentScript | Should Be ([System.IO.Path]::Combine($ProjectRoot, $ModuleName, 'PSDeployScripts', 'FileSystem.ps1'))
                     }
                 } else {
                     It "[$($DeploymentType.DeploymentType)] Should be in custom path" {
-                        $DeploymentType.DeploymentScript | Should -Be (Get-Item -Path $CustomScriptPath).FullName
+                        $DeploymentType.DeploymentScript | Should Be (Get-Item -Path $CustomScriptPath).FullName
                     }
                 }
             }
