@@ -199,7 +199,7 @@
             $GetPSDeployParams.Add('DeploymentRoot', $DeploymentRoot)
         }
 
-        $DeploymentScripts = Get-PSDeploymentScript
+        $DeploymentScripts = Get-PSDeploymentScript -Path $PSDeployTypePath
 
         # Handle Dependencies
         $ToDeploy = Get-PSDeployment @GetPSDeployParams

@@ -78,6 +78,7 @@
 
     # Abstract out reading the yaml and verifying scripts exist
     $DeploymentDefinitions = ConvertFrom-Yaml -Path $Path
+    $DefinitionPath = Split-Path $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path) -Parent
 
     foreach($Type in ($DeploymentDefinitions.Keys | Where {$_ -like $DeploymentType}))
     {
@@ -91,8 +92,14 @@
             }
             else
             {
-                # account for missing ps1
-                $ScriptPath = Join-Path $ModulePath "PSDeployScripts\$($Script -replace ".ps1$").ps1"
+                # Search in the module's installed path as well as the PSDeploy.yml path if a custom one was defined
+                foreach ($p in @($ModulePath, $DefinitionPath | Select-Object -Unique)) {
+                    # account for missing ps1
+                    $ScriptPath = [System.IO.Path]::Combine($p, "PSDeployScripts", $Script -replace ".ps1$") + ".ps1"
+                    if (Test-Path $ScriptPath) {
+                        break
+                    }
+                }
             }
 
             Try
