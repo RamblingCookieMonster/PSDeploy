@@ -18,7 +18,10 @@ param(
     [psobject[]]$Deployment,
 
     [Parameter(Mandatory=$false)]
-    [string]$ApiKey
+    [string]$ApiKey,
+
+    [Parameter(Mandatory=$false)]
+    [pscredential]$Credential
 )
 
 foreach($deploy in $Deployment) {
@@ -48,6 +51,9 @@ foreach($deploy in $Deployment) {
         }
         if ($ApiKey) {
             $params['NuGetApiKey']  =  $deploy.DeploymentOptions.ApiKey
+        }
+        if ($Credential) {
+            $params['Credential']  =  $deploy.DeploymentOptions.Credential
         }
 
         Publish-Module @params
