@@ -1,6 +1,29 @@
-function Load-YamlDotNetLibraries([string] $dllPath, $shadowPath = (Join-Path -Path (Get-TempPath) -ChildPath 'poweryaml\shadow')) {
-    gci $dllPath | % {
-        $shadow = Shadow-Copy -File $_.FullName -ShadowPath $shadowPath
+function Load-YamlDotNetLibraries([string] $dllPath, $shadowPath = (Join-Path -Path (Get-TempPath) -ChildPath "poweryaml\shadow")) {
+
+    if ([System.AppDomain]::CurrentDomain.GetAssemblies() | ? Location -Match "YamlDotNet.dll") {
+        # YamlDotNet is already loaded
+        return
+    }
+
+    # Select appropriate assembly for the PowerShell edition/version
+    $assemblies = @{
+        "core" = Join-Path $dllPath "netstandard1.3";
+        "net45" = Join-Path $dllPath "net45";
+        "net35" = Join-Path $dllPath "net35";
+    }
+
+    $assemblyVersion = $(
+        if ($PSVersionTable.PSEdition -eq "Core") {
+            "core"
+        } elseif ($PSVersionTable.PSVersion.Major -ge 4) {
+            "net45"
+        } else {
+            "net35"
+        }
+    )
+
+    Get-ChildItem $assemblies[$assemblyVersion] -Filter *.dll | ForEach-Object {
+        $shadow = Shadow-Copy -File $_.FullName -ShadowPath (Join-Path $shadowPath $assemblyVersion)
         Add-Type -Path $Shadow
     } | Out-Null
 }
@@ -45,7 +68,7 @@ function Convert-YamlMappingNodeToHash {
 
     $hash = @{}
 
-    if($ModernPS -and $As -eq 'Object')
+    if($ModernPS -and $As -eq "Object")
     {
         $hash = [ordered]@{}
     }
@@ -57,7 +80,7 @@ function Convert-YamlMappingNodeToHash {
         $hash[$key.Value] = Explode-Node $yamlNodes[$key]
     }
 
-    if($As -eq 'Hash')
+    if($As -eq "Hash")
     {
         $hash
     }
