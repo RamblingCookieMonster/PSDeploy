@@ -9,11 +9,19 @@ AppVeyorModule:
 
 Artifactory:
   Script: Artifactory.ps1
-  Description: Deploys files to an Artifactory endpoint. Can deploy individual files or in the case of a folder deployment, can zip the folder contents and send to Artifactory as a single file. 
+  Description: Deploys files to an Artifactory endpoint. Can deploy individual files or in the case of a folder deployment, can zip the folder contents and send to Artifactory as a single file.
 
 ARM:
   Script: ARM.ps1
-  Description: Uses Azure Resource Manager PowerShell cmdlets to deploy a template to Microsoft Azure or Azure Stack 
+  Description: Uses Azure Resource Manager PowerShell cmdlets to deploy a template to Microsoft Azure or Azure Stack
+
+AzureAutomationModule:
+  Script: AzureAutomationModule.ps1
+  Description: Deploys a PowerShell module to an Azure Automation account from a repository like the PowerShell Gallery.
+
+# AzureAutomationRunbook:
+#   Script: AzureAutomationRunbook.ps1
+#   Description: Deploys a PowerShell script as a runbook to an Azure Automation account.
 
 Chocolatey:
   Script: Chocolatey.ps1
@@ -30,7 +38,7 @@ Filesystem:
 FilesystemRemote:
   Script: FilesystemRemote.ps1
   Description: Uses a PowerShell remoting endpoint and Robocopy or Copy-Item for folder and file deployments, respectively.
-  
+
 FileSystemDiff:
   Script: FileSystemDiff.ps1
   Description: Uses the current session to Copy-Item for folder or file deployments, but will check if the target file is different from last deployment.
@@ -86,4 +94,3 @@ NSSM:
 DSCPull:
   Script: DSCPull.ps1
   Description: Deploys a DSC Resource module to a Pull server
-  
