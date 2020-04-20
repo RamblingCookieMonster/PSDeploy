@@ -19,9 +19,9 @@ AzureAutomationModule:
   Script: AzureAutomationModule.ps1
   Description: Deploys a PowerShell module to an Azure Automation account from a repository like the PowerShell Gallery.
 
-# AzureAutomationRunbook:
-#   Script: AzureAutomationRunbook.ps1
-#   Description: Deploys a PowerShell script as a runbook to an Azure Automation account.
+AzureAutomationRunbook:
+  Script: AzureAutomationRunbook.ps1
+  Description: Deploys a PowerShell script as a runbook to an Azure Automation account.
 
 Chocolatey:
   Script: Chocolatey.ps1
