@@ -21,7 +21,11 @@ AzureAutomationModule:
 
 AzureAutomationRunbook:
   Script: AzureAutomationRunbook.ps1
-  Description: Deploys a PowerShell script as a runbook to an Azure Automation account.
+  Description: Deploys a script as a runbook to an Azure Automation account.
+
+AzureAutomationDscConfiguration:
+  Script: AzureAutomationDscConfiguration.ps1
+  Description: Deploys a DSC configuration to an Azure Automation account.
 
 Chocolatey:
   Script: Chocolatey.ps1
