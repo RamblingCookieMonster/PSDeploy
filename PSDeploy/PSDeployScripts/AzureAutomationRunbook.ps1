@@ -7,7 +7,7 @@
         Supports the same deployment runbook types as Import-AzAutomationRunbook cmdlet
         (https://docs.microsoft.com/en-us/powershell/module/az.automation/import-azautomationrunbook).
 
-        Sample snippet for PSDeploy configuration:
+        Sample snippet for 'MyRunbook01.ps1' configuration:
 
         By AzureAutomationRunbook {
             FromSource "C:\Source\MyRunbook01.ps1"
@@ -54,6 +54,9 @@
 
     .PARAMETER ResourceGroupName
         The resource group of target Azure Automation account
+
+    .OUTPUTS
+        Microsoft.Azure.Commands.Automation.Model.Runbook
 #>
 
 #Requires -modules Az.Automation
