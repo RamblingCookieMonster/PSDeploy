@@ -61,6 +61,7 @@
 
 #Requires -modules Az.Automation
 [CmdletBinding()]
+[OutputType([Microsoft.Azure.Commands.Automation.Model.Runbook])]
 param(
     [ValidateScript( { $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
     [psobject[]]$Deployment,
