@@ -160,36 +160,64 @@ function Get-SourceModule {
     }
 
     process {
-        # Find-Module parameters
+        #region Get source module repository
+        # Get-SourceModuleRepository parameters
         $params = @{
-            Name       = $ModuleName
-            Repository = $Repository
-            Verbose    = $VerbosePreference
-        }
-
-        if ($ModuleVersion) {
-            $params['RequiredVersion'] = $RequiredVersion
+            ModuleName     = $ModuleName
+            SourceLocation = $Repository
+            Verbose        = $VerbosePreference
         }
 
         if ($Credential) {
-            $params['Credential'] = $Credential
+            $params['Credential'] = $deploy.DeploymentOptions.Credential
         }
 
-        # Look for the module
-        $sourceModule = Find-Module @params
+        $sourceModuleRepository = Get-SourceModuleRepository @params
+        #endregion
 
+        if ($sourceModuleRepository) {
+            # Find-Module parameters
+            $params = @{
+                Name       = $ModuleName
+                Repository = $Repository
+                Verbose    = $VerbosePreference
+            }
+
+            if ($ModuleVersion) {
+                $params['RequiredVersion'] = $RequiredVersion
+            }
+
+            if ($Credential) {
+                $params['Credential'] = $Credential
+            }
+
+            # Look for the module
+            $sourceModule = Find-Module @params
+        }
+        else {
+            throw "Cannot register source module repository."
+        }
     }
 
     end {
         if ($sourceModule) {
             Write-Verbose "The version '$($sourceModule.Version)' of module '$($sourceModule.Name)' is found in the repository '$Repository'."
+            # Return the source module object
+            $result = [PSCustomObject]@{
+                Name    = $sourceModule.Name
+                Version = $sourceModule.Version
+                SourceLocation = $sourceModule.RepositorySourceLocation
+                SourceType = 'Repository'
+            }
+            if ($Credential) {
+                $result | Add-Member -MemberType 'PSCredential' -Name 'Credential' -Value $Credential
+            }
+
+            Write-Output $result
         }
         else {
             Write-Verbose "No target version of module '$ModuleName' is found in the repository '$Repository'."
         }
-
-        # Return the target module
-        Write-Output $sourceModule
     }
 }
 
@@ -308,7 +336,7 @@ function Import-SourceModule {
             Name                  = $Module.Name
             AutomationAccountName = $AutomationAccount.AutomationAccountName
             ResourceGroupName     = $AutomationAccount.ResourceGroupName
-            ContentLink           = $Module.RepositorySourceLocation + "/package/$($Module.Name)/$($Module.Version)/"
+            ContentLink           = $Module.SourceLocation + "/package/$($Module.Name)/$($Module.Version)/"
             Verbose               = $VerbosePreference
         }
 
@@ -357,86 +385,59 @@ foreach ($deploy in $Deployment) {
 
     foreach ($target in $deploy.Targets) {
         Write-Verbose "Starting deployment '$($deploy.DeploymentName)' to Azure Automation account '$target' in '$ResourceGroupName' resource group."
-
-        #region Setting up the module repository
-
-        # Get-SourceModuleRepository parameters
+        #region Get source module
+        # Get-SourceModule parameters
         $params = @{
-            ModuleName     = $deploy.DeploymentOptions.ModuleName
-            SourceLocation = $deploy.Source
-            Verbose        = $VerbosePreference
+            ModuleName = $deploy.DeploymentOptions.ModuleName
+            Repository = $deploy.Source
+            Verbose    = $VerbosePreference
+        }
+
+        if ($ModuleVersion) {
+            $params['RequiredVersion'] = $ModuleVersion
         }
 
         if ($Credential) {
-            $params['Credential'] = $deploy.DeploymentOptions.Credential
+            $params['Credential'] = $Credential
         }
 
-        $sourceModuleRepository = Get-SourceModuleRepository @params
+        $sourceModule = Get-SourceModule @params
+        #endregion
 
-        #region Searching for the target module in the repository
-        if ($sourceModuleRepository) {
+        #region Importing the target module into an Azure Automation account
+        if ($sourceModule) {
 
-            # Get-SourceModule parameters
-            $params = @{
-                ModuleName = $deploy.DeploymentOptions.ModuleName
-                Repository = $sourceModuleRepository.Name
-                Verbose    = $VerbosePreference
-            }
+            $targetAzureAutomationAccount = Get-AzAutomationAccount -Name $target -ResourceGroupName $deploy.DeploymentOptions.ResourceGroupName
 
-            if ($ModuleVersion) {
-                $params['RequiredVersion'] = $ModuleVersion
-            }
-
-            if ($Credential) {
-                $params['Credential'] = $Credential
-            }
-
-            $sourceModule = Get-SourceModule @params
-
-            #region Importing the target module into an Azure Automation account
-            if ($sourceModule) {
-
-                $targetAzureAutomationAccount = Get-AzAutomationAccount -Name $target -ResourceGroupName $deploy.DeploymentOptions.ResourceGroupName
-
-                if ($targetAzureAutomationAccount) {
-                    # Import-SourceModule parameters
-                    $params = @{
-                        Module            = $sourceModule
-                        AutomationAccount = $targetAzureAutomationAccount
-                        Verbose           = $VerbosePreference
-                    }
-
-                    $moduleImportJob = Import-SourceModule @params
-
-                    if ($moduleImportJob) {
-                        $moduleImportJob | Get-ModuleImportStatus
-                    }
+            if ($targetAzureAutomationAccount) {
+                # Import-SourceModule parameters
+                $params = @{
+                    Module            = $sourceModule
+                    AutomationAccount = $targetAzureAutomationAccount
+                    Verbose           = $VerbosePreference
                 }
-                else {
-                    throw "The target Azure Automation account '$target' was not found in '$($deploy.DeploymentOptions.ResourceGroupName)' resource group."
+
+                $moduleImportJob = Import-SourceModule @params
+
+                if ($moduleImportJob) {
+                    $moduleImportJob | Get-ModuleImportStatus
                 }
             }
             else {
-                if ($ModuleVersion) {
-                    throw "The version '$ModuleVersion' of source module '$($deploy.DeploymentOptions.ModuleName)' was not found in the repository '$($sourceModuleRepository.Name)'."
-                }
-                else {
-                    throw "The source module '$($deploy.DeploymentOptions.ModuleName)' was not found in the repository '$($sourceModuleRepository.Name)'."
-                }
+                throw "The target Azure Automation account '$target' was not found in '$($deploy.DeploymentOptions.ResourceGroupName)' resource group."
             }
-            #endregion
-
         }
         else {
-            throw "Cannot register source module repository."
+            if ($ModuleVersion) {
+                throw "The version '$ModuleVersion' of source module '$($deploy.DeploymentOptions.ModuleName)' was not found at the source location '$($deploy.Source)'."
+            }
+            else {
+                throw "The source module '$($deploy.DeploymentOptions.ModuleName)' was not found at the source location '$($deploy.Source)'."
+            }
         }
         #endregion
     }
 }
-
-# TODO - Implement deployment from a private repository
-# Need to create a storage account in the target Azure Automation account resource group
-# Create a container, upload zipped module to the storage account and get its download link
 
 function New-ContentLinkUri {
     [CmdletBinding()]
@@ -507,7 +508,6 @@ function New-ContentLinkUri {
         Write-Output $contentLinkUri
     }
 }
-
 function New-ModuleZipFile {
     [CmdletBinding()]
     param (
