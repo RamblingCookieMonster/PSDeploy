@@ -204,10 +204,10 @@ function Get-SourceModule {
             Write-Verbose "The version '$($sourceModule.Version)' of module '$($sourceModule.Name)' is found in the repository '$Repository'."
             # Return the source module object
             $result = [PSCustomObject]@{
-                Name    = $sourceModule.Name
-                Version = $sourceModule.Version
+                Name           = $sourceModule.Name
+                Version        = $sourceModule.Version
                 SourceLocation = $sourceModule.RepositorySourceLocation
-                SourceType = 'Repository'
+                SourceType     = 'Repository'
             }
             if ($Credential) {
                 $result | Add-Member -MemberType 'PSCredential' -Name 'Credential' -Value $Credential
@@ -331,21 +331,15 @@ function Import-SourceModule {
         $targetModule = Get-ImportedModule @params
         #endregion
 
-        # New-AzAutomationModule parameters
-        $params = @{
-            Name                  = $Module.Name
-            AutomationAccountName = $AutomationAccount.AutomationAccountName
-            ResourceGroupName     = $AutomationAccount.ResourceGroupName
-            ContentLink           = $Module.SourceLocation + "/package/$($Module.Name)/$($Module.Version)/"
-            Verbose               = $VerbosePreference
-        }
+        #region Check the target Automation account for existing module and set import flag
+        $startImport = $false
 
         if ($targetModule) {
-            if ($sourceModule.Version -gt ([version]::Parse($targetModule.Version))) {
-                Write-Verbose "The source module version is '$($sourceModule.Version)', which is greater than the existing version in the Automation Account. Updating now..."
-                $moduleImportJob = New-AzAutomationModule @params
+            if ($Module.Version -gt ([version]::Parse($targetModule.Version))) {
+                Write-Verbose "The source module version is '$($Module.Version)', which is greater than the existing version in the Automation Account. Updating now..."
+                $startImport = $true
             }
-            elseif (($sourceModule.Version -le ([version]::Parse($targetModule.Version))) -and $Force) {
+            elseif (($Module.Version -le ([version]::Parse($targetModule.Version))) -and $Force) {
                 Write-Warning "Forcing the target module import!"
 
                 # Remove-AzAutomationModule parameters
@@ -360,24 +354,44 @@ function Import-SourceModule {
                 Write-Warning "Removing the version '$($targetModule.Version)' of module '$($targetModule.Name)' from the the Automation Account '$target'..."
                 Remove-AzAutomationModule @removeParams
 
-                Write-Verbose "Importing the version '$($sourceModule.Version)' of module '$($sourceModule.Name)' into the Automation Account '$target'..."
-                $moduleImportJob = New-AzAutomationModule @params
+                $startImport = $true
             }
-            elseif ($sourceModule.Version -eq ([version]::Parse($targetModule.Version))) {
-                Write-Verbose "The source module version is '$($sourceModule.Version)', which is the same as the existing version in the Automation Account. Update is not required."
+            elseif ($Module.Version -eq ([version]::Parse($targetModule.Version))) {
+                Write-Verbose "The source module version is '$($Module.Version)', which is the same as the existing version in the Automation Account. Update is not required."
             }
             else {
-                Write-Verbose "The source module version is '$($sourceModule.Version)', which is lower than the existing version '$($targetModule.Version)' in the Automation Account. Update is not required."
+                Write-Verbose "The source module version is '$($Module.Version)', which is lower than the existing version '$($targetModule.Version)' in the Automation Account. Update is not required."
             }
         }
         else {
-            Write-Verbose "Importing the version '$($sourceModule.Version)' of module '$($sourceModule.Name)' into the Automation Account '$target'..."
+            $startImport = $true
+        }
+        #endregion
+
+        #region Import the module
+        if ($startImport) {
+            Write-Verbose "Importing the version '$($Module.Version)' of module '$($Module.Name)' into the Automation Account '$target'..."
+
+
+            # New-AzAutomationModule parameters
+            $params = @{
+                Name                  = $Module.Name
+                AutomationAccountName = $AutomationAccount.AutomationAccountName
+                ResourceGroupName     = $AutomationAccount.ResourceGroupName
+                ContentLink           = $Module.SourceLocation + "/package/$($Module.Name)/$($Module.Version)/"
+                Verbose               = $VerbosePreference
+            }
+
             $moduleImportJob = New-AzAutomationModule @params
         }
+        #endregion
     }
 
     end {
-        Write-Output $moduleImportJob
+        # Return module import job
+        if ($moduleImportJob) {
+            $moduleImportJob | Get-ModuleImportStatus
+        }
     }
 }
 
@@ -417,11 +431,7 @@ foreach ($deploy in $Deployment) {
                     Verbose           = $VerbosePreference
                 }
 
-                $moduleImportJob = Import-SourceModule @params
-
-                if ($moduleImportJob) {
-                    $moduleImportJob | Get-ModuleImportStatus
-                }
+                Import-SourceModule @params
             }
             else {
                 throw "The target Azure Automation account '$target' was not found in '$($deploy.DeploymentOptions.ResourceGroupName)' resource group."
