@@ -394,68 +394,13 @@ function Import-SourceModule {
         }
     }
 }
-
-foreach ($deploy in $Deployment) {
-
-    foreach ($target in $deploy.Targets) {
-        Write-Verbose "Starting deployment '$($deploy.DeploymentName)' to Azure Automation account '$target' in '$ResourceGroupName' resource group."
-        #region Get source module
-        # Get-SourceModule parameters
-        $params = @{
-            ModuleName = $deploy.DeploymentOptions.ModuleName
-            Repository = $deploy.Source
-            Verbose    = $VerbosePreference
-        }
-
-        if ($ModuleVersion) {
-            $params['RequiredVersion'] = $ModuleVersion
-        }
-
-        if ($Credential) {
-            $params['Credential'] = $Credential
-        }
-
-        $sourceModule = Get-SourceModule @params
-        #endregion
-
-        #region Importing the target module into an Azure Automation account
-        if ($sourceModule) {
-
-            $targetAzureAutomationAccount = Get-AzAutomationAccount -Name $target -ResourceGroupName $deploy.DeploymentOptions.ResourceGroupName
-
-            if ($targetAzureAutomationAccount) {
-                # Import-SourceModule parameters
-                $params = @{
-                    Module            = $sourceModule
-                    AutomationAccount = $targetAzureAutomationAccount
-                    Verbose           = $VerbosePreference
-                }
-
-                Import-SourceModule @params
-            }
-            else {
-                throw "The target Azure Automation account '$target' was not found in '$($deploy.DeploymentOptions.ResourceGroupName)' resource group."
-            }
-        }
-        else {
-            if ($ModuleVersion) {
-                throw "The version '$ModuleVersion' of source module '$($deploy.DeploymentOptions.ModuleName)' was not found at the source location '$($deploy.Source)'."
-            }
-            else {
-                throw "The source module '$($deploy.DeploymentOptions.ModuleName)' was not found at the source location '$($deploy.Source)'."
-            }
-        }
-        #endregion
-    }
-}
-
 function New-ContentLinkUri {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Azure.Commands.Automation.Model.AutomationAccount]
-        $AutomationAccount,
+        [Microsoft.Azure.Commands.Management.Storage.Models.PSStorageAccount]
+        $StorageAccount,
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -466,27 +411,15 @@ function New-ContentLinkUri {
     }
 
     process {
-        # New-AzStorageAccount parameters
-        $params = @{
-            Name              = $((Split-Path $Path -LeafBase) + 'stor')
-            Location          = $AutomationAccount.Location
-            ResourceGroupName = $AutomationAccount.ResourceGroupName
-            SkuName           = "Standard_LRS"
-            Verbose           = $VerbosePreference
-        }
-
-        # Create a storage account
-        $storageAccount = New-AzStorageAccount @params
-
-        $context = $storageAccount.Context
+        $context = $StorageAccount.Context
 
         # Create a container
-        New-AzStorageContainer -Name $containerName -Context $context -Permission Container
+        New-AzStorageContainer -Name $Path.BaseName -Context $context -Permission Container
 
         # Set-AzStorageBlobContent parameters
         $params = @{
             Container = $containerName
-            File      = $Path
+            File      = $Path.BaseName
             Blob      = $(Split-Path $Path -Leaf)
             Context   = $context
             Verbose   = $VerbosePreference
@@ -565,5 +498,60 @@ function New-ModuleZipFile {
 
     end {
         Write-Output $zipFile
+    }
+}
+
+
+foreach ($deploy in $Deployment) {
+
+    foreach ($target in $deploy.Targets) {
+        Write-Verbose "Starting deployment '$($deploy.DeploymentName)' to Azure Automation account '$target' in '$ResourceGroupName' resource group."
+        #region Get source module
+        # Get-SourceModule parameters
+        $params = @{
+            ModuleName = $deploy.DeploymentOptions.ModuleName
+            Repository = $deploy.Source
+            Verbose    = $VerbosePreference
+        }
+
+        if ($ModuleVersion) {
+            $params['RequiredVersion'] = $ModuleVersion
+        }
+
+        if ($Credential) {
+            $params['Credential'] = $Credential
+        }
+
+        $sourceModule = Get-SourceModule @params
+        #endregion
+
+        #region Importing the target module into an Azure Automation account
+        if ($sourceModule) {
+
+            $targetAzureAutomationAccount = Get-AzAutomationAccount -Name $target -ResourceGroupName $deploy.DeploymentOptions.ResourceGroupName
+
+            if ($targetAzureAutomationAccount) {
+                # Import-SourceModule parameters
+                $params = @{
+                    Module            = $sourceModule
+                    AutomationAccount = $targetAzureAutomationAccount
+                    Verbose           = $VerbosePreference
+                }
+
+                Import-SourceModule @params
+            }
+            else {
+                throw "The target Azure Automation account '$target' was not found in '$($deploy.DeploymentOptions.ResourceGroupName)' resource group."
+            }
+        }
+        else {
+            if ($ModuleVersion) {
+                throw "The version '$ModuleVersion' of source module '$($deploy.DeploymentOptions.ModuleName)' was not found at the source location '$($deploy.Source)'."
+            }
+            else {
+                throw "The source module '$($deploy.DeploymentOptions.ModuleName)' was not found at the source location '$($deploy.Source)'."
+            }
+        }
+        #endregion
     }
 }
