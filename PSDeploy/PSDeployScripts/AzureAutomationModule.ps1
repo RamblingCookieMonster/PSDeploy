@@ -30,20 +30,17 @@
     .PARAMETER ModuleVersion
         Specific module version to use for deployment
 
-    .PARAMETER PsGalleryApiUrl
-        URL of PowerShell repository API
-
     .PARAMETER Credential
         Credential to use for accessing the PowerShell repository
 
     .PARAMETER Force
         Deploy the module even if the same module version is already imported into Azure Automation account
 
-    .PARAMETER AutomationAccountName
-        Azure Automation account to import the module
-
-    .PARAMETER AutomationAccountResourceGroup
+    .PARAMETER ResourceGroupName
         The resource group of target Azure Automation account
+
+    .PARAMETER StorageAccountName
+        The Storage account to use for module upload
 #>
 
 #Requires -modules Az.Automation
@@ -65,7 +62,10 @@ param(
     [switch]$Force,
 
     [Parameter(Mandatory = $true)]
-    [string]$ResourceGroupName
+    [string]$ResourceGroupName,
+
+    [Parameter(Mandatory = $false)]
+    [string]$StorageAccountName
 )
 
 function Get-ModuleRepository {
@@ -277,13 +277,14 @@ function Get-PrivateModule {
                 Write-Verbose "The version '$($sourceModule.Version)' of module '$($sourceModule.Name)' is found in the repository '$Repository'."
 
                 Write-Verbose "Saving the module locally..."
-                $sourceModule | Save-Module -Path $PSScriptRoot
+                $sourceModule | Save-Module -Path $env:TEMP -Credential $Credential
 
                 Write-Verbose "Creating a module zip file..."
-                $zippedModule = New-ModuleZipFile -Path ($PSScriptRoot + $sourceModule.Name)
+                $zippedModuleFile = New-ModuleZipFile -Path (Join-Path -Path $env:TEMP -ChildPath $sourceModule.Name)
+                Write-Verbose "Module zip file: $zippedModuleFile"
 
                 Write-Verbose "Uploading the module zip file to a storage account..."
-                $contentLink = $zippedModule | New-ContentLinkUri -StorageAccount $StorageAccount
+                $contentLink = New-ContentLinkUri -FileInfo $zippedModuleFile -StorageAccount $StorageAccount
 
                 # Create and return a source module object
                 $result = [PSCustomObject]@{
@@ -369,6 +370,7 @@ function Get-ImportedModule {
             AutomationAccountName = $AutomationAccountName
             ResourceGroupName     = $ResourceGroupName
             Verbose               = $VerbosePreference
+            ErrorAction           = 'SilentlyContinue'
         }
 
         $importedModule = Get-AzAutomationModule @params
@@ -458,7 +460,6 @@ function Import-SourceModule {
         if ($startImport) {
             Write-Verbose "Importing the version '$($Module.Version)' of module '$($Module.Name)' into the Automation Account '$target'..."
 
-
             # New-AzAutomationModule parameters
             $params = @{
                 Name                  = $Module.Name
@@ -483,11 +484,12 @@ function Import-SourceModule {
 
 function New-ContentLinkUri {
     [CmdletBinding()]
+    [OutputType([String])]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $True)]
         [ValidateNotNullOrEmpty()]
-        [string]
-        $Path,
+        [System.IO.FileInfo]
+        $FileInfo,
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
@@ -501,20 +503,31 @@ function New-ContentLinkUri {
     process {
         $context = $StorageAccount.Context
 
-        # Create a container
-        New-AzStorageContainer -Name $Path.BaseName -Context $context -Permission Container
+        # Check if a container with the same name exist in the Storage account
+        $existingContainer = Get-AzStorageContainer -Name $FileInfo.BaseName.ToLower().Replace('.', '-') -Context $context
+
+        if ($existingContainer) {
+            # Use the existing container
+            $container = $existingContainer
+        }
+        else {
+            # Create a new container
+            $container = New-AzStorageContainer -Name $FileInfo.BaseName.ToLower().Replace('.', '-') -Context $context -Permission Container
+        }
+
 
         # Set-AzStorageBlobContent parameters
         $params = @{
-            Container = $containerName
-            File      = $Path.BaseName
-            Blob      = $(Split-Path $Path -Leaf)
+            Container = $container.Name
+            File      = $FileInfo.FullName
+            Blob      = $FileInfo.Name
+            Force     = $true
             Context   = $context
             Verbose   = $VerbosePreference
         }
 
         # Upload the file
-        Set-AzStorageBlobContent @params
+        $blob = Set-AzStorageBlobContent @params
 
         # Get secure context
         $key = (Get-AzStorageAccountKey -ResourceGroupName $storageAccount.ResourceGroupName -Name $storageAccount.StorageAccountName).Value[0]
@@ -523,8 +536,8 @@ function New-ContentLinkUri {
         # New-AzStorageBlobSASToken parameters
         $params = @{
             Context    = $context
-            Container  = $containerName
-            Blob       = $(Split-Path $Path -Leaf)
+            Container  = $container.Name
+            Blob       = $blob.Name
             Permission = 'r'
             ExpiryTime = (Get-Date).AddHours(2.0)
             FullUri    = $true
@@ -542,6 +555,7 @@ function New-ContentLinkUri {
 
 function New-ModuleZipFile {
     [CmdletBinding()]
+    [OutputType([System.IO.FileInfo])]
     param (
         [Parameter(Mandatory = $true, ParameterSetName = 'PSRepository')]
         [ValidateNotNullOrEmpty()]
@@ -582,11 +596,14 @@ function New-ModuleZipFile {
             $sourceModulePath = $Path
         }
 
-        $zipFile = Compress-Archive -Path $sourceModulePath -DestinationPath $("{0}.zip" -f (Get-Item -Path $sourceModulePath).FullName) -Force
+        $moduleZipFilePath = "{0}.zip" -f (Get-Item -Path $sourceModulePath).FullName
+
+        Compress-Archive -Path $sourceModulePath -DestinationPath $moduleZipFilePath -Force
+
+        Get-Item -Path $moduleZipFilePath
     }
 
     end {
-        Write-Output $zipFile
     }
 }
 
@@ -615,6 +632,37 @@ foreach ($deploy in $Deployment) {
         }
         elseif ($deploy.DeploymentOptions.SourceIsAbsolute -and $deploy.DeploymentOptions.Credential) {
             Write-Verbose "Deploying from a private repository at '$($deploy.Source)'..."
+
+            #region Get the Storage account for uploading the module
+            # Get-PrivateModule parameters
+            $params = @{
+                Name              = $deploy.DeploymentOptions.StorageAccountName
+                ResourceGroupName = $deploy.DeploymentOptions.ResourceGroupName
+                Verbose           = $VerbosePreference
+            }
+
+            $storageAccount = Get-AzStorageAccount @params
+            #endregion
+
+            if ($storageAccount) {
+                # Get-PrivateModule parameters
+                $params = @{
+                    ModuleName     = $deploy.DeploymentOptions.ModuleName
+                    Repository     = $deploy.Source
+                    Credential     = $deploy.DeploymentOptions.Credential
+                    StorageAccount = $storageAccount
+                    Verbose        = $VerbosePreference
+                }
+
+                if ($ModuleVersion) {
+                    $params['RequiredVersion'] = $ModuleVersion
+                }
+
+                $sourceModule = Get-PrivateModule @params
+            }
+            else {
+                throw "The '$($deploy.DeploymentOptions.StorageAccountName)' storage account  was not found in the '$($deploy.DeploymentOptions.ResourceGroupName)' resource group"
+            }
         }
         elseif (-not $deploy.DeploymentOptions.SourceIsAbsolute) {
             Write-Verbose "Deploying from a local path '$($deploy.Source)'..."
