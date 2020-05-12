@@ -4,8 +4,9 @@
 
     .DESCRIPTION
         Deploys a DSC configuration from a local source file to an Azure Automation account.
+        Supports the same parameters as Import-AzAutomationDscConfiguration cmdlet
 
-
+    .EXAMPLE
         Sample snippet for 'hybridWorkerConfiguration.ps1' configuration:
 
         By AzureAutomationDscConfiguration {
@@ -37,10 +38,10 @@
     .PARAMETER ConfigurationTags
         Tags to assign to the imported configuration
 
-    .PARAMETER Published,
+    .PARAMETER Published
         Configuration should be published after import
 
-    .PARAMETER LogVerbose,
+    .PARAMETER LogVerbose
         Configuration should log detailed information for compilation jobs
 
     .PARAMETER Force
@@ -106,6 +107,24 @@ param(
 )
 
 function New-DscNodeConfiguration {
+    <#
+    .SYNOPSIS
+        Compiles imported configuration.
+    .PARAMETER ConfigurationName
+        Name of the imported DSC configuration to use
+    .PARAMETER CompilationParameters
+        Compilation job parameters
+    .PARAMETER ConfigurationData
+        A hashtable of configuration data to compile the configuration
+    .PARAMETER IncrementNodeConfigurationBuild
+        Switch to increment compiled configuration version
+    .PARAMETER ResourceGroupName
+        Name of the resource group that contains the Automation account
+    .PARAMETER AutomationAccountName
+        Name of the target Automation account
+    .OUTPUTS
+        Microsoft.Azure.Commands.Automation.Model.CompilationJob
+    #>
     [CmdletBinding()]
     [OutputType([Microsoft.Azure.Commands.Automation.Model.CompilationJob])]
     param (
