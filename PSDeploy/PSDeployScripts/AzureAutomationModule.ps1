@@ -7,19 +7,63 @@
         Supports credentials to access private repositories.
         Inspired by https://blog.tyang.org/2017/02/17/managing-azure-automation-module-assets-using-myget/
 
-        Sample snippet for PSDeploy configuration:
+    .EXAMPLE
+        Sample snippet for public module configuration:
 
-        By AzureAutomationModule {
-            FromSource "https://www.powershellgallery.com/api/v2"
-            To "MyAutomationAccountName"
-            WithOptions @{
-                SourceIsAbsolute  = $true # Should be true if deploying from a gallery, and false if deploying from a local path
-                ModuleName        = "PSDepend"
-                ModuleVersion     = '0.3.0' # Optional. If not specified, the latest module version will be used.
-                ResourceGroupName = "MyAutomationAccount_ResourceGroupName"
-                Force             = $true # Optional. Use if you want to overwrite an already imported module with the same or lower module version.
+        Deploy PSDependModule {
+            By AzureAutomationModule {
+                FromSource "https://www.powershellgallery.com/api/v2"
+                To "AAName"
+                WithOptions @{
+                    SourceIsAbsolute  = $true
+                    ModuleName        = "PSDepend"
+                    # ModuleVersion     = '0.3.0'
+                    ResourceGroupName = "AAResourceGroupName"
+                    # Force             = $true
+                }
+            }
         }
-    }
+
+    .EXAMPLE
+        Sample snippet for private module configuration:
+
+        Deploy PrivateModule {
+            By AzureAutomationModule {
+                FromSource "https://pkgs.dev.azure.com/ORGANIZATION_NAME/PROJECT_NAME/_packaging/FEED_NAME/nuget/v2"
+                To "AAName"
+                WithOptions @{
+                    SourceIsAbsolute   = $true
+                    ModuleName         = "PrivateModule"
+                    # ModuleVersion     = '0.0.4'
+                    Force              = $true
+                    ResourceGroupName  = "AAResourceGroupName"
+                    StorageAccountName = "aadeploymentstor"
+                    Credential         = $script:credential
+                }
+                WithPreScript {
+                    $user = 'user@contoso.com'
+                    $password = ConvertTo-SecureString 'PAT_TOKEN' -AsPlainText -Force # PAT with permissions to read from the Artifacts feed
+                    $script:credential = New-Object -TypeName 'System.Management.Automation.PSCredential' -ArgumentList $user, $password
+                }
+            }
+        }
+
+    .EXAMPLE
+        Sample snippet for source module configuration:
+
+        Deploy PSDependModule {
+            By AzureAutomationModule {
+                FromSource ".\PSDepend"
+                To "AAName"
+                WithOptions @{
+                    ModuleName         = "PSDepend"
+                    # ModuleVersion      = '0.3.0'
+                    ResourceGroupName  = "AAResourceGroupName"
+                    StorageAccountName = "aadeploymentstor"
+                    # Force              = $true
+                }
+            }
+        }
 
     .PARAMETER Deployment
         Deployment to run
@@ -69,6 +113,18 @@ param(
 )
 
 function Get-ModuleRepository {
+    <#
+    .SYNOPSIS
+        Configures a repository module to use during the deployment
+    .PARAMETER SourceLocation
+        Source location of the target repository
+    .PARAMETER ModuleName
+        Module name to use for registering a new PS repository if required
+    .PARAMETER Credential
+        Credential to access private repository
+    .OUTPUTS
+        Microsoft.PowerShell.Commands.PSRepository
+    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -103,9 +159,12 @@ function Get-ModuleRepository {
         else {
             Write-Verbose "No registered repository has been found. Registering a new PowerShell repository..."
 
+            # Setting target repository name
+            $targetRepositoryName = $ModuleName + '-repository'
+
             # Register-PSRepository parameters
             $params = @{
-                Name           = $ModuleName + '-repository'
+                Name           = $targetRepositoryName
                 SourceLocation = $SourceLocation
                 Verbose        = $VerbosePreference
             }
@@ -117,19 +176,31 @@ function Get-ModuleRepository {
             # Register a new repository
             Register-PSRepository @params
 
-            # Setting target repository name
-            $targetRepositoryName = $ModuleName + '-repository'
+            Write-Verbose "The following PowerShell repository has been registered:"
+
+            Get-PSRepository -Name $targetRepositoryName | Write-Verbose
         }
     }
 
     end {
-        Write-Verbose "The following PowerShell repository will be used as the target repository '$targetRepositoryName'."
         # Return the target repository
-        Get-PSRepository -Name $targetRepositoryName | Write-Output
+        Get-PSRepository -Name $targetRepositoryName
     }
 }
 
 function Get-PublicModule {
+    <#
+    .SYNOPSIS
+        Get module info from a public repository
+    .PARAMETER ModuleName
+        Name of the module to look for
+    .PARAMETER Repository
+        Registered PSRepository name to search for the module
+    .PARAMETER RequiredVersion
+        Specific module version to look for
+    .OUTPUTS
+        System.Management.Automation.PSCustomObject
+    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -172,7 +243,7 @@ function Get-PublicModule {
             # Find-Module parameters
             $params = @{
                 Name       = $ModuleName
-                Repository = $Repository
+                Repository = $sourceModuleRepository.Name
                 Verbose    = $VerbosePreference
             }
 
@@ -196,8 +267,10 @@ function Get-PublicModule {
             $result = [PSCustomObject]@{
                 Name        = $sourceModule.Name
                 Version     = $sourceModule.Version
-                ContentLink = "$($sourceModule.RepositorySourceLocation)/package/$($sourceModule.Name)/$($sourceModule.Version)/"
+                ContentLink = "$($sourceModuleRepository.SourceLocation)/package/$($sourceModule.Name)/$($sourceModule.Version)/"
             }
+
+            Write-Verbose "Content link: $($result.ContentLink)"
 
             Write-Output $result
         }
@@ -208,6 +281,22 @@ function Get-PublicModule {
 }
 
 function Get-PrivateModule {
+    <#
+    .SYNOPSIS
+        Get module info from a private repository
+    .PARAMETER ModuleName
+        Name of the module to look for
+    .PARAMETER Repository
+        Registered PSRepository name to search for the module
+    .PARAMETER Credential
+        Credential to access private repository
+    .PARAMETER RequiredVersion
+        Specific module version to look for
+    .PARAMETER StorageAccount
+        Azure Storage account to use for uploading the zipped module file
+    .OUTPUTS
+        System.Management.Automation.PSCustomObject
+    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -261,7 +350,7 @@ function Get-PrivateModule {
             # Find-Module parameters
             $params = @{
                 Name       = $ModuleName
-                Repository = $Repository
+                Repository = $sourceModuleRepository.Name
                 Credential = $Credential
                 Verbose    = $VerbosePreference
             }
@@ -308,7 +397,109 @@ function Get-PrivateModule {
     }
 }
 
+function Get-SourceModule {
+    <#
+    .SYNOPSIS
+        Get module info from a local path
+    .PARAMETER ModuleName
+        Name of the module to look for
+    .PARAMETER Path
+        Path to target module location
+    .PARAMETER RequiredVersion
+        Specific module version to look for
+    .PARAMETER StorageAccount
+        Azure Storage account to use for uploading the zipped module file
+    .OUTPUTS
+        System.Management.Automation.PSCustomObject
+    #>
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $ModuleName,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Path,
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $RequiredVersion,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [Microsoft.Azure.Commands.Management.Storage.Models.PSStorageAccount]
+        $StorageAccount
+    )
+
+    begin {
+        if ($ModuleVersion) {
+            Write-Verbose "Searching for version '$RequiredVersion' of module '$ModuleName' at '$Path'..."
+        }
+        else {
+            Write-Verbose "Searching for the latest version of module '$ModuleName' at '$Path'..."
+        }
+    }
+
+    process {
+        # Get-Module parameters
+        $params = @{
+            Name          = $Path
+            ListAvailable = $true
+            Verbose       = $VerbosePreference
+        }
+
+        # Get the module
+        if ($ModuleVersion) {
+            $sourceModule = Get-Module @params | Where-Object -Property Name -EQ $ModuleName | Where-Object -Property Version -EQ $ModuleVersion
+        }
+        else {
+            $sourceModule = Get-Module @params | Where-Object -Property Name -EQ $ModuleName
+        }
+
+        if ($sourceModule) {
+            Write-Verbose "The version '$($sourceModule.Version)' of module '$($sourceModule.Name)' is found in the repository '$Repository'."
+
+            Write-Verbose "Creating a local module copy for processing..."
+            $sourceModule.ModuleBase | Split-Path -Parent | Copy-Item -Destination $env:TEMP -Recurse -Force
+
+            Write-Verbose "Creating a module zip file from ..."
+            $zippedModuleFile = New-ModuleZipFile -Path (Join-Path -Path $env:TEMP -ChildPath $sourceModule.Name)
+            Write-Verbose "Module zip file: $zippedModuleFile"
+
+            Write-Verbose "Uploading the module zip file to a storage account..."
+            $contentLink = New-ContentLinkUri -FileInfo $zippedModuleFile -StorageAccount $StorageAccount
+
+            # Create and return a source module object
+            $result = [PSCustomObject]@{
+                Name        = $sourceModule.Name
+                Version     = $sourceModule.Version
+                ContentLink = $contentLink
+            }
+
+            Write-Output $result
+        }
+        else {
+            Write-Verbose "No target version of module '$ModuleName' is found in the repository '$Repository'."
+        }
+
+    }
+
+    end {
+    }
+}
+
 function Get-ModuleImportStatus {
+    <#
+    .SYNOPSIS
+        Get the status of module import into an Automation account
+    .PARAMETER ModuleImportJob
+        Module import job to check status
+    .OUTPUTS
+        None
+    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true,
@@ -342,6 +533,18 @@ function Get-ModuleImportStatus {
 }
 
 function Get-ImportedModule {
+    <#
+    .SYNOPSIS
+        Check for existing module in an Automation account
+    .PARAMETER ModuleName
+        Name of the module to look for
+    .PARAMETER AutomationAccountName
+        Azure Automation account to use
+    .PARAMETER ResourceGroupName
+        Resource group where the Automation account is located
+    .OUTPUTS
+        Microsoft.Azure.Commands.Automation.Model.Module
+    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -390,6 +593,16 @@ function Get-ImportedModule {
 }
 
 function Import-SourceModule {
+    <#
+    .SYNOPSIS
+        Imports the module specified in a module info object into an Automation account
+    .PARAMETER Module
+        Module info object to use for importing
+    .PARAMETER AutomationAccount
+        Azure Automation account object to use
+    .OUTPUTS
+        Microsoft.Azure.Commands.Automation.Model.Module
+    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -483,6 +696,16 @@ function Import-SourceModule {
 }
 
 function New-ContentLinkUri {
+    <#
+    .SYNOPSIS
+        Uploads a file to a Storage account and generates a URI link to access it
+    .PARAMETER FileInfo
+        Target file to upload
+    .PARAMETER StorageAccount
+        Storage account to use
+    .OUTPUTS
+        System.String
+    #>
     [CmdletBinding()]
     [OutputType([String])]
     param (
@@ -504,7 +727,7 @@ function New-ContentLinkUri {
         $context = $StorageAccount.Context
 
         # Check if a container with the same name exist in the Storage account
-        $existingContainer = Get-AzStorageContainer -Name $FileInfo.BaseName.ToLower().Replace('.', '-') -Context $context
+        $existingContainer = Get-AzStorageContainer -Name $FileInfo.BaseName.ToLower().Replace('.', '-') -Context $context -ErrorAction SilentlyContinue
 
         if ($existingContainer) {
             # Use the existing container
@@ -554,16 +777,18 @@ function New-ContentLinkUri {
 }
 
 function New-ModuleZipFile {
+    <#
+    .SYNOPSIS
+        Create a zip file from a target local path
+    .PARAMETER Path
+        Path to a file or folder to compress
+    .OUTPUTS
+        System.IO.FileInfo
+    #>
     [CmdletBinding()]
     [OutputType([System.IO.FileInfo])]
     param (
-        [Parameter(Mandatory = $true, ParameterSetName = 'PSRepository')]
-        [ValidateNotNullOrEmpty()]
-        [psobject]
-        $Module,
-        [Parameter(Mandatory = $false, ParameterSetName = 'PSRepository')]
-        [pscredential]$Credential,
-        [Parameter(Mandatory = $true, ParameterSetName = 'Local source')]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $Path
@@ -574,31 +799,9 @@ function New-ModuleZipFile {
     }
 
     process {
-        # Creating a zip file from the module in the source repository
-        if ($Module) {
+        $moduleZipFilePath = "{0}.zip" -f (Get-Item -Path $Path).FullName
 
-            # Save-Module parameters
-            $params = @{
-                InputObject = $Module
-                Path        = $PSScriptRoot
-                Force       = $true
-                Verbose     = $VerbosePreference
-            }
-
-            if ($Credential) {
-                $params['Credential'] = $Credential
-            }
-
-            $sourceModulePath = Save-Module @params
-        }
-        # Creating a zip file from the local source path
-        elseif ($Path) {
-            $sourceModulePath = $Path
-        }
-
-        $moduleZipFilePath = "{0}.zip" -f (Get-Item -Path $sourceModulePath).FullName
-
-        Compress-Archive -Path $sourceModulePath -DestinationPath $moduleZipFilePath -Force
+        Compress-Archive -Path $Path -DestinationPath $moduleZipFilePath -Force
 
         Get-Item -Path $moduleZipFilePath
     }
@@ -666,6 +869,36 @@ foreach ($deploy in $Deployment) {
         }
         elseif (-not $deploy.DeploymentOptions.SourceIsAbsolute) {
             Write-Verbose "Deploying from a local path '$($deploy.Source)'..."
+
+            #region Get the Storage account for uploading the module
+            # Get-PrivateModule parameters
+            $params = @{
+                Name              = $deploy.DeploymentOptions.StorageAccountName
+                ResourceGroupName = $deploy.DeploymentOptions.ResourceGroupName
+                Verbose           = $VerbosePreference
+            }
+
+            $storageAccount = Get-AzStorageAccount @params
+            #endregion
+
+            if ($storageAccount) {
+                # Get-PrivateModule parameters
+                $params = @{
+                    ModuleName     = $deploy.DeploymentOptions.ModuleName
+                    Path           = $deploy.Source
+                    StorageAccount = $storageAccount
+                    Verbose        = $VerbosePreference
+                }
+
+                if ($ModuleVersion) {
+                    $params['RequiredVersion'] = $ModuleVersion
+                }
+
+                $sourceModule = Get-SourceModule @params
+            }
+            else {
+                throw "The '$($deploy.DeploymentOptions.StorageAccountName)' storage account  was not found in the '$($deploy.DeploymentOptions.ResourceGroupName)' resource group"
+            }
         }
         #endregion
 
