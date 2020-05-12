@@ -166,14 +166,14 @@ InModuleScope 'PSDeploy' {
             It 'should import the configuration' {
                 {
                     Invoke-PSDeploy @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsAzureAutomationDscConfiguration.psdeploy.ps1" -Force
-                    Assert-MockCalled Import-AzAutomationDscConfiguration -Times 1 -Exactly
+                    Assert-MockCalled Import-AzAutomationDscConfiguration -Exactly 1 -Scope It
                 }
             }
 
             It 'should compile the configuration' {
                 {
                     Invoke-PSDeploy @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsAzureAutomationDscConfiguration.psdeploy.ps1" -Force
-                    Assert-MockCalled Start-AzAutomationDscCompilationJob -Times 1 -Exactly
+                    Assert-MockCalled Start-AzAutomationDscCompilationJob -Exactly 1 -Scope It
                 }
             }
 

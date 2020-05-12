@@ -76,7 +76,7 @@ InModuleScope 'PSDeploy' {
             It 'should publish the runbook' {
                 {
                     Invoke-PSDeploy @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsAzureAutomationRunbook.psdeploy.ps1" -Force
-                    Assert-MockCalled Import-AzAutomationRunbook -Times 1 -Exactly
+                    Assert-MockCalled Import-AzAutomationRunbook -Exactly 1 -Scope It
                 }
             }
 
