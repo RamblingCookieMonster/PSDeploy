@@ -7,6 +7,7 @@
         Supports the same deployment runbook types as Import-AzAutomationRunbook cmdlet
         (https://docs.microsoft.com/en-us/powershell/module/az.automation/import-azautomationrunbook).
 
+    .EXAMPLE
         Sample snippet for 'MyRunbook01.ps1' configuration:
 
         By AzureAutomationRunbook {
@@ -22,8 +23,8 @@
                 LogVerbose         = $false # Optional
                 Force              = $false # Optional
                 ResourceGroupName  = "MyAutomationAccount_ResourceGroupName"
+            }
         }
-    }
 
     .PARAMETER Deployment
         Deployment to run
@@ -40,13 +41,13 @@
     .PARAMETER RunbookType
         Azure Automation runbook type
 
-    .PARAMETER Published,
+    .PARAMETER Published
         Runbook should be published after import
 
-    .PARAMETER LogProgress,
+    .PARAMETER LogProgress
         Runbook should log progress information
 
-    .PARAMETER LogVerbose,
+    .PARAMETER LogVerbose
         Runbook should log detailed information
 
     .PARAMETER Force
