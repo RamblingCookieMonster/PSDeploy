@@ -1,5 +1,4 @@
-if(-not $ENV:BHProjectPath)
-{
+if (-not $ENV:BHProjectPath) {
     Set-BuildEnvironment -Path $PSScriptRoot\..\.. -Force
 }
 Remove-Module PSDeploy -ErrorAction SilentlyContinue
@@ -13,31 +12,30 @@ InModuleScope 'PSDeploy' {
     $sutPath = "$ProjectRoot\PSDeploy\PSDeployScripts\AzureAutomationRunbook.ps1"
 
     $Verbose = @{}
-    if($ENV:BHBranchName -notlike "master" -or $env:BHCommitMessage -match "!verbose")
-    {
-        $Verbose.add("Verbose",$True)
+    if ($ENV:BHBranchName -notlike "master" -or $env:BHCommitMessage -match "!verbose") {
+        $Verbose.add("Verbose", $True)
     }
 
     Describe "AzureAutomationRunbookScript PS$PSVersion" {
 
         Context "Code Style" {
             It "should define CmdletBinding" {
-              $sutPath | Should -FileContentMatch 'CmdletBinding'
+                $sutPath | Should -FileContentMatch 'CmdletBinding'
             }
 
             It "should define parameters" {
                 $sutPath | Should -FileContentMatch 'Param'
-              }
+            }
 
             It "should contain Write-Verbose blocks" {
-              $sutPath | Should -FileContentMatch 'Write-Verbose'
+                $sutPath | Should -FileContentMatch 'Write-Verbose'
             }
 
             It "should be a valid PowerShell code" {
-              $psFile = Get-Content -Path $sutPath -ErrorAction Stop
-              $errors = $null
-              $null = [System.Management.Automation.PSParser]::Tokenize($psFile, [ref]$errors)
-              $errors.Count | Should -Be 0
+                $psFile = Get-Content -Path $sutPath -ErrorAction Stop
+                $errors = $null
+                $null = [System.Management.Automation.PSParser]::Tokenize($psFile, [ref]$errors)
+                $errors.Count | Should -Be 0
             }
         }
 
@@ -67,8 +65,7 @@ InModuleScope 'PSDeploy' {
 
             foreach ($parameter in $parameters) {
                 It "should have descriptive help for '$parameter' parameter" {
-                $scriptHelp.Parameters.($parameter.ToUpper()) | Should -Not -BeNullOrEmpty
-                # $scriptHelp.Parameters.($parameter.ToUpper()).Length | Should -BeGreaterThan 15
+                    $scriptHelp.Parameters.($parameter.ToUpper()) | Should -Not -BeNullOrEmpty
                 }
             }
         }
@@ -77,12 +74,14 @@ InModuleScope 'PSDeploy' {
             Mock Import-AzAutomationRunbook {}
 
             It 'should publish the runbook' {
-                Invoke-PSDeploy @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsAzureAutomationRunbook.psdeploy.ps1" -Force
-                Assert-MockCalled Import-AzAutomationRunbook -Times 1 -Exactly
+                {
+                    Invoke-PSDeploy @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsAzureAutomationRunbook.psdeploy.ps1" -Force
+                    Assert-MockCalled Import-AzAutomationRunbook -Times 1 -Exactly
+                }
             }
 
             It "should output into the pipeline" {
-                $result =  { Invoke-PSDeploy @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsAzureAutomationRunbook.psdeploy.ps1" -Force }
+                $result = { Invoke-PSDeploy @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsAzureAutomationRunbook.psdeploy.ps1" -Force }
                 $result | Should -Not -BeNullOrEmpty
             }
         }

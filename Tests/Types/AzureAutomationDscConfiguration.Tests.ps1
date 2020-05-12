@@ -66,7 +66,6 @@ InModuleScope 'PSDeploy' {
             foreach ($parameter in $parameters) {
                 It "should have descriptive help for '$parameter' parameter" {
                     $scriptHelp.Parameters.($parameter.ToUpper()) | Should -Not -BeNullOrEmpty
-                    # $scriptHelp.Parameters.($parameter.ToUpper()).Length | Should -BeGreaterThan 15
                 }
             }
         }
