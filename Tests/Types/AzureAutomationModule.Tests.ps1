@@ -61,13 +61,13 @@ InModuleScope 'PSDeploy' {
             }
 
             # Getting the list of function parameters
-            $parameters = $parsedScript.ParamBlock.Parameters.name.VariablePath.Foreach{ $_.ToString() }
+            <# $parameters = $parsedScript.ParamBlock.Parameters.name.VariablePath.Foreach{ $_.ToString() }
 
             foreach ($parameter in $parameters) {
                 It "should have descriptive help for '$parameter' parameter" {
                     $scriptHelp.Parameters.($parameter.ToUpper()) | Should Not BeNullOrEmpty
                 }
-            }
+            } #>
         }
 
         Context 'Script Logic - Public Module' {
