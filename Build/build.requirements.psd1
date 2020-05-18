@@ -16,4 +16,7 @@
         DependencyType = 'PSGalleryNuget'
         Version = '3.4.6'
     }
+    # Module dependencies for Azure-related deployment types
+    'Az.Automation' = @{ DependencyType = 'PSGalleryNuget' }
+    'Az.Storage' = @{ DependencyType = 'PSGalleryNuget' }
 }

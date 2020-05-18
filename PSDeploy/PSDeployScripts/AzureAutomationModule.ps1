@@ -87,7 +87,7 @@
         The Storage account to use for module upload
 #>
 
-#Requires -modules Az.Automation
+#Requires -modules Az.Automation, Az.Storage
 [CmdletBinding()]
 param(
     [ValidateScript( { $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
