@@ -20,22 +20,22 @@ InModuleScope 'PSDeploy' {
 
         Context "Code Style" {
             It "should define CmdletBinding" {
-                $sutPath | Should -FileContentMatch 'CmdletBinding'
+                $sutPath | Should Contain 'CmdletBinding'
             }
 
             It "should define parameters" {
-                $sutPath | Should -FileContentMatch 'Param'
+                $sutPath | Should Contain 'Param'
             }
 
             It "should contain Write-Verbose blocks" {
-                $sutPath | Should -FileContentMatch 'Write-Verbose'
+                $sutPath | Should Contain 'Write-Verbose'
             }
 
             It "should be a valid PowerShell code" {
                 $psFile = Get-Content -Path $sutPath -ErrorAction Stop
                 $errors = $null
                 $null = [System.Management.Automation.PSParser]::Tokenize($psFile, [ref]$errors)
-                $errors.Count | Should -Be 0
+                $errors.Count | Should Be 0
             }
         }
 
@@ -49,15 +49,15 @@ InModuleScope 'PSDeploy' {
             $scriptHelp = $parsedScript.GetHelpContent()
 
             It "should have a SYNOPSIS" {
-                $scriptHelp.Synopsis | Should -Not -BeNullOrEmpty
+                $scriptHelp.Synopsis | Should Not BeNullOrEmpty
             }
 
             It "should have a DESCRIPTION" {
-                $scriptHelp.Description.Length | Should -Not -BeNullOrEmpty
+                $scriptHelp.Description.Length | Should Not BeNullOrEmpty
             }
 
             It "should have at least one EXAMPLE" {
-                $scriptHelp.Examples.Count | Should -BeGreaterThan 0
+                $scriptHelp.Examples.Count | Should BeGreaterThan 0
             }
 
             # Getting the list of function parameters
@@ -65,14 +65,14 @@ InModuleScope 'PSDeploy' {
 
             foreach ($parameter in $parameters) {
                 It "should have descriptive help for '$parameter' parameter" {
-                    $scriptHelp.Parameters.($parameter.ToUpper()) | Should -Not -BeNullOrEmpty
+                    $scriptHelp.Parameters.($parameter.ToUpper()) | Should Not BeNullOrEmpty
                 }
             }
         }
 
         Context 'Script Logic - Public Module' {
 
-            Mock -ModuleName 'Az.Automation' Get-AzAutomationAccount {
+            Mock Get-AzAutomationAccount {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -161,7 +161,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Automation' Get-AzAutomationModule {
+            Mock Get-AzAutomationModule {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -239,7 +239,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Automation' New-AzAutomationModule {
+            Mock New-AzAutomationModule {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -318,13 +318,13 @@ InModuleScope 'PSDeploy' {
                 $data
             }
 
-            Mock -ModuleName 'Az.Storage' Get-AzStorageAccount {}
-            Mock -ModuleName 'Az.Storage' Get-AzStorageContainer {}
-            Mock -ModuleName 'Az.Storage' Get-AzStorageAccountKey {}
-            Mock -ModuleName 'Az.Storage' New-AzStorageContainer {}
-            Mock -ModuleName 'Az.Storage' New-AzStorageContext {}
-            Mock -ModuleName 'Az.Storage' New-AzStorageBlobSASToken {}
-            Mock -ModuleName 'Az.Storage' Set-AzStorageBlobContent {}
+            Mock Get-AzStorageAccount {}
+            Mock Get-AzStorageContainer {}
+            Mock Get-AzStorageAccountKey {}
+            Mock New-AzStorageContainer {}
+            Mock New-AzStorageContext {}
+            Mock New-AzStorageBlobSASToken {}
+            Mock Set-AzStorageBlobContent {}
 
             It 'should get an Automation account' {
                 {
@@ -363,7 +363,7 @@ InModuleScope 'PSDeploy' {
 
         Context 'Script Logic - Private Module' {
 
-            Mock -ModuleName 'Az.Automation' Get-AzAutomationAccount {
+            Mock Get-AzAutomationAccount {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -452,7 +452,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Automation' Get-AzAutomationModule {
+            Mock Get-AzAutomationModule {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -530,7 +530,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Automation' New-AzAutomationModule {
+            Mock New-AzAutomationModule {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -608,7 +608,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' Get-AzStorageAccount {
+            Mock Get-AzStorageAccount {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -788,7 +788,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' Get-AzStorageContainer {
+            Mock Get-AzStorageContainer {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -946,7 +946,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' Get-AzStorageAccountKey {
+            Mock Get-AzStorageAccountKey {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -991,7 +991,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' New-AzStorageContainer {
+            Mock New-AzStorageContainer {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -1149,7 +1149,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' New-AzStorageContext {
+            Mock New-AzStorageContext {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -1234,7 +1234,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' New-AzStorageBlobSASToken {
+            Mock New-AzStorageBlobSASToken {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -1246,7 +1246,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' Set-AzStorageBlobContent {
+            Mock Set-AzStorageBlobContent {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -1466,7 +1466,7 @@ InModuleScope 'PSDeploy' {
 
         Context 'Script Logic - Source Module' {
 
-            Mock -ModuleName 'Az.Automation' Get-AzAutomationAccount {
+            Mock Get-AzAutomationAccount {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -1555,7 +1555,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Automation' Get-AzAutomationModule {
+            Mock Get-AzAutomationModule {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -1633,7 +1633,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Automation' New-AzAutomationModule {
+            Mock New-AzAutomationModule {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -1711,7 +1711,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' Get-AzStorageAccount {
+            Mock Get-AzStorageAccount {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -1891,7 +1891,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' Get-AzStorageContainer {
+            Mock Get-AzStorageContainer {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -2049,7 +2049,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' Get-AzStorageAccountKey {
+            Mock Get-AzStorageAccountKey {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -2094,7 +2094,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' New-AzStorageContainer {
+            Mock New-AzStorageContainer {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -2252,7 +2252,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' New-AzStorageContext {
+            Mock New-AzStorageContext {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -2337,7 +2337,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' New-AzStorageBlobSASToken {
+            Mock New-AzStorageBlobSASToken {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -2349,7 +2349,7 @@ InModuleScope 'PSDeploy' {
                 $data = [System.Management.Automation.PSSerializer]::DeserializeAsList($mockedSerializedData)
                 $data
             }
-            Mock -ModuleName 'Az.Storage' Set-AzStorageBlobContent {
+            Mock Set-AzStorageBlobContent {
                 #region MockData
                 $mockedSerializedData = @'
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">

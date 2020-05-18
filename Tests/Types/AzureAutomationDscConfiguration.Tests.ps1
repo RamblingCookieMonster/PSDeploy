@@ -20,22 +20,22 @@ InModuleScope 'PSDeploy' {
 
         Context "Code Style" {
             It "should define CmdletBinding" {
-                $sutPath | Should -FileContentMatch 'CmdletBinding'
+                $sutPath | Should Contain 'CmdletBinding'
             }
 
             It "should define parameters" {
-                $sutPath | Should -FileContentMatch 'Param'
+                $sutPath | Should Contain 'Param'
             }
 
             It "should contain Write-Verbose blocks" {
-                $sutPath | Should -FileContentMatch 'Write-Verbose'
+                $sutPath | Should Contain 'Write-Verbose'
             }
 
             It "should be a valid PowerShell code" {
                 $psFile = Get-Content -Path $sutPath -ErrorAction Stop
                 $errors = $null
                 $null = [System.Management.Automation.PSParser]::Tokenize($psFile, [ref]$errors)
-                $errors.Count | Should -Be 0
+                $errors.Count | Should Be 0
             }
         }
 
@@ -49,15 +49,15 @@ InModuleScope 'PSDeploy' {
             $scriptHelp = $parsedScript.GetHelpContent()
 
             It "should have a SYNOPSIS" {
-                $scriptHelp.Synopsis | Should -Not -BeNullOrEmpty
+                $scriptHelp.Synopsis | Should Not BeNullOrEmpty
             }
 
             It "should have a DESCRIPTION" {
-                $scriptHelp.Description.Length | Should -Not -BeNullOrEmpty
+                $scriptHelp.Description.Length | Should Not BeNullOrEmpty
             }
 
             It "should have at least one EXAMPLE" {
-                $scriptHelp.Examples.Count | Should -BeGreaterThan 0
+                $scriptHelp.Examples.Count | Should BeGreaterThan 0
             }
 
             # Getting the list of function parameters
@@ -65,7 +65,7 @@ InModuleScope 'PSDeploy' {
 
             foreach ($parameter in $parameters) {
                 It "should have descriptive help for '$parameter' parameter" {
-                    $scriptHelp.Parameters.($parameter.ToUpper()) | Should -Not -BeNullOrEmpty
+                    $scriptHelp.Parameters.($parameter.ToUpper()) | Should Not BeNullOrEmpty
                 }
             }
         }
@@ -179,7 +179,7 @@ InModuleScope 'PSDeploy' {
 
             It "should output into the pipeline" {
                 $result = { Invoke-PSDeploy @Verbose -Path "$ProjectRoot\Tests\artifacts\DeploymentsAzureAutomationDscConfiguration.psdeploy.ps1" -Force }
-                $result | Should -Not -BeNullOrEmpty
+                $result | Should Not BeNullOrEmpty
             }
         }
     }
