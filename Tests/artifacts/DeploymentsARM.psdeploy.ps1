@@ -9,8 +9,8 @@
 $SubscriptionID = 'INSERT_GUID'
 $ResourceGroupName = 'testrg1'
 $ResourceGroupLocation = 'central us'
-$s = Get-AzureRMSubscription -SubscriptionID $SubscriptionID -ErrorAction SilentlyContinue
-if (!$s) {Login-AzureRMAccount}
+$s = Get-AzSubscription -SubscriptionID $SubscriptionID -ErrorAction SilentlyContinue
+if (!$s) {Login-AzAccount}
 #>
 
 # Map variables from Build system (store encrypted).  This might not be required, depending on the build service, thought it is nice for keeping track of needed variables.
@@ -18,7 +18,7 @@ if (!$s) {Login-AzureRMAccount}
 [string]$tenant = [string]$tenant
 [string]$ID = [string]$ID
 [string]$key = [string]$key
-[string]$subscriptionid = [string]$subscriptionid
+[string]$subscriptionId = [string]$subscriptionId
 [string]$ResourceGroupName = [string]$ResourceGroupName
 [string]$ResourceGroupLocation = [string]$ResourceGroupLocation
 [string]$administratorLogin = [string]$administratorLogin
@@ -27,16 +27,16 @@ if (!$s) {Login-AzureRMAccount}
 # SPN based authentication to Azure
 $key = $key | ConvertTo-SecureString -AsPlainText -Force
 $Credential = new-object -typename System.Management.Automation.PSCredential -argumentlist $ID, $key
-Add-AzureRMAccount -ServicePrincipal -Tenant $Tenant -Credential $Credential
-Select-AzureRMSubscription -SubscriptionId $SubscriptionID
+Add-AzAccount -ServicePrincipal -Tenant $Tenant -Credential $Credential
+Select-AzSubscription -SubscriptionId $SubscriptionID
 
 # Convert string values from Build in to securestring values for Azure cmdlets
 $registrationKey = $registrationKey | ConvertTo-SecureString -AsPlainText -Force
 $administratorLoginPassword = $administratorLoginPassword | ConvertTo-SecureString -AsPlainText -Force
 
 # Verify Resource Group
-$rg = Get-AzureRmResourceGroup -name $ResourceGroupName -ErrorAction SilentlyContinue
-if (!$rg) {$rg = New-AzureRmResourceGroup -Name $ResourceGroupName -Location $ResourceGroupLocation}
+$rg = Get-AzResourceGroup -name $ResourceGroupName -ErrorAction SilentlyContinue
+if (!$rg) {$rg = New-AzResourceGroup -Name $ResourceGroupName -Location $ResourceGroupLocation}
 
 # PSDeploy
 Deploy TemplateExample {
