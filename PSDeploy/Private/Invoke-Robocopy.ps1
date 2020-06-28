@@ -78,7 +78,7 @@ function Invoke-Robocopy
                     #region Module Builder
                     $Domain = [System.AppDomain]::CurrentDomain
                     $DynAssembly = New-Object -TypeName System.Reflection.AssemblyName($TypeName)
-                    $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAssembly, [System.Reflection.Emit.AssemblyBuilderAccess]::Run) # Only run in memory
+                    $AssemblyBuilder = [System.Reflection.Emit.AssemblyBuilder]::DefineDynamicAssembly($DynAssembly, [System.Reflection.Emit.AssemblyBuilderAccess]::Run) # Only run in memory
                     $ModuleBuilder = $AssemblyBuilder.DefineDynamicModule($TypeName, $false)
                     #endregion Module Builder
 
