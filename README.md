@@ -82,3 +82,4 @@ Thanks go to:
 * Boe Prox for [Get-FileHash](http://learn-powershell.net/2013/03/25/use-powershell-to-calculate-the-hash-of-a-file/), which we borrow for downlevel hash support in the deployment scripts
 * Michael Greene, for the idea of using a DSL similar to Pester
 * Folks writing new PSDeploy deployment types and contributing in other ways - thank you!
+ 
