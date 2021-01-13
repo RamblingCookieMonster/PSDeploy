@@ -61,7 +61,6 @@ foreach($deploy in $Deployment) {
         if ($Credential) {
             $params['Credential']  =  $deploy.DeploymentOptions.Credential
         }
-        
 
         Publish-Module @params
     }
