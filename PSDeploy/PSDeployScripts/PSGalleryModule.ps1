@@ -8,6 +8,9 @@
 
     .PARAMETER Deployment
         Deployment to run
+     
+    .PARAMETER SkipAutomaticTags
+        Removes commands and resources from being included as tags. Skips automatically adding tags to a module.
 
     .PARAMETER ApiKey
         API Key used to authenticate to PowerShell repository.
@@ -49,12 +52,16 @@ foreach($deploy in $Deployment) {
             Repository = $target
             Verbose    = $VerbosePreference
         }
+        if ($SkipAutomaticTags) {
+            $params['SkipAutomaticTags'] = $deploy.DeploymentOptions.SkipAutomaticTags
+        }
         if ($ApiKey) {
             $params['NuGetApiKey']  =  $deploy.DeploymentOptions.ApiKey
         }
         if ($Credential) {
             $params['Credential']  =  $deploy.DeploymentOptions.Credential
         }
+        
 
         Publish-Module @params
     }
