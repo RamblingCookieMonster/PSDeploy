@@ -120,5 +120,55 @@ InModuleScope 'PSDeploy' {
                 $Deployments[0] | Should Be 'mmhmm'
             }
         }
+
+        Context 'Picks up custom PSDeploy.yml scripts in custom path' {
+            $CustomYaml = @'
+CustomScript:
+  Script: CustomScript.ps1
+  Description: Custom script to deploy
+'@
+            $PSDeployYamlPath = Join-Path -Path 'TestDrive:' -ChildPath 'PSDeploy.yml'
+            $CustomYaml | Out-File -FilePath $PSDeployYamlPath -Force
+
+            $CustomScript = @'
+[CmdletBinding()]
+Param (
+    [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
+    [PSObject[]]$Deployment,
+
+    [Parameter(Mandatory=$true)]
+    [System.String]
+    $Path
+)
+
+Set-Content -Path $Path -Value $Deployment.Source
+'@
+            $PSDeployScriptsPath = Join-Path -Path 'TestDrive:' -ChildPath 'PSDeployScripts'
+            New-Item -Path $PSDeployScriptsPath -ItemType Directory > $null
+            $CustomScriptPath = Join-Path -Path $PSDeployScriptsPath -ChildPath 'CustomScript.ps1'
+            $CustomScript | Out-File -FilePath $CustomScriptPath -Force
+
+            $OutputPath = Join-Path -Path 'TestDrive:' -ChildPath 'output.txt'
+            New-Item -Path $OutputPath -ItemType File > $null
+            $CustomDeploy = @"
+Deploy Test {
+    By CustomScript {
+        FromSource '$((Get-Item -Path $PSDeployYamlPath).FullName)'
+        WithOptions @{
+            Path = '$((Get-Item -Path $OutputPath).FullName)'
+        }
+    }
+}
+"@
+            $CustomDeployPath = Join-Path -Path 'TestDrive:' -ChildPath 'custom.psdeploy.ps1'
+            $CustomDeploy | Out-File -FilePath $CustomDeployPath -Force
+
+            Invoke-PSDeploy -Path $CustomDeployPath -PSDeployTypePath $PSDeployYamlPath -Force
+            $Actual = (Get-Content -Path $OutputPath -Raw).Trim()
+
+            It 'Should output both sources specified' {
+                $Actual | Should Be (Get-Item -Path $PSDeployYamlPath).FullName
+            }
+        }
     }
 }

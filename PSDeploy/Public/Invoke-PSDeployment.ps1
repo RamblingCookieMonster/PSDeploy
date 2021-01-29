@@ -154,7 +154,7 @@
                                     "Processing deployment" ))
         {
             #Get definitions, and deployments in this particular yml
-            $DeploymentDefs = Get-PSDeploymentScript
+            $DeploymentDefs = Get-PSDeploymentScript -Path $PSDeployTypePath
             $TheseDeploymentTypes = @( $Deployment.DeploymentType | Sort-Object -Unique )
 
             #Build up hash, we call each deploymenttype script for applicable deployments

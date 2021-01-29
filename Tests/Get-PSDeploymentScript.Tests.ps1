@@ -55,5 +55,80 @@ PlatyPS:
                 $DeploymentScripts.count | Should be $ScriptTypes.count
             }
         }
+
+        Context 'Deployment Script should be looked up in PSDeploy.yml path' {
+            $TestPath = Join-Path -Path 'TestDrive:\' -ChildPath 'PSDeploy.yml'
+            $FakeYml | Out-File -FilePath $TestPath -Force
+            $ScriptParentPath = Join-Path -Path 'TestDrive:\' -ChildPath 'PSDeployScripts'
+            $ScriptPath = Join-Path -Path $ScriptParentPath -ChildPath 'FakePlatyPS.ps1'
+            New-Item -Path $ScriptParentPath -ItemType Directory > $null
+            $FakeScript = @'
+[CmdletBinding()]
+Param (
+    [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
+    [PSObject[]]$Deployment,
+
+    [Parameter(Mandatory=$true)]
+    [System.String]
+    $Option1,
+
+    [System.String]
+    $Option2,
+)
+'@
+            $FakeScript | Out-File -FilePath $ScriptPath -Force
+
+            $DeploymentScripts = Get-PSDeploymentScript -Path $TestPath @Verbose
+            It 'Should have returned only 1 script' {
+                $DeploymentScripts.Count | Should be 1
+            }
+
+            foreach ($DeploymentScript in $DeploymentScripts.GetEnumerator())
+            {
+                It "[$($DeploymentScript.Name)] should point to custom dir" {
+                    $DeploymentScript.value | Should be (Get-Item -Path $ScriptPath).FullName
+                }
+            }
+        }
+
+        Context 'Deployment Script should favour module install path over PSDeploy.yml path' {
+            $TestPath = Join-Path -Path 'TestDrive:\' -ChildPath 'PSDeploy.yml'
+            $NewYml = @'
+FileSystem:
+  Script: FileSystem.ps1
+  Description: Test description for filesystem
+'@
+            $NewYml | Out-File -FilePath $TestPath -Force
+            $ScriptParentPath = Join-Path -Path 'TestDrive:\' -ChildPath 'PSDeployScripts'
+            $ScriptPath = Join-Path -Path $ScriptParentPath -ChildPath 'FileSystem.ps1'
+            New-Item -Path $ScriptParentPath -ItemType Directory > $null
+            $FakeScript = @'
+[CmdletBinding()]
+Param (
+    [ValidateScript({ $_.PSObject.TypeNames[0] -eq 'PSDeploy.Deployment' })]
+    [PSObject[]]$Deployment,
+
+    [Parameter(Mandatory=$true)]
+    [System.String]
+    $Option1,
+
+    [System.String]
+    $Option2,
+)
+'@
+            $FakeScript | Out-File -FilePath $ScriptPath -Force
+
+            $DeploymentScripts = Get-PSDeploymentScript -Path $TestPath @Verbose
+            It 'Should have returned only 1 script' {
+                $DeploymentScripts.Count | Should be 1
+            }
+
+            foreach ($DeploymentScript in $DeploymentScripts.GetEnumerator())
+            {
+                It "[$($DeploymentScript.Name)] Should use module path" {
+                    $DeploymentScript.value | Should be ([System.IO.Path]::Combine($ProjectRoot, $ModuleName, 'PSDeployScripts', 'Filesystem.ps1'))
+                }
+            }
+        }
     }
 }
